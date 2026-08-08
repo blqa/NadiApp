@@ -2,265 +2,330 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#fce7f3">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>NadiApp Pro</title>
     
-    <!-- Fuentes e Iconos -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS para el diseño -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Quicksand para un look suave y redondeado -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                    },
                     colors: {
-                        nadi: {
-                            light: '#fce7f3',   // pink-100
-                            DEFAULT: '#f472b6', // pink-400
-                            dark: '#be185d',    // pink-700
-                            fertile: '#d8b4fe', // purple-300
-                            ovulation: '#9333ea'// purple-600
+                        pastel: {
+                            pink: '#fce7f3', // pink-100
+                            pinkDark: '#f9a8d4', // pink-300
+                            blue: '#e0f2fe', // sky-100
+                            blueDark: '#7dd3fc', // sky-300
+                            red: '#ffe4e6', // rose-100
+                            redDark: '#fca5a5', // red-300
+                            lilac: '#f3e8ff', // purple-100
+                            lilacDark: '#d8b4fe', // purple-300
                         }
                     }
                 }
             }
         }
     </script>
+    
     <style>
         body {
-            -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none;
-            background-color: #fdf2f8; /* Soft pink background */
+            background-color: #f1f5f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        .hide-scroll::-webkit-scrollbar { display: none; }
-        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100%;
+            background-color: #ffffff;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        /* Ocultar barra de desplazamiento pero permitir scroll */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
         
-        /* Animaciones para transiciones de pestañas y modales */
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
-        .slide-up { animation: slideUp 0.3s ease-out forwards; }
+        /* Animaciones suaves */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Toggle Switch Customizado */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #f9a8d4;
         }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #f9a8d4;
         }
-
-        /* Toggle Switch Custom */
-        .toggle-checkbox:checked { right: 0; border-color: #f472b6; }
-        .toggle-checkbox:checked + .toggle-label { background-color: #f472b6; }
-        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex justify-center text-gray-800 font-sans">
+<body>
 
-    <!-- App Container -->
-    <div class="w-full h-full max-w-md bg-white shadow-2xl relative flex flex-col">
+    <div class="app-container">
         
-        <!-- Header -->
-        <header class="pt-12 pb-4 px-6 bg-gradient-to-r from-nadi-light to-pink-50 flex justify-between items-center z-10 rounded-b-3xl shadow-sm">
-            <div>
-                <h1 class="text-2xl font-bold text-nadi-dark tracking-tight">LuNads <i class="fa-solid fa-moon text-nadi text-sm ml-1"></i></h1>
-                <p id="headerSubtitle" class="text-xs text-gray-500 font-medium">Resumen Diario</p>
+        <!-- ================= PANTALLA DE LOGIN ================= -->
+        <div id="loginView" class="absolute inset-0 z-50 flex flex-col items-center justify-center px-8 transition-opacity duration-500 bg-gradient-to-br from-pastel-pink to-pastel-lilac">
+            <div class="w-28 h-28 bg-white rounded-[2rem] shadow-xl flex items-center justify-center mb-8 transform rotate-3">
+                <i class="fa-solid fa-droplet text-5xl text-pastel-pinkDark"></i>
             </div>
-            <div class="flex gap-3">
-                <button id="addPeriodBtn" class="h-10 w-10 rounded-full bg-white shadow-md text-nadi-dark flex items-center justify-center hover:bg-gray-50 transition active:scale-95">
-                    <i class="fa-solid fa-droplet"></i>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">LuNads</h1>
+            <p class="text-gray-500 text-center font-medium mb-10">Tu espacio personal y seguro</p>
+            
+            <div class="w-full space-y-5">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fa-solid fa-key text-gray-400"></i>
+                    </div>
+                    <input type="text" id="loginIdInput" class="w-full pl-12 pr-4 py-4 bg-white/80 border-2 border-white rounded-2xl text-lg font-bold text-gray-700 focus:outline-none focus:border-pastel-pinkDark shadow-sm placeholder-gray-400 backdrop-blur-sm" placeholder="Ingresa tu ID secreto" autocomplete="off" autocapitalize="none">
+                </div>
+                <button id="loginBtn" class="w-full bg-pastel-pinkDark text-white font-bold text-lg py-4 rounded-2xl shadow-lg shadow-pink-200 hover:bg-pink-400 transition transform active:scale-95 flex justify-center items-center gap-2">
+                    <span>Acceder</span>
                 </button>
+            </div>
+        </div>
+
+        <!-- ================= CABECERA ================= -->
+        <header class="pt-12 pb-4 px-6 bg-gradient-to-r from-pastel-pink to-pastel-blue flex justify-between items-center z-10 rounded-b-3xl shadow-sm">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800 tracking-tight" id="headerGreeting">Hola, hermosa ✨</h2>
+                <p class="text-sm text-gray-500 font-medium" id="headerDate">Cargando...</p>
+            </div>
+            <div id="syncStatus" class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md text-pastel-blueDark">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
         </header>
 
-        <!-- Main Content Area (Scrollable) -->
-        <main class="flex-1 overflow-y-auto hide-scroll pb-24 relative bg-gray-50/50">
+        <!-- ================= CONTENEDOR DE VISTAS ================= -->
+        <main class="flex-1 overflow-y-auto hide-scrollbar relative bg-gray-50 pb-24">
             
-            <!-- VIEW: HOME (Resumen Diario) -->
-            <section id="view-home" class="view-section p-6 flex flex-col items-center fade-in">
+            <!-- VISTA: INICIO -->
+            <div id="view-home" class="p-6 fade-in block">
+                <!-- Tarjeta Círculo de Ciclo -->
+                <div class="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-pastel-pink/50 flex flex-col items-center mb-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pastel-pinkDark to-pastel-lilacDark"></div>
+                    <h3 class="text-gray-600 font-bold text-lg mb-6">Estado Actual</h3>
+                    
+                    <div class="w-48 h-48 rounded-full border-[12px] border-pastel-pink flex flex-col items-center justify-center shadow-inner relative">
+                        <span class="text-5xl font-bold text-gray-800" id="cycleDayDisplay">--</span>
+                        <span class="text-gray-500 font-semibold mt-1">Día del ciclo</span>
+                    </div>
+                    
+                    <p class="mt-6 text-center text-gray-600 font-medium" id="cycleMessageDisplay">Esperando datos...</p>
+                    
+                    <button id="btnLogPeriod" class="mt-6 w-full py-4 bg-pastel-red text-red-500 font-bold rounded-2xl shadow-sm active:bg-pastel-redDark transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-droplet"></i> Iniciar Periodo Hoy
+                    </button>
+                </div>
+
+                <!-- Tarjeta Resumen -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-br from-pastel-lilac to-white rounded-3xl p-5 shadow-sm border border-white">
+                        <i class="fa-solid fa-seedling text-2xl text-pastel-lilacDark mb-2"></i>
+                        <h4 class="text-gray-500 text-sm font-semibold">Ventana Fértil</h4>
+                        <p class="text-gray-800 font-bold mt-1" id="homeFertileDates">--</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-pastel-blue to-white rounded-3xl p-5 shadow-sm border border-white">
+                        <i class="fa-solid fa-calendar-day text-2xl text-pastel-blueDark mb-2"></i>
+                        <h4 class="text-gray-500 text-sm font-semibold">Próximo Periodo</h4>
+                        <p class="text-gray-800 font-bold mt-1" id="homeNextPeriod">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: CALENDARIO -->
+            <div id="view-calendar" class="p-6 fade-in hidden">
+                <div class="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-gray-100">
+                    <div class="flex justify-between items-center p-5 bg-gradient-to-r from-pastel-pink/50 to-pastel-lilac/50 border-b border-gray-100">
+                        <button id="prevMonth" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-white rounded-full transition"><i class="fa-solid fa-chevron-left"></i></button>
+                        <h3 id="calendarMonthYear" class="text-lg font-bold text-gray-800 capitalize">Mes Año</h3>
+                        <button id="nextMonth" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-white rounded-full transition"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <div class="p-5">
+                        <div class="grid grid-cols-7 gap-1 text-center mb-2">
+                            <div class="text-xs font-bold text-gray-400">Lun</div>
+                            <div class="text-xs font-bold text-gray-400">Mar</div>
+                            <div class="text-xs font-bold text-gray-400">Mié</div>
+                            <div class="text-xs font-bold text-gray-400">Jue</div>
+                            <div class="text-xs font-bold text-gray-400">Vie</div>
+                            <div class="text-xs font-bold text-pastel-pinkDark">Sáb</div>
+                            <div class="text-xs font-bold text-pastel-pinkDark">Dom</div>
+                        </div>
+                        <div id="calendarDays" class="grid grid-cols-7 gap-y-2 gap-x-1 text-center">
+                            <!-- Los días se generan con JS -->
+                        </div>
+                    </div>
+                </div>
                 
-                <div id="loadingState" class="flex flex-col items-center justify-center text-nadi mt-20">
-                    <i class="fa-solid fa-circle-notch fa-spin text-4xl mb-4"></i>
-                    <p class="text-sm font-medium">Sincronizando tus datos...</p>
+                <!-- Leyenda de colores -->
+                <div class="mt-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center text-xs font-semibold text-gray-500">
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-pastel-redDark"></span> Periodo</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-pastel-lilac"></span> Fértil</div>
+                    <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-pastel-lilacDark border border-purple-400"></span> Ovulación</div>
                 </div>
+            </div>
 
-                <div id="cycleState" class="hidden flex-col items-center w-full mt-4">
-                    <!-- Círculo principal -->
-                    <div class="relative w-72 h-72 rounded-full bg-white shadow-[0_10px_40px_-10px_rgba(244,114,182,0.3)] flex flex-col items-center justify-center border-[6px] border-nadi-light p-4 text-center z-10">
-                        <div id="circleBorder" class="absolute inset-0 rounded-full border-4 border-transparent transition-colors duration-500"></div>
-                        
-                        <p class="text-sm text-gray-400 uppercase tracking-widest mb-1 font-semibold">Día del ciclo</p>
-                        <h2 id="currentDayTxt" class="text-8xl font-black text-gray-800 mb-1 tracking-tighter">--</h2>
-                        
-                        <div id="phaseBadge" class="bg-gray-100 px-4 py-1.5 rounded-full mt-2 transition-colors">
-                            <p id="phaseTxt" class="text-xs font-bold text-gray-600">Calculando...</p>
+            <!-- VISTA: AJUSTES -->
+            <div id="view-settings" class="p-6 fade-in hidden">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+                    <div class="p-6 border-b border-gray-100 flex items-center gap-4 bg-gradient-to-r from-pastel-pink/30 to-transparent">
+                        <div class="w-16 h-16 bg-pastel-pink rounded-full flex items-center justify-center text-pastel-pinkDark text-2xl shadow-inner">
+                            <i class="fa-solid fa-user"></i>
                         </div>
-                    </div>
-                    
-                    <!-- Tarjeta de Info Próximo Periodo -->
-                    <div class="bg-white rounded-3xl p-5 w-full mt-8 shadow-sm border border-gray-100 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-gray-400 font-medium mb-1">Próximo periodo</p>
-                            <p id="daysUntilNextTxt" class="text-xl font-bold text-gray-800">-- días</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs text-gray-400 font-medium mb-1">Fecha estimada</p>
-                            <p id="nextDateTxt" class="text-sm font-semibold text-nadi-dark">--</p>
+                            <h3 class="font-bold text-gray-800 text-lg">Perfil Activo</h3>
+                            <p class="text-sm text-gray-500">ID: <span id="displayUserId" class="font-semibold">...</span></p>
                         </div>
                     </div>
-                </div>
-            </section>
-
-            <!-- VIEW: CALENDAR (Calendario y Registros) -->
-            <section id="view-calendar" class="view-section hidden p-6 fade-in">
-                <div class="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 mb-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <button id="prevMonthBtn" class="p-2 text-gray-400 hover:text-nadi-dark"><i class="fa-solid fa-chevron-left"></i></button>
-                        <h3 id="currentMonthTxt" class="font-bold text-lg text-gray-800 capitalize">Mes Año</h3>
-                        <button id="nextMonthBtn" class="p-2 text-gray-400 hover:text-nadi-dark"><i class="fa-solid fa-chevron-right"></i></button>
-                    </div>
-                    
-                    <!-- Días de la semana -->
-                    <div class="grid grid-cols-7 gap-1 text-center mb-2">
-                        <div class="text-xs font-semibold text-gray-400">D</div>
-                        <div class="text-xs font-semibold text-gray-400">L</div>
-                        <div class="text-xs font-semibold text-gray-400">M</div>
-                        <div class="text-xs font-semibold text-gray-400">M</div>
-                        <div class="text-xs font-semibold text-gray-400">J</div>
-                        <div class="text-xs font-semibold text-gray-400">V</div>
-                        <div class="text-xs font-semibold text-gray-400">S</div>
-                    </div>
-                    
-                    <!-- Cuadrícula del Calendario -->
-                    <div id="calendarGrid" class="grid grid-cols-7 gap-y-2 gap-x-1 text-center">
-                        <!-- Generado por JS -->
-                    </div>
-
-                    <!-- Leyenda -->
-                    <div class="mt-6 pt-4 border-t border-gray-50 flex flex-wrap gap-3 justify-center text-xs text-gray-500 font-medium">
-                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-red-400"></span> Menstruación</div>
-                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-nadi-fertile"></span> Fértil</div>
-                        <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-nadi-ovulation shadow-[0_0_8px_rgba(147,51,234,0.5)]"></span> Ovulación</div>
+                    <div class="p-2">
+                        <div class="flex justify-between items-center p-4 border-b border-gray-50">
+                            <span class="text-gray-700 font-medium"><i class="fa-solid fa-clock-rotate-left text-pastel-blueDark w-6"></i> Duración del Ciclo</span>
+                            <span class="bg-pastel-blue text-blue-600 px-3 py-1 rounded-full text-sm font-bold">28 días</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4">
+                            <span class="text-gray-700 font-medium"><i class="fa-solid fa-droplet text-pastel-redDark w-6"></i> Duración Periodo</span>
+                            <span class="bg-pastel-red text-red-500 px-3 py-1 rounded-full text-sm font-bold">5 días</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="flex justify-between items-end mb-4 px-2">
-                    <h3 class="font-bold text-gray-800">Historial de Ciclos</h3>
-                </div>
-                <div id="historyList" class="space-y-3">
-                    <!-- Generado por JS -->
-                </div>
-            </section>
+                
+                <button id="btnLogout" class="w-full py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl active:bg-gray-200 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                </button>
+            </div>
         </main>
 
-        <!-- Bottom Navigation -->
-        <nav class="absolute bottom-0 w-full bg-white border-t border-gray-100 pb-safe pt-2 px-6 flex justify-around shadow-[0_-10px_20px_rgba(0,0,0,0.03)] pb-4 z-20">
-            <button onclick="switchTab('home')" id="tab-home" class="nav-tab flex flex-col items-center p-2 text-nadi-dark transition-colors">
-                <i class="fa-solid fa-house text-xl mb-1"></i>
-                <span class="text-[10px] font-bold">Hoy</span>
-            </button>
-            <button onclick="switchTab('calendar')" id="tab-calendar" class="nav-tab flex flex-col items-center p-2 text-gray-400 hover:text-nadi transition-colors">
-                <i class="fa-solid fa-calendar-days text-xl mb-1"></i>
-                <span class="text-[10px] font-bold">Calendario</span>
-            </button>
+        <!-- ================= NAVEGACIÓN INFERIOR ================= -->
+        <nav class="absolute bottom-0 w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgb(0,0,0,0.05)] border-t border-gray-100 px-6 py-4 z-20">
+            <ul class="flex justify-between items-center">
+                <li>
+                    <button class="nav-btn active flex flex-col items-center text-pastel-pinkDark transition-transform transform active:scale-95" data-target="view-home">
+                        <i class="fa-solid fa-house text-2xl mb-1"></i>
+                        <span class="text-[10px] font-bold">Hoy</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="nav-btn flex flex-col items-center text-gray-300 hover:text-pastel-blueDark transition-transform transform active:scale-95" data-target="view-calendar">
+                        <i class="fa-solid fa-calendar-days text-2xl mb-1"></i>
+                        <span class="text-[10px] font-bold">Calendario</span>
+                    </button>
+                </li>
+                <li>
+                    <button class="nav-btn flex flex-col items-center text-gray-300 hover:text-pastel-lilacDark transition-transform transform active:scale-95" data-target="view-settings">
+                        <i class="fa-solid fa-gear text-2xl mb-1"></i>
+                        <span class="text-[10px] font-bold">Ajustes</span>
+                    </button>
+                </li>
+            </ul>
         </nav>
-
-        <!-- Modal: Registrar Periodo (Inicio de Ciclo) -->
-        <div id="periodModal" class="fixed inset-0 bg-black/50 z-50 hidden flex-col justify-end backdrop-blur-sm transition-opacity">
-            <div class="bg-white w-full max-w-md mx-auto rounded-t-3xl p-6 slide-up">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-bold text-xl text-gray-800">Registrar Periodo</h3>
-                    <button id="closePeriodModal" class="text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+        
+        <!-- ================= MODAL: REGISTRO DIARIO ================= -->
+        <div id="modalDailyLog" class="absolute inset-0 z-[100] bg-gray-900/40 backdrop-blur-sm hidden flex items-end justify-center">
+            <div class="bg-white w-full h-[75%] rounded-t-[2.5rem] shadow-2xl flex flex-col transform transition-transform duration-300 translate-y-full" id="modalDailyLogContent">
+                
+                <div class="flex justify-between items-center p-6 border-b border-gray-100">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800" id="modalDateTitle">14 de Agosto</h3>
+                        <p class="text-pastel-pinkDark font-semibold text-sm">Registro Diario</p>
+                    </div>
+                    <button id="closeModalBtn" class="w-10 h-10 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-gray-200 active:scale-95">
+                        <i class="fa-solid fa-times text-lg"></i>
+                    </button>
                 </div>
-                <p class="text-sm text-gray-500 mb-4">Selecciona el primer día de sangrado.</p>
-                <input type="date" id="periodDateInput" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl mb-6 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-nadi focus:border-transparent">
-                <button id="savePeriodBtn" class="w-full bg-nadi-dark text-white font-bold py-4 rounded-2xl shadow-lg shadow-pink-200 hover:bg-pink-800 transition active:scale-95">
-                    Guardar Ciclo
-                </button>
-            </div>
-        </div>
-
-        <!-- Modal: Registro Diario (Relaciones, Síntomas) -->
-        <div id="dailyModal" class="fixed inset-0 bg-black/50 z-50 hidden flex-col justify-end backdrop-blur-sm transition-opacity">
-            <div class="bg-white w-full max-w-md mx-auto rounded-t-3xl p-6 slide-up max-h-[90vh] overflow-y-auto">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="dailyModalTitle" class="font-bold text-xl text-gray-800">Registro Diario</h3>
-                    <button id="closeDailyModal" class="text-gray-400 hover:text-gray-600 bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <p id="dailyModalDateDisplay" class="text-sm font-semibold text-nadi mb-6">15 de Agosto, 2026</p>
-
-                <!-- Sección: Actividad Sexual -->
-                <div class="bg-pink-50/50 p-4 rounded-2xl mb-4 border border-pink-100">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2 text-gray-700 font-semibold">
-                            <i class="fa-solid fa-heart text-nadi"></i> Relaciones Íntimas
+                
+                <div class="p-6 flex-1 overflow-y-auto">
+                    
+                    <!-- Toggle Intimidad -->
+                    <div class="bg-pastel-pink/30 rounded-2xl p-5 mb-5 border border-pastel-pink flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-heart text-pastel-pinkDark"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Actividad Íntima</h4>
+                                <p class="text-xs text-gray-500">¿Tuvieron relaciones?</p>
+                            </div>
                         </div>
-                        <!-- Toggle -->
+                        
                         <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggle" id="sexToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-transform duration-300 ease-in-out border-gray-300"/>
-                            <label for="sexToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300 ease-in-out"></label>
+                            <input type="checkbox" name="toggle" id="toggleIntimate" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 transition-all duration-300"/>
+                            <label for="toggleIntimate" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-300"></label>
                         </div>
                     </div>
                     
-                    <!-- Opciones de Protección (Hidden por defecto) -->
-                    <div id="protectionSection" class="hidden mt-4 pt-4 border-t border-pink-100 transition-all">
-                        <p class="text-sm text-gray-500 font-medium mb-3">Protección utilizada:</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="flex items-center p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-pink-50 transition">
-                                <input type="radio" name="protection" value="none" class="text-nadi focus:ring-nadi w-4 h-4 mr-2" checked>
-                                <span class="text-sm font-medium">Ninguna</span>
-                            </label>
-                            <label class="flex items-center p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-pink-50 transition">
-                                <input type="radio" name="protection" value="condom" class="text-nadi focus:ring-nadi w-4 h-4 mr-2">
-                                <span class="text-sm font-medium">Preservativo</span>
-                            </label>
-                            <label class="flex items-center p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-pink-50 transition">
-                                <input type="radio" name="protection" value="pill" class="text-nadi focus:ring-nadi w-4 h-4 mr-2">
-                                <span class="text-sm font-medium">Pastilla/DIU</span>
-                            </label>
-                            <label class="flex items-center p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:bg-pink-50 transition">
-                                <input type="radio" name="protection" value="other" class="text-nadi focus:ring-nadi w-4 h-4 mr-2">
-                                <span class="text-sm font-medium">Otro</span>
-                            </label>
+                    <!-- Opciones de Protección (Se muestran si toggle está activo) -->
+                    <div id="protectionSection" class="hidden mb-6 fade-in">
+                        <h4 class="font-bold text-gray-700 mb-3 ml-2 text-sm uppercase tracking-wide">Método de protección</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="prot-btn bg-white border-2 border-gray-100 text-gray-600 rounded-xl py-3 font-semibold text-sm transition data-[selected=true]:border-pastel-blueDark data-[selected=true]:bg-pastel-blue data-[selected=true]:text-blue-700" data-value="none">Ninguno</button>
+                            <button class="prot-btn bg-white border-2 border-gray-100 text-gray-600 rounded-xl py-3 font-semibold text-sm transition data-[selected=true]:border-pastel-blueDark data-[selected=true]:bg-pastel-blue data-[selected=true]:text-blue-700" data-value="condom">Preservativo</button>
+                            <button class="prot-btn bg-white border-2 border-gray-100 text-gray-600 rounded-xl py-3 font-semibold text-sm transition data-[selected=true]:border-pastel-blueDark data-[selected=true]:bg-pastel-blue data-[selected=true]:text-blue-700" data-value="pill">Pastilla / DIU</button>
+                            <button class="prot-btn bg-white border-2 border-gray-100 text-gray-600 rounded-xl py-3 font-semibold text-sm transition data-[selected=true]:border-pastel-blueDark data-[selected=true]:bg-pastel-blue data-[selected=true]:text-blue-700" data-value="other">Otro</button>
                         </div>
                     </div>
+                    
+                    <!-- Botón Período Manual -->
+                    <div class="bg-pastel-red/30 rounded-2xl p-5 border border-pastel-red flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                <i class="fa-solid fa-droplet text-pastel-redDark"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">Menstruación</h4>
+                                <p class="text-xs text-gray-500">¿Inició el periodo este día?</p>
+                            </div>
+                        </div>
+                        <button id="btnTogglePeriodModal" class="bg-white text-pastel-redDark font-bold px-4 py-2 rounded-full border border-pastel-red shadow-sm active:bg-red-50 text-sm">
+                            Registrar
+                        </button>
+                    </div>
+
                 </div>
                 
-                <!-- Sección de Notas -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Notas / Síntomas</label>
-                    <textarea id="dailyNotes" rows="3" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-nadi focus:border-transparent placeholder-gray-400" placeholder="Ej. Cólicos leves, sensibilidad..."></textarea>
+                <div class="p-6 border-t border-gray-50 bg-white rounded-b-[2.5rem]">
+                    <button id="saveLogBtn" class="w-full bg-gray-800 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-check"></i> Guardar Registro
+                    </button>
                 </div>
-
-                <button id="saveDailyBtn" class="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-black transition active:scale-95">
-                    Guardar Registro del Día
-                </button>
             </div>
         </div>
 
-        <!-- Toast Notification -->
-        <div id="toast" class="absolute top-4 left-4 right-4 bg-gray-900/95 text-white p-4 rounded-2xl shadow-xl transform -translate-y-32 transition-transform duration-300 z-[60] flex items-center justify-between backdrop-blur-md border border-gray-700">
-            <div class="flex items-center gap-3">
-                <div id="toastIcon" class="w-8 h-8 rounded-full bg-nadi/20 flex items-center justify-center text-nadi"><i class="fa-solid fa-check"></i></div>
-                <span id="toastMsg" class="text-sm font-medium">Guardado</span>
-            </div>
+        <!-- Toast de Notificaciones -->
+        <div id="toastMsg" class="absolute top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[200] flex items-center gap-2">
+            <i class="fa-solid fa-circle-info"></i> <span id="toastText">Mensaje</span>
         </div>
+
     </div>
 
+    <!-- ================= LOGICA JAVASCRIPT ================= -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, onSnapshot, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // CONFIGURACIÓN ESTRICTA DEL ENTORNO
-        const defaultAppId = 'nadi-pro-dev';
-        const appId = typeof __app_id !== 'undefined' ? __app_id : defaultAppId;
-        
-        // Uso la config de entorno, y como fallback la configuración proveída por el usuario.
-        let fbConfig = {
+        // Configuración de Firebase del usuario
+        const firebaseConfig = {
             apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
             authDomain: "nadiapp-b44ae.firebaseapp.com",
             projectId: "nadiapp-b44ae",
@@ -269,491 +334,481 @@
             appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92"
         };
 
-        if (typeof __firebase_config !== 'undefined') {
-            try { fbConfig = JSON.parse(__firebase_config); } catch (e) { console.error("Error parsing env config"); }
-        }
-
-        const app = initializeApp(fbConfig);
+        const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ESTADO GLOBAL
+        // Variables Globales
+        const GENERIC_PASSWORD = "GodsPlan2026!";
         let currentUser = null;
         let cyclesData = [];
-        let dailyLogsData = {}; // Keyed by 'YYYY-MM-DD'
+        let logsData = {};
+        let currentCalendarDate = new Date();
+        let selectedDateForLog = null;
         
-        const AVERAGE_CYCLE = 28;
-        const LUTEAL_PHASE = 14; 
-        
-        // Variables de Calendario
-        let calendarRenderDate = new Date(); // Mes actualmente visualizado
-        let activeDailyLogDate = null; // Fecha seleccionada para el modal diario
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'nadiapp';
 
-        // REFERENCIAS DOM
-        const loadingState = document.getElementById('loadingState');
-        const cycleState = document.getElementById('cycleState');
         
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            document.getElementById('toastMsg').innerText = message;
+        // Elementos UI
+        const loginView = document.getElementById('loginView');
+        const displayUserId = document.getElementById('displayUserId');
+        const headerDate = document.getElementById('headerDate');
+        const syncStatus = document.getElementById('syncStatus');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        function showToast(msg, type="info") {
+            document.getElementById('toastText').innerText = msg;
+            toastMsg.classList.remove('opacity-0', 'translate-y-[-20px]');
+            let bgColor = type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-pastel-pinkDark' : 'bg-gray-800');
+            toastMsg.className = `absolute top-10 left-1/2 transform -translate-x-1/2 text-white px-6 py-3 rounded-full font-bold shadow-2xl transition-all duration-300 z-[200] flex items-center gap-2 ${bgColor}`;
             
-            if(type === 'error') {
-                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-                icon.className = 'w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-400';
-            } else {
-                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
-                icon.className = 'w-8 h-8 rounded-full bg-nadi/20 flex items-center justify-center text-nadi';
-            }
-            
-            toast.style.transform = 'translateY(0)';
-            setTimeout(() => { toast.style.transform = 'translateY(-8rem)'; }, 3000);
+            setTimeout(() => {
+                toastMsg.classList.add('opacity-0', 'translate-y-[-20px]');
+            }, 3000);
         }
 
-        // TABS LOGIC
-        window.switchTab = function(tabName) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`view-${tabName}`).classList.remove('hidden');
-            
-            // Actualizar UI Botones
-            const tabs = ['home', 'calendar'];
-            tabs.forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                if(t === tabName) {
-                    btn.classList.add('text-nadi-dark');
-                    btn.classList.remove('text-gray-400');
-                } else {
-                    btn.classList.remove('text-nadi-dark');
-                    btn.classList.add('text-gray-400');
-                }
+        // Configurar fecha del Header
+        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+        headerDate.innerText = new Date().toLocaleDateString('es-ES', options).replace(/^\w/, c => c.toUpperCase());
+
+        // Navegación (Tabs)
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const views = ['view-home', 'view-calendar', 'view-settings'];
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Reset estilos
+                navBtns.forEach(b => {
+                    b.classList.remove('text-pastel-pinkDark');
+                    b.classList.add('text-gray-300');
+                });
+                // Activar actual
+                btn.classList.add('text-pastel-pinkDark');
+                btn.classList.remove('text-gray-300');
+
+                // Mostrar vista
+                const targetId = btn.getAttribute('data-target');
+                views.forEach(v => {
+                    const el = document.getElementById(v);
+                    if(v === targetId) {
+                        el.classList.remove('hidden');
+                        el.classList.add('block');
+                    } else {
+                        el.classList.remove('block');
+                        el.classList.add('hidden');
+                    }
+                });
+
+                if(targetId === 'view-calendar') renderCalendar();
             });
+        });
 
-            document.getElementById('headerSubtitle').innerText = tabName === 'home' ? 'Resumen Diario' : 'Calendario y Registros';
-            
-            if(tabName === 'calendar') renderCalendar();
-        };
+        
+        const loginIdInput = document.getElementById('loginIdInput');
+        const loginBtn = document.getElementById('loginBtn');
 
-        // UI UPDATES: HOME VIEW
-        function updateHomeUI() {
-            loadingState.classList.add('hidden');
-            cycleState.classList.remove('hidden');
-            cycleState.classList.add('flex');
+        loginIdInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') loginBtn.click();
+        });
 
-            const dayTxt = document.getElementById('currentDayTxt');
-            const phaseTxt = document.getElementById('phaseTxt');
-            const phaseBadge = document.getElementById('phaseBadge');
-            const circleBorder = document.getElementById('circleBorder');
-            const nextDays = document.getElementById('daysUntilNextTxt');
-            const nextDate = document.getElementById('nextDateTxt');
+        // Escuchador de Autenticación
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                loginView.classList.add('opacity-0', 'pointer-events-none');
+                displayUserId.innerText = user.email.split('@')[0];
+                syncStatus.innerHTML = '<i class="fa-solid fa-cloud-check"></i>';
+                loadFirestoreData();
+            } else {
+                loginView.classList.remove('opacity-0', 'pointer-events-none');
+                currentUser = null;
+            }
+        });
 
-            if (cyclesData.length === 0) {
-                dayTxt.innerText = "-";
-                phaseTxt.innerText = "Registra un ciclo";
-                nextDays.innerText = "--";
-                nextDate.innerText = "--";
-                circleBorder.className = "absolute inset-0 rounded-full border-4 border-gray-200 transition-colors duration-500 border-dashed";
+        // Acción del Botón Login
+        loginBtn.addEventListener('click', async () => {
+            const userIdText = loginIdInput.value.trim().toLowerCase();
+            if (!userIdText) {
+                showToast("Ingresa un ID por favor", "error");
                 return;
             }
 
-            // Ordenar por fecha descendente
-            cyclesData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-            
-            const lastPeriodDate = new Date(cyclesData[0].startDate);
-            lastPeriodDate.setHours(0,0,0,0);
-            
-            const today = new Date();
-            today.setHours(0,0,0,0);
+            const email = `${userIdText}@godsplan.site`;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
 
-            // Calcular Día Actual
-            const diffTime = today - lastPeriodDate;
-            const currentDayOfCycle = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-            
-            // Determinar Fase basándose en ciclo promedio 28
-            const cycleMod = ((currentDayOfCycle - 1) % AVERAGE_CYCLE) + 1;
-            let phase = "Fase Lútea";
-            let colorTheme = "gray";
-
-            if (cycleMod >= 1 && cycleMod <= 5) {
-                phase = "Menstruación";
-                colorTheme = "red";
-            } else if (cycleMod >= 11 && cycleMod <= 15) {
-                if (cycleMod === 14) {
-                    phase = "Día de Ovulación";
-                    colorTheme = "purple-dark";
+            try {
+                // Intentar Login
+                await signInWithEmailAndPassword(auth, email, GENERIC_PASSWORD);
+                showToast("¡Bienvenida de nuevo! ✨", "success");
+            } catch (error) {
+                // Si no existe, crear la cuenta automáticamente
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, GENERIC_PASSWORD);
+                        showToast("Cuenta configurada y lista ✨", "success");
+                    } catch (createError) {
+                        console.error(createError);
+                        showToast("Error de red", "error");
+                    }
                 } else {
-                    phase = "Ventana Fértil";
-                    colorTheme = "purple";
+                    console.error(error);
+                    showToast("Error de conexión", "error");
                 }
-            } else if (cycleMod > 5 && cycleMod < 11) {
-                phase = "Fase Folicular";
-                colorTheme = "pink";
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Acceder';
             }
+        });
 
-            // Aplicar Estilos según fase
-            dayTxt.innerText = currentDayOfCycle;
-            phaseTxt.innerText = phase;
-            
-            if (colorTheme === 'red') {
-                phaseTxt.className = "text-xs font-bold text-red-600";
-                phaseBadge.className = "bg-red-100 px-4 py-1.5 rounded-full mt-2 transition-colors";
-                circleBorder.className = "absolute inset-0 rounded-full border-4 border-red-400 transition-colors duration-500 opacity-60";
-            } else if (colorTheme === 'purple' || colorTheme === 'purple-dark') {
-                phaseTxt.className = `text-xs font-bold ${colorTheme === 'purple-dark' ? 'text-purple-700' : 'text-purple-600'}`;
-                phaseBadge.className = `px-4 py-1.5 rounded-full mt-2 transition-colors ${colorTheme === 'purple-dark' ? 'bg-purple-200' : 'bg-purple-100'}`;
-                circleBorder.className = `absolute inset-0 rounded-full border-4 transition-colors duration-500 opacity-60 ${colorTheme === 'purple-dark' ? 'border-purple-600' : 'border-purple-300'}`;
-            } else {
-                phaseTxt.className = "text-xs font-bold text-nadi-dark";
-                phaseBadge.className = "bg-nadi-light px-4 py-1.5 rounded-full mt-2 transition-colors";
-                circleBorder.className = "absolute inset-0 rounded-full border-4 border-nadi transition-colors duration-500 opacity-30";
-            }
+        // Logout
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            signOut(auth);
+        });
 
-            // Calcular Próximo Periodo
-            const nextPeriod = new Date(lastPeriodDate);
-            // Avanzar meses según cuántos ciclos han pasado
-            const cyclesPassed = Math.floor((currentDayOfCycle - 1) / AVERAGE_CYCLE) + 1;
-            nextPeriod.setDate(nextPeriod.getDate() + (AVERAGE_CYCLE * cyclesPassed));
-            
-            const daysLeft = Math.ceil((nextPeriod - today) / (1000 * 60 * 60 * 24));
-            
-            if (daysLeft === 0) {
-                nextDays.innerText = "Hoy";
-                nextDays.className = "text-xl font-bold text-red-500";
-            } else {
-                nextDays.innerText = `En ${daysLeft} días`;
-                nextDays.className = "text-xl font-bold text-gray-800";
-            }
-            
-            const options = { weekday: 'short', day: 'numeric', month: 'short' };
-            nextDate.innerText = nextPeriod.toLocaleDateString('es-ES', options).replace(',', '');
-            
-            renderHistory();
+        
+        function loadFirestoreData() {
+            if (!currentUser) return;
+            const uid = currentUser.uid;
+
+            // Escuchar Ciclos (para predicciones)
+            const cyclesRef = collection(db, 'artifacts', appId, 'users', uid, 'cycles');
+            onSnapshot(cyclesRef, (snapshot) => {
+                cyclesData = [];
+                snapshot.forEach(doc => {
+                    cyclesData.push({ id: doc.id, ...doc.data() });
+                });
+                cyclesData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate)); // Más reciente primero
+                updateHomeDashboard();
+                renderCalendar();
+            }, (error) => {
+                console.error("Error en ciclos:", error);
+                if (error.code === 'permission-denied') {
+                    showToast("Faltan permisos en Firestore Rules", "error");
+                }
+            });
+
+            // Escuchar Registros Diarios (Logs: intimidad, etc)
+            const logsRef = collection(db, 'artifacts', appId, 'users', uid, 'logs');
+            onSnapshot(logsRef, (snapshot) => {
+                logsData = {};
+                snapshot.forEach(doc => {
+                    logsData[doc.id] = doc.data(); // doc.id será la fecha YYYY-MM-DD
+                });
+                renderCalendar();
+            }, (error) => {
+                console.error("Error en logs:", error);
+            });
         }
 
-        // CALENDAR LOGIC
-        function getPhaseForDate(dateObj) {
-            if (!cyclesData.length) return 'none';
+        // Registrar nuevo periodo desde Home
+        document.getElementById('btnLogPeriod').addEventListener('click', async () => {
+            if (!currentUser) return;
+            const todayStr = new Date().toISOString().split('T')[0];
             
-            dateObj.setHours(0,0,0,0);
-            
-            // Buscar el último periodo antes de o en esta fecha
-            let latestPeriodBefore = null;
-            for (let i = 0; i < cyclesData.length; i++) {
-                const cDate = new Date(cyclesData[i].startDate);
-                cDate.setHours(0,0,0,0);
-                if (cDate <= dateObj) {
-                    latestPeriodBefore = cDate;
-                    break; 
+            // Comprobar si ya hay un ciclo reciente
+            if (cyclesData.length > 0) {
+                const lastCycle = cyclesData[0];
+                const diffTime = Math.abs(new Date() - new Date(lastCycle.startDate));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays < 10) {
+                    showToast("Ya registraste un periodo recientemente", "error");
+                    return;
                 }
             }
 
-            if (!latestPeriodBefore) return 'none'; // Fecha es anterior al primer registro
-
-            const diff = dateObj - latestPeriodBefore;
-            const dayOfCycle = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
-            const cycleMod = ((dayOfCycle - 1) % AVERAGE_CYCLE) + 1;
-
-            if (cycleMod >= 1 && cycleMod <= 5) return 'period';
-            if (cycleMod >= 11 && cycleMod <= 15) {
-                if (cycleMod === 14) return 'ovulation';
-                return 'fertile';
+            try {
+                const cyclesRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'cycles');
+                await addDoc(cyclesRef, {
+                    startDate: todayStr,
+                    timestamp: Date.now()
+                });
+                showToast("Periodo registrado con éxito 🩸", "success");
+            } catch (e) {
+                console.error(e);
+                showToast("Error al guardar", "error");
             }
-            return 'none';
+        });
+
+        
+        function updateHomeDashboard() {
+            const display = document.getElementById('cycleDayDisplay');
+            const msg = document.getElementById('cycleMessageDisplay');
+            const homeFertile = document.getElementById('homeFertileDates');
+            const homeNext = document.getElementById('homeNextPeriod');
+
+            if (cyclesData.length === 0) {
+                display.innerText = "--";
+                msg.innerText = "Registra tu primer día de periodo.";
+                return;
+            }
+
+            const lastStart = new Date(cyclesData[0].startDate);
+            const today = new Date();
+            
+            // Día del ciclo actual
+            const diffTime = today.getTime() - lastStart.getTime();
+            let currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            // Asumimos ciclo de 28 días
+            const CYCLE_LENGTH = 28;
+            
+            if (currentDay > CYCLE_LENGTH) {
+                display.innerText = "!";
+                msg.innerText = `Tienes un retraso de ${currentDay - CYCLE_LENGTH} días.`;
+                msg.className = "mt-6 text-center text-pastel-pinkDark font-bold";
+            } else {
+                display.innerText = currentDay;
+                
+                // Mensajes dinámicos según fase
+                if (currentDay <= 5) {
+                    msg.innerText = "Fase menstrual. Cuídate mucho ☕";
+                } else if (currentDay >= 10 && currentDay <= 15) {
+                    msg.innerText = "Ventana fértil. Alta probabilidad ✨";
+                } else {
+                    msg.innerText = "Fase lútea. Todo tranquilo 🌙";
+                }
+            }
+
+            // Fechas próximas
+            const nextPeriod = new Date(lastStart);
+            nextPeriod.setDate(lastStart.getDate() + CYCLE_LENGTH);
+            
+            const fertileStart = new Date(lastStart);
+            fertileStart.setDate(lastStart.getDate() + 10);
+            const fertileEnd = new Date(lastStart);
+            fertileEnd.setDate(lastStart.getDate() + 15);
+
+            const formatOpt = { day: 'numeric', month: 'short' };
+            homeNext.innerText = nextPeriod.toLocaleDateString('es-ES', formatOpt);
+            homeFertile.innerText = `${fertileStart.toLocaleDateString('es-ES', formatOpt)} - ${fertileEnd.toLocaleDateString('es-ES', formatOpt)}`;
         }
+
+        
+        const monthYearText = document.getElementById('calendarMonthYear');
+        const calendarDays = document.getElementById('calendarDays');
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            renderCalendar();
+        });
 
         function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
+            calendarDays.innerHTML = '';
             
-            const year = calendarRenderDate.getFullYear();
-            const month = calendarRenderDate.getMonth();
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
             
-            // Título Mes
-            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-            document.getElementById('currentMonthTxt').innerText = `${monthNames[month]} ${year}`;
-
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            // Celdas vacías iniciales
-            for (let i = 0; i < firstDay; i++) {
+            const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            monthYearText.innerText = `${monthNames[month]} ${year}`;
+            
+            // Ajustar para que la semana empiece en Lunes (JS empieza en Domingo=0)
+            let startDay = firstDay === 0 ? 6 : firstDay - 1;
+
+            // Rellenar días vacíos previos
+            for (let i = 0; i < startDay; i++) {
                 const emptyDiv = document.createElement('div');
-                grid.appendChild(emptyDiv);
+                calendarDays.appendChild(emptyDiv);
             }
-            
-            const today = new Date();
-            today.setHours(0,0,0,0);
 
-            // Días del mes
+            // Calcular días especiales basados en el último registro
+            let predictedPeriod = [];
+            let predictedFertile = [];
+            let predictedOvulation = null;
+
+            if (cyclesData.length > 0) {
+                // Analizamos hasta 3 ciclos futuros para llenar el calendario visualmente
+                const baseDate = new Date(cyclesData[0].startDate);
+                
+                for(let i=0; i<4; i++) {
+                    const iterDate = new Date(baseDate);
+                    iterDate.setDate(baseDate.getDate() + (28 * i));
+                    
+                    // 5 días de periodo
+                    for(let p=0; p<5; p++) {
+                        let d = new Date(iterDate);
+                        d.setDate(iterDate.getDate() + p);
+                        predictedPeriod.push(d.toISOString().split('T')[0]);
+                    }
+                    
+                    // Días 10 al 15 fértiles
+                    for(let f=10; f<=15; f++) {
+                        let d = new Date(iterDate);
+                        d.setDate(iterDate.getDate() + f);
+                        if (f === 14) predictedOvulation = d.toISOString().split('T')[0];
+                        else predictedFertile.push(d.toISOString().split('T')[0]);
+                    }
+                }
+            }
+
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // Renderizar días del mes
             for (let i = 1; i <= daysInMonth; i++) {
-                const currentDate = new Date(year, month, i);
-                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dateObj = new Date(year, month, i);
+                // Evitar desfase de zona horaria al convertir a string
+                const dateString = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
                 
-                const cell = document.createElement('div');
-                cell.className = "relative aspect-square flex items-center justify-center text-sm font-medium rounded-full cursor-pointer transition-transform hover:scale-110 active:scale-95";
+                const dayDiv = document.createElement('div');
+                dayDiv.className = "w-10 h-10 mx-auto rounded-full flex items-center justify-center relative cursor-pointer text-sm font-medium transition active:scale-90 select-none";
+                dayDiv.innerText = i;
                 
-                // Evaluar Fase
-                const phase = getPhaseForDate(currentDate);
-                let bgClass = "bg-transparent text-gray-700";
-                
-                if (phase === 'period') bgClass = "bg-red-400 text-white shadow-md shadow-red-200";
-                else if (phase === 'fertile') bgClass = "bg-nadi-fertile text-white";
-                else if (phase === 'ovulation') bgClass = "bg-nadi-ovulation text-white shadow-[0_0_10px_rgba(147,51,234,0.4)]";
-                
-                // Es Hoy?
-                if (currentDate.getTime() === today.getTime()) {
-                    if(phase === 'none') bgClass = "bg-gray-800 text-white";
-                    else cell.classList.add('ring-2', 'ring-offset-2', 'ring-gray-800');
+                // Aplicar colores pastel
+                if (predictedPeriod.includes(dateString)) {
+                    dayDiv.classList.add("bg-pastel-redDark", "text-red-900", "font-bold");
+                } else if (dateString === predictedOvulation) {
+                    dayDiv.classList.add("bg-pastel-lilacDark", "text-purple-900", "font-bold", "shadow-sm", "border", "border-purple-300");
+                } else if (predictedFertile.includes(dateString)) {
+                    dayDiv.classList.add("bg-pastel-lilac", "text-purple-800");
+                } else {
+                    dayDiv.classList.add("text-gray-600", "hover:bg-gray-100");
                 }
 
-                cell.classList.add(...bgClass.split(' '));
-                cell.innerText = i;
-                
-                // Revisar Logs para esta fecha (Icono de intimidad)
-                if (dailyLogsData[dateStr] && dailyLogsData[dateStr].hadSex) {
-                    const icon = document.createElement('div');
-                    icon.className = "absolute -bottom-1 -right-1 text-[10px] bg-white rounded-full w-4 h-4 flex items-center justify-center shadow-sm text-pink-500 border border-gray-100";
-                    icon.innerHTML = '<i class="fa-solid fa-heart"></i>';
-                    cell.appendChild(icon);
+                // Resaltar Hoy
+                if (dateString === todayStr && !predictedPeriod.includes(dateString) && !predictedFertile.includes(dateString) && dateString !== predictedOvulation) {
+                    dayDiv.classList.add("border-2", "border-gray-200");
                 }
 
-                // Evento click
-                cell.addEventListener('click', () => openDailyModal(dateStr, currentDate));
-                grid.appendChild(cell);
+                // Mostrar Corazón si hay log íntimo
+                if (logsData[dateString] && logsData[dateString].intimate) {
+                    const heart = document.createElement('i');
+                    heart.className = "fa-solid fa-heart absolute -bottom-1 -right-1 text-[10px] text-pastel-pinkDark drop-shadow-sm";
+                    dayDiv.appendChild(heart);
+                }
+
+                // Evento click abre el modal de registro
+                dayDiv.addEventListener('click', () => openDailyLogModal(dateString));
+                calendarDays.appendChild(dayDiv);
             }
         }
 
-        document.getElementById('prevMonthBtn').addEventListener('click', () => {
-            calendarRenderDate.setMonth(calendarRenderDate.getMonth() - 1);
-            renderCalendar();
-        });
         
-        document.getElementById('nextMonthBtn').addEventListener('click', () => {
-            calendarRenderDate.setMonth(calendarRenderDate.getMonth() + 1);
-            renderCalendar();
-        });
-
-        // HISTORY LIST
-        function renderHistory() {
-            const list = document.getElementById('historyList');
-            list.innerHTML = '';
-            
-            if(!cyclesData.length) {
-                list.innerHTML = '<p class="text-sm text-gray-400 text-center py-4">No hay ciclos registrados.</p>';
-                return;
-            }
-
-            cyclesData.forEach((cycle, index) => {
-                const cDate = new Date(cycle.startDate);
-                let lengthStr = 'En curso';
-                if (index < cyclesData.length - 1) {
-                    const prevDate = new Date(cyclesData[index + 1].startDate);
-                    const days = Math.ceil((cDate - prevDate) / (1000 * 60 * 60 * 24));
-                    lengthStr = `${days} días`;
-                }
-
-                const dateFmt = cDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-                
-                list.innerHTML += `
-                    <div class="flex justify-between items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-red-50 text-red-400 flex items-center justify-center font-bold">
-                                <i class="fa-solid fa-droplet text-sm"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm capitalize">${dateFmt}</p>
-                                <p class="text-xs text-gray-500">Duración: ${lengthStr}</p>
-                            </div>
-                        </div>
-                        <button onclick="deleteCycle('${cycle.id}')" class="text-gray-300 hover:text-red-500 transition p-2">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        window.deleteCycle = async function(id) {
-            if (!currentUser) return;
-            try {
-                // REGLA 1: RUTAS ESTRICTAS
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'cycles', id);
-                await deleteDoc(docRef);
-                showToast("Registro eliminado");
-            } catch (e) {
-                console.error("Error al borrar:", e);
-                showToast("Error al eliminar", "error");
-            }
-        };
-
-        // MODAL PERIOD
-        const periodModal = document.getElementById('periodModal');
-        const periodInput = document.getElementById('periodDateInput');
-        periodInput.value = new Date().toISOString().split('T')[0];
-
-        document.getElementById('addPeriodBtn').addEventListener('click', () => {
-            periodModal.classList.remove('hidden');
-            periodModal.classList.add('flex');
-        });
-
-        document.getElementById('closePeriodModal').addEventListener('click', () => {
-            periodModal.classList.add('hidden');
-            periodModal.classList.remove('flex');
-        });
-
-        document.getElementById('savePeriodBtn').addEventListener('click', async () => {
-            if (!currentUser) return;
-            const dateVal = periodInput.value;
-            if (!dateVal) return;
-
-            const isoDate = new Date(dateVal + "T12:00:00").toISOString(); 
-            const btn = document.getElementById('savePeriodBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
-
-            try {
-                // REGLA 1: RUTAS ESTRICTAS
-                const cyclesRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'cycles');
-                await addDoc(cyclesRef, { startDate: isoDate, createdAt: new Date().toISOString() });
-                
-                periodModal.classList.add('hidden');
-                periodModal.classList.remove('flex');
-                showToast("Ciclo registrado exitosamente");
-            } catch (error) {
-                console.error(error);
-                showToast("Error guardando", "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Guardar Ciclo';
-            }
-        });
-
-        // MODAL DAILY LOGS
-        const dailyModal = document.getElementById('dailyModal');
-        const sexToggle = document.getElementById('sexToggle');
+        const modalDailyLog = document.getElementById('modalDailyLog');
+        const modalContent = document.getElementById('modalDailyLogContent');
+        const toggleIntimate = document.getElementById('toggleIntimate');
         const protectionSection = document.getElementById('protectionSection');
-        
-        sexToggle.addEventListener('change', (e) => {
-            if(e.target.checked) {
+        const protBtns = document.querySelectorAll('.prot-btn');
+        let selectedProtection = "none";
+
+        // Abrir modal
+        function openDailyLogModal(dateString) {
+            selectedDateForLog = dateString;
+            
+            // Formatear titulo
+            const dateObj = new Date(dateString + 'T00:00:00');
+            document.getElementById('modalDateTitle').innerText = dateObj.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+            
+            // Cargar datos previos si existen
+            const existingLog = logsData[dateString];
+            if (existingLog && existingLog.intimate) {
+                toggleIntimate.checked = true;
                 protectionSection.classList.remove('hidden');
-                protectionSection.classList.add('block');
+                selectedProtection = existingLog.protection || "none";
+                updateProtectionButtons();
+            } else {
+                toggleIntimate.checked = false;
+                protectionSection.classList.add('hidden');
+                selectedProtection = "none";
+                updateProtectionButtons();
+            }
+
+            modalDailyLog.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('translate-y-full');
+            }, 10);
+        }
+
+        // Cerrar modal
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            modalContent.classList.add('translate-y-full');
+            setTimeout(() => {
+                modalDailyLog.classList.add('hidden');
+            }, 300);
+        });
+
+        // Lógica del Toggle Intimidad
+        toggleIntimate.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                protectionSection.classList.remove('hidden');
             } else {
                 protectionSection.classList.add('hidden');
-                protectionSection.classList.remove('block');
             }
         });
 
-        function openDailyModal(dateStr, dateObj) {
-            activeDailyLogDate = dateStr;
-            document.getElementById('dailyModalDateDisplay').innerText = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-            
-            // Cargar datos si existen
-            const existingLog = dailyLogsData[dateStr] || { hadSex: false, protection: 'none', notes: '' };
-            
-            sexToggle.checked = existingLog.hadSex;
-            sexToggle.dispatchEvent(new Event('change')); // Trigger visibility
-            
-            if(existingLog.hadSex) {
-                const radio = document.querySelector(`input[name="protection"][value="${existingLog.protection}"]`);
-                if(radio) radio.checked = true;
-            }
-            
-            document.getElementById('dailyNotes').value = existingLog.notes || '';
-
-            dailyModal.classList.remove('hidden');
-            dailyModal.classList.add('flex');
-        }
-
-        document.getElementById('closeDailyModal').addEventListener('click', () => {
-            dailyModal.classList.add('hidden');
-            dailyModal.classList.remove('flex');
-        });
-
-        document.getElementById('saveDailyBtn').addEventListener('click', async () => {
-            if (!currentUser || !activeDailyLogDate) return;
-            
-            const btn = document.getElementById('saveDailyBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
-
-            const hadSex = sexToggle.checked;
-            const protection = document.querySelector('input[name="protection"]:checked').value;
-            const notes = document.getElementById('dailyNotes').value;
-
-            try {
-                // REGLA 1: RUTAS ESTRICTAS. Usamos el ID del documento como la fecha (YYYY-MM-DD)
-                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'logs', activeDailyLogDate);
-                await setDoc(docRef, {
-                    date: activeDailyLogDate,
-                    hadSex: hadSex,
-                    protection: hadSex ? protection : null,
-                    notes: notes,
-                    updatedAt: new Date().toISOString()
-                }, { merge: true }); // Merge actualiza o crea sin borrar otros campos
-                
-                dailyModal.classList.add('hidden');
-                dailyModal.classList.remove('flex');
-                showToast("Registro diario actualizado");
-            } catch (error) {
-                console.error(error);
-                showToast("Error guardando", "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Guardar Registro del Día';
-            }
-        });
-
-        // FIREBASE DATA LOADING (Regla 2 y 3)
-        function loadData() {
-            if (!currentUser) return;
-            
-            // Suscripción Ciclos
-            const cyclesRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'cycles');
-            onSnapshot(cyclesRef, (snapshot) => {
-                cyclesData = [];
-                snapshot.forEach((doc) => cyclesData.push({ id: doc.id, ...doc.data() }));
-                updateHomeUI();
-                if(document.getElementById('view-calendar').classList.contains('hidden') === false) renderCalendar();
-            }, (error) => {
-                console.error(error);
-                showToast("Error de conexión", "error");
+        // Botones de protección
+        protBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                selectedProtection = e.target.getAttribute('data-value');
+                updateProtectionButtons();
             });
+        });
 
-            // Suscripción Logs Diarios
-            const logsRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'logs');
-            onSnapshot(logsRef, (snapshot) => {
-                dailyLogsData = {};
-                snapshot.forEach((doc) => {
-                    dailyLogsData[doc.id] = doc.data();
-                });
-                // Re-render calendario si está visible para actualizar iconos de corazón
-                if(document.getElementById('view-calendar').classList.contains('hidden') === false) renderCalendar();
-            }, (error) => {
-                console.error(error);
-            });
-        }
-
-        async function initApp() {
-            try {
-                // REGLA 3: Autenticación primero
-                let userCredential;
-                if (typeof __initial_auth_token !== 'undefined') {
-                    userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+        function updateProtectionButtons() {
+            protBtns.forEach(btn => {
+                if (btn.getAttribute('data-value') === selectedProtection) {
+                    btn.setAttribute('data-selected', 'true');
                 } else {
-                    userCredential = await signInAnonymously(auth);
+                    btn.setAttribute('data-selected', 'false');
+                }
+            });
+        }
+
+        // Guardar Log a Firestore
+        document.getElementById('saveLogBtn').addEventListener('click', async () => {
+            if (!currentUser || !selectedDateForLog) return;
+            
+            const btn = document.getElementById('saveLogBtn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            
+            try {
+                const logRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'logs', selectedDateForLog);
+                
+                if (toggleIntimate.checked) {
+                    await setDoc(logRef, {
+                        intimate: true,
+                        protection: selectedProtection,
+                        updatedAt: Date.now()
+                    });
+                } else {
+                    // Si apaga el toggle, borrar documento si existía
+                    await deleteDoc(logRef);
                 }
                 
-                currentUser = userCredential.user;
-                console.log("Auth OK:", currentUser.uid);
-                loadData();
-            } catch (error) {
-                console.error("Error Auth:", error);
-                loadingState.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-4"></i><p class="text-sm">Error de autenticación</p>';
+                showToast("Día guardado ✨", "success");
+                document.getElementById('closeModalBtn').click();
+                
+            } catch(e) {
+                console.error(e);
+                showToast("Error al guardar", "error");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar Registro';
             }
-        }
+        });
 
-        // INIT
-        initApp();
-        
+        // Registrar menstruación manual desde Modal (Hack rápido)
+        document.getElementById('btnTogglePeriodModal').addEventListener('click', async () => {
+             if (!currentUser || !selectedDateForLog) return;
+             try {
+                const cyclesRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'cycles');
+                await addDoc(cyclesRef, {
+                    startDate: selectedDateForLog,
+                    timestamp: Date.now()
+                });
+                showToast("Periodo actualizado 🩸", "success");
+                document.getElementById('closeModalBtn').click();
+             } catch(e) {
+                 showToast("Error", "error");
+             }
+        });
+
     </script>
 </body>
 </html>
