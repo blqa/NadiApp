@@ -43,7 +43,7 @@
             <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
                 <i class="fa-solid fa-moon text-4xl text-rose-400 drop-shadow-sm"></i>
             </div>
-            <h1 class="text-3xl font-bold text-rose-500 mb-2">NadiApp</h1>
+            <h1 class="text-3xl font-bold text-rose-500 mb-2">LuNad</h1>
             <p class="text-rose-300 mb-8 text-sm font-medium">Tu ciclo, tu ritmo</p>
             
             <div class="relative mb-6">
@@ -528,11 +528,40 @@
             const pLen = userSettings.periodLength;
             const cLen = userSettings.cycleLength;
             const ovuDay = cLen - 14; // Ovulación aprox 14 días antes del prox ciclo
+            const goal = userSettings.goal || 'track';
             
-            if(diffDays <= pLen) cycleStatusText.innerText = "Fase menstrual 🩸";
-            else if (diffDays >= (ovuDay - 4) && diffDays <= ovuDay) cycleStatusText.innerText = "Ventana fértil ✨";
-            else if (diffDays > cLen) cycleStatusText.innerText = "Retraso posible 👀";
-            else cycleStatusText.innerText = "Fase folicular/lútea";
+            // Reiniciamos los estilos por defecto del texto
+            cycleStatusText.className = "text-sm font-bold text-white shadow-sm transition-all duration-300";
+
+            // Lógica inteligente basada en el Objetivo (Meta) de la usuaria
+            if(diffDays <= pLen) {
+                cycleStatusText.innerText = "Fase menstrual 🩸";
+            } 
+            else if (diffDays >= (ovuDay - 4) && diffDays <= ovuDay) {
+                if (goal === 'avoid') {
+                    cycleStatusText.innerText = "⚠️ RIESGO ALTO DE EMBARAZO ⚠️";
+                    cycleStatusText.className = "text-[12px] font-black text-rose-200 animate-pulse drop-shadow-md tracking-wider";
+                } else if (goal === 'conceive') {
+                    cycleStatusText.innerText = "🎯 ¡Ventana ideal para concebir! ✨";
+                    cycleStatusText.className = "text-sm font-black text-fuchsia-200 animate-pulse drop-shadow-md";
+                } else {
+                    cycleStatusText.innerText = "Ventana fértil ✨";
+                }
+            } 
+            else if (diffDays > cLen) {
+                if (goal === 'avoid') {
+                    cycleStatusText.innerText = "Retraso: Recomendable prueba 👀";
+                    cycleStatusText.className = "text-[13px] font-black text-orange-200 drop-shadow-md";
+                } else if (goal === 'conceive') {
+                    cycleStatusText.innerText = "Retraso: ¡Positivo a la vista! 🤞";
+                    cycleStatusText.className = "text-sm font-black text-fuchsia-200 animate-pulse drop-shadow-md";
+                } else {
+                    cycleStatusText.innerText = "Retraso posible 👀";
+                }
+            } 
+            else {
+                cycleStatusText.innerText = "Fase folicular / lútea";
+            }
         }
 
         // Guardar periodo desde boton principal
