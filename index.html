@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NadiApp - En Creación</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nadi: {
+                            pink: '#FF69B4', // Rosa (Hot Pink)
+                            blue: '#4169E1', // Azul (Royal Blue)
+                            red: '#DC143C',  // Rojo (Crimson)
+                            lilac: '#C8A2C8' // Lila
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fuente Inter desde Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos base para asegurar que ocupe toda la pantalla en móviles */
+        html, body {
+            height: 100%;
+            margin: 0;
+            /* Aplicando un gradiente sutil de fondo usando los colores solicitados */
+            background: linear-gradient(135deg, rgba(200,162,200,0.2) 0%, rgba(255,105,180,0.1) 50%, rgba(65,105,225,0.1) 100%);
+        }
+        
+        /* Animación para el logo/texto principal */
+        @keyframes pulse-color {
+            0% { color: #FF69B4; text-shadow: 0 0 10px rgba(255,105,180,0.5); }
+            33% { color: #4169E1; text-shadow: 0 0 10px rgba(65,105,225,0.5); }
+            66% { color: #DC143C; text-shadow: 0 0 10px rgba(220,20,60,0.5); }
+            100% { color: #C8A2C8; text-shadow: 0 0 10px rgba(200,162,200,0.5); }
+        }
+
+        .animated-text {
+            animation: pulse-color 8s infinite alternate;
+        }
+
+        /* Elementos decorativos animados de fondo */
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.6;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 200px; height: 200px; background-color: #FF69B4; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 250px; height: 250px; background-color: #C8A2C8; animation-delay: 2s; }
+        .blob-3 { top: 40%; left: 60%; width: 150px; height: 150px; background-color: #4169E1; animation-delay: 4s; }
+    </style>
+</head>
+
+<body class="flex flex-col items-center justify-center min-h-screen relative overflow-hidden font-sans text-gray-800">
+
+    <!-- Elementos decorativos de fondo -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <main class="relative z-10 w-11/12 max-w-md mx-auto p-8 rounded-3xl bg-white/70 backdrop-blur-md shadow-2xl border border-white/50 text-center">
+        
+        <!-- Icono/Logo decorativo -->
+        <div class="mb-6 flex justify-center">
+            <div class="relative w-24 h-24 rounded-full bg-gradient-to-tr from-nadi-red via-nadi-pink to-nadi-lilac p-1 shadow-lg">
+                <div class="w-full h-full bg-white rounded-full flex items-center justify-center">
+                    <svg class="w-12 h-12 text-nadi-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-2 animated-text">
+            NadiApp
+        </h1>
+        
+        <div class="inline-block bg-nadi-lilac/20 text-nadi-blue font-semibold px-4 py-1.5 rounded-full text-sm mb-6 uppercase tracking-wider shadow-sm border border-nadi-blue/20">
+            En Creación
+        </div>
+
+        <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+            Estamos trabajando en algo increíble. <br/>
+            <span class="font-semibold text-nadi-red">NadiApp</span> estará lista pronto para sorprenderte en tu dispositivo móvil.
+        </p>
+
+        <div class="mt-4">
+            <p class="text-sm text-gray-500 mb-3 font-medium">¡Mantente al tanto!</p>
+            <div class="flex justify-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-nadi-pink animate-bounce" style="animation-delay: 0s;"></span>
+                <span class="w-3 h-3 rounded-full bg-nadi-blue animate-bounce" style="animation-delay: 0.2s;"></span>
+                <span class="w-3 h-3 rounded-full bg-nadi-red animate-bounce" style="animation-delay: 0.4s;"></span>
+                <span class="w-3 h-3 rounded-full bg-nadi-lilac animate-bounce" style="animation-delay: 0.6s;"></span>
+            </div>
+        </div>
+        
+    </main>
+
+    <style>
+        @keyframes blood-glow {
+            0% { text-shadow: 0 0 5px #8a0303, 0 0 10px #8a0303, 0 0 15px #8a0303; }
+            50% { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 30px #ff0000; }
+            100% { text-shadow: 0 0 5px #8a0303, 0 0 10px #8a0303, 0 0 15px #8a0303; }
+        }
+        .glowing-blood-text {
+            color: #8a0303; /* Rojo sangre oscuro como base */
+            animation: blood-glow 2s ease-in-out infinite;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+    </style>
+    
+    <footer class="relative z-10 mt-8 text-center flex flex-col items-center gap-2">
+        <span class="text-sm text-gray-500 font-medium">&copy; 2026 NadiApp. Todos los derechos reservados.</span>
+        <span class="text-sm font-bold glowing-blood-text uppercase tracking-widest">God's Plan Project</span>
+    </footer>
+
+</body>
+</html>
