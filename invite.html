@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invitación Premium - Rayo McQueen</title>
+    
+    <!-- Fuentes: 'Montserrat' para legibilidad y 'Racing Sans One' para velocidad -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Racing+Sans+One&display=swap" rel="stylesheet">
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS para estructura rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Confeti avanzado -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            /* PALETA DE COLORES - TEMA CARS / CARRERAS */
+            --color-bg-1: #111111; /* Asfalto oscuro */
+            --color-bg-2: #222222;
+            --color-bg-3: #1a1a1a;
+            --color-accent-1: #ff0000; /* Rojo McQueen */
+            --color-accent-2: #cc0000;
+            --color-pink: #ffcc00; /* Amarillo Rust-eze */
+            --color-gold: #ffffff; /* Blanco */
+            --glass-bg: rgba(20, 20, 20, 0.8);
+            --glass-border: rgba(255, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-bg-1);
+            color: #ffffff;
+            overflow-x: hidden;
+            overscroll-behavior: none;
+        }
+
+        /* Ocultar scrollbar para que parezca app nativa */
+        ::-webkit-scrollbar { display: none; }
+
+        .animated-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            /* Fondo con textura sutil */
+            background: linear-gradient(45deg, var(--color-bg-1), var(--color-bg-2), var(--color-bg-3)), url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+            background-size: cover;
+            z-index: -2;
+        }
+
+        /* Orbes flotantes de luz */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: floatOrb 10s infinite alternate ease-in-out;
+        }
+        .orb-1 {
+            width: 300px; height: 300px;
+            background: var(--color-accent-1);
+            top: -50px; left: -100px;
+            opacity: 0.4;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: var(--color-pink);
+            bottom: -100px; right: -100px;
+            opacity: 0.3;
+            animation-delay: -5s;
+        }
+
+        #intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease, transform 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .tap-button {
+            background: linear-gradient(45deg, var(--color-accent-1), var(--color-pink));
+            border: none;
+            border-radius: 50px;
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-family: 'Racing Sans One', cursive;
+            color: white;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            cursor: pointer;
+            animation: pulseTap 2s infinite;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Brillo interno en las tarjetas */
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-20deg);
+            animation: shine 6s infinite;
+        }
+
+        h1.main-title {
+            font-family: 'Racing Sans One', cursive;
+            font-size: 4.5rem;
+            line-height: 1.1;
+            background: linear-gradient(to right, #ff0000, #ffcc00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.4));
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-character {
+            width: 320px;
+            height: auto;
+            margin: 2rem auto;
+            display: block;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));
+            animation: floatHero 4s ease-in-out infinite;
+            position: relative;
+            z-index: 10;
+        }
+
+        .countdown-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 2rem 0;
+        }
+
+        .circular-chart {
+            display: block;
+            margin: 0 auto;
+            max-width: 80%;
+            max-height: 250px;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 3;
+        }
+
+        .circle {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 100, 100;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        /* Colores de los anillos */
+        .ring-days { stroke: var(--color-accent-1); filter: drop-shadow(0 0 5px var(--color-accent-1)); }
+        .ring-hours { stroke: var(--color-pink); filter: drop-shadow(0 0 5px var(--color-pink)); }
+        .ring-mins { stroke: var(--color-gold); filter: drop-shadow(0 0 5px var(--color-gold)); }
+        .ring-secs { stroke: #ffffff; filter: drop-shadow(0 0 5px #ffffff); }
+
+        .percentage {
+            fill: white;
+            font-family: 'Racing Sans One', cursive;
+            font-size: 10px;
+            text-anchor: middle;
+        }
+        .time-label {
+            fill: rgba(255,255,255,0.7);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 4px;
+            text-anchor: middle;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .btn-glow {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            padding: 1.2rem;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid var(--color-accent-1);
+            border-radius: 50px;
+            color: white;
+            font-family: 'Racing Sans One', cursive;
+            font-size: 1.3rem;
+            text-align: center;
+            text-decoration: none;
+            overflow: hidden;
+            transition: 0.3s;
+            z-index: 1;
+            margin-top: 1rem;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 0%; height: 100%;
+            background: var(--color-accent-1);
+            z-index: -1;
+            transition: 0.4s ease;
+        }
+
+        .btn-glow:active::before { width: 100%; }
+        .btn-glow:active { color: var(--color-bg-1); transform: scale(0.95); box-shadow: 0 0 40px var(--color-accent-1); }
+
+        #music-toggle {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 45px; height: 45px;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.2); }
+        }
+        @keyframes pulseTap {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 8, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(255, 8, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 8, 68, 0); }
+        }
+        @keyframes floatHero {
+            0%, 100% { transform: translateY(0px) rotate(-2deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÚSICA DE FONDO -->
+    <audio id="bg-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-rock-the-game-19.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- PANTALLA DE REVELACIÓN -->
+    <div id="intro-screen">
+        <h2 style="font-family: 'Montserrat'; color: white; margin-bottom: 2rem; font-weight: 700; letter-spacing: 2px;">¡CALIENTA MOTORES!</h2>
+        <button class="tap-button" onclick="abrirInvitacion()">
+            <i class="fa-solid fa-flag-checkered mr-2"></i> PISAR EL ACELERADOR
+        </button>
+    </div>
+
+    <div class="animated-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div id="music-toggle" onclick="toggleMusic()">
+        <i class="fa-solid fa-music"></i>
+    </div>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <main class="relative w-full max-w-[500px] mx-auto min-h-screen pb-20 overflow-hidden">
+        
+        <section class="min-h-screen flex flex-col justify-center items-center p-6 text-center pt-10">
+            <div class="reveal">
+                <span class="uppercase tracking-[0.3em] text-[12px] font-bold text-yellow-400 mb-2 block">¡COPA PISTÓN 2026!</span>
+                <img src="https://www.pngall.com/wp-content/uploads/15/Rayo-Mcqueen-PNG-Cutout.png" alt="Rayo McQueen" class="hero-character">
+                <h1 class="main-title mt-4">MATEO<br>CUMPLE 5</h1>
+                <p class="text-lg font-bold text-gray-200 mt-2 max-w-[250px] mx-auto">
+                    ¡Ka-Chow! Estás convocado a la gran carrera del año.
+                </p>
+            </div>
+            <div class="absolute bottom-10 animate-bounce text-red-500 opacity-80">
+                <i class="fa-solid fa-angles-down text-3xl"></i>
+            </div>
+        </section>
+
+        <section class="p-6 space-y-6">
+            <div class="glass-panel reveal">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-red-600 to-red-400 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(255,0,0,0.5)]">
+                        <i class="fa-solid fa-flag-checkered text-white"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-bold text-xl text-white">Día de la Carrera</h3>
+                        <p class="text-red-400 font-bold text-2xl" style="font-family: 'Racing Sans One'">15 NOV</p>
+                    </div>
+                </div>
+                <div class="w-full h-[1px] bg-white/10 my-3"></div>
+                <div class="flex items-center gap-3 text-gray-200">
+                    <i class="fa-solid fa-stopwatch text-yellow-400"></i>
+                    <span>Banderazo de salida: <strong>16:00 HRS</strong></span>
+                </div>
+            </div>
+
+            <div class="glass-panel reveal delay-100">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-yellow-500 to-yellow-300 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(255,204,0,0.5)]">
+                        <i class="fa-solid fa-gas-pump text-black"></i>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="font-bold text-xl text-white">Zona de Pits</h3>
+                        <p class="text-yellow-300 font-medium">Salón "Radiador Springs"</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-300 mb-4">Ruta 66, Esq. Boulevard Motores, CDMX.</p>
+                <a href="https://maps.google.com" target="_blank" class="block w-full py-2 bg-red-600/20 border border-red-500/50 rounded-xl text-center text-sm font-bold hover:bg-red-600/40 transition">
+                    <i class="fa-solid fa-map-location-dot mr-2"></i> Ver en el GPS (Mapa)
+                </a>
+            </div>
+        </section>
+
+        <section class="p-6 reveal text-center">
+            <h2 class="text-2xl font-bold mb-4" style="font-family: 'Racing Sans One'; color: #ffcc00;">SEMÁFORO VERDE EN:</h2>
+            <div class="glass-panel !p-4">
+                <div class="countdown-container">
+                    
+                    <div class="flex flex-col items-center">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle ring-days" id="ring-days" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="19.5" class="percentage" id="val-days">00</text>
+                            <text x="18" y="26" class="time-label">DÍAS</text>
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle ring-hours" id="ring-hours" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="19.5" class="percentage" id="val-hours">00</text>
+                            <text x="18" y="26" class="time-label">HRS</text>
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle ring-mins" id="ring-mins" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="19.5" class="percentage" id="val-mins">00</text>
+                            <text x="18" y="26" class="time-label">MIN</text>
+                        </svg>
+                    </div>
+
+                    <div class="flex flex-col items-center">
+                        <svg viewBox="0 0 36 36" class="circular-chart">
+                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="circle ring-secs" id="ring-secs" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <text x="18" y="19.5" class="percentage" id="val-secs">00</text>
+                            <text x="18" y="26" class="time-label">SEG</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="p-6 text-center reveal mt-4">
+            <img src="https://www.veve.me/_next/image?url=https%3A%2F%2Fd11unjture0ske.cloudfront.net%2Ftransparent_background_image.67d718f3-658b-4815-a112-053541fad6ae.b4ca3e11-33d1-461e-8ca2-91049d836a02.png&w=1200&q=75" alt="Trofeo" class="w-32 mx-auto mb-4 drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
+            <h2 class="text-xl font-bold mb-2 uppercase">¿Listo para correr?</h2>
+            <p class="text-sm text-gray-300 mb-6">Confirma tu lugar en la parrilla de salida antes del 10 de Noviembre.</p>
+            
+            <a href="javascript:void(0)" onclick="confirmarWhatsApp()" class="btn-glow">
+                CONFIRMAR ASISTENCIA <i class="fa-brands fa-whatsapp ml-2"></i>
+            </a>
+            
+            <p class="text-xs text-gray-500 mt-8">Invitación diseñada por [Tu Agencia de Diseño]</p>
+        </section>
+
+    </main>
+
+    <script>
+        const audio = document.getElementById('bg-music');
+        let isPlaying = false;
+
+        function abrirInvitacion() {
+            const intro = document.getElementById('intro-screen');
+            intro.style.transform = 'scale(1.5)';
+            intro.style.opacity = '0';
+            
+            audio.volume = 0.5;
+            audio.play().then(() => {
+                isPlaying = true;
+                document.getElementById('music-toggle').innerHTML = '<i class="fa-solid fa-music"></i>';
+            }).catch(e => console.log("Audio bloqueado por el navegador", e));
+
+            setTimeout(() => {
+                intro.style.display = 'none';
+                document.getElementById('music-toggle').style.opacity = '1';
+                tirarPolvoMagico();
+                revealElements();
+            }, 800);
+        }
+
+        function toggleMusic() {
+            const btn = document.getElementById('music-toggle');
+            if (isPlaying) {
+                audio.pause();
+                btn.innerHTML = '<i class="fa-solid fa-volume-xmark text-gray-400"></i>';
+            } else {
+                audio.play();
+                btn.innerHTML = '<i class="fa-solid fa-music"></i>';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        function revealElements() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", revealElements);
+
+        // AQUÍ ESTÁ LA CORRECCIÓN: Formato ISO compatible con todos los teléfonos (Año-Mes-DíaTHora:Minuto:Segundo)
+        const fechaFiesta = new Date("2026-11-15T16:00:00").getTime();
+
+        function setProgress(id, value, max) {
+            const circle = document.getElementById(id);
+            // Evitar que el anillo se rompa si el valor supera el máximo (ej: faltan 80 días)
+            const safeMax = Math.max(value, max); 
+            const strokeDashoffset = 100 - (value / safeMax) * 100;
+            circle.style.strokeDashoffset = strokeDashoffset;
+        }
+
+        const intervaloContador = setInterval(function() {
+            const ahora = new Date().getTime();
+            const distancia = fechaFiesta - ahora;
+
+            if (distancia < 0) {
+                clearInterval(intervaloContador);
+                return;
+            }
+
+            const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+            document.getElementById("val-days").innerText = dias.toString().padStart(2, '0');
+            document.getElementById("val-hours").innerText = horas.toString().padStart(2, '0');
+            document.getElementById("val-mins").innerText = minutos.toString().padStart(2, '0');
+            document.getElementById("val-secs").innerText = segundos.toString().padStart(2, '0');
+
+            setProgress('ring-days', dias, 30);
+            setProgress('ring-hours', horas, 24);
+            setProgress('ring-mins', minutos, 60);
+            setProgress('ring-secs', segundos, 60);
+
+        }, 1000);
+
+        function tirarPolvoMagico() {
+            var duration = 3 * 1000;
+            var end = Date.now() + duration;
+
+            (function frame() {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0, y: 0.8 },
+                    colors: ['#ff0000', '#ffcc00', '#ffffff', '#000000'],
+                    shapes: ['square', 'circle'],
+                    scalar: 0.8
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1, y: 0.8 },
+                    colors: ['#ff0000', '#ffcc00', '#ffffff', '#000000'],
+                    shapes: ['square', 'circle'],
+                    scalar: 0.8
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
+
+        function confirmarWhatsApp() {
+            confetti({
+                particleCount: 100,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#25D366', '#ffffff', '#ff0000']
+            });
+            
+            setTimeout(() => {
+                const telefonoCliente = "525510590927";
+                const texto = "¡Ka-Chow! Confirmo mi asistencia a la carrera de Mateo. 🏎️🏁";
+                window.open(`https://wa.me/${telefonoCliente}?text=${encodeURIComponent(texto)}`, "_blank");
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
