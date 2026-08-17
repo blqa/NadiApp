@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeliNad - Diario de Películas</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for modal */
+        .modal-scroll::-webkit-scrollbar { width: 8px; }
+        .modal-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+        .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .modal-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+
+    <header class="bg-rose-600 text-white shadow-lg sticky top-0 z-10">
+        <div class="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold flex items-center gap-2">
+                    <i data-lucide="star" class="fill-yellow-400 text-yellow-400"></i>
+                    PeliNad
+                </h1>
+                <p class="text-rose-100 text-sm mt-1">Nuestro diario de películas</p>
+            </div>
+            <button id="openModalBtn" class="bg-white text-rose-600 hover:bg-rose-50 font-semibold py-2 px-4 rounded-full shadow-md flex items-center gap-2 transition-colors">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                <span class="hidden sm:inline">Nueva Película</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <!-- Search & Filter -->
+        <div class="mb-8 relative">
+            <div class="relative w-full md:w-96">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="text-gray-400 w-5 h-5"></i>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchInput"
+                    placeholder="Buscar por título o género..."
+                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 shadow-sm focus:ring-2 focus:ring-rose-300 focus:border-rose-300 outline-none transition-all"
+                >
+            </div>
+        </div>
+
+        <!-- Movie Grid Container -->
+        <div id="loadingState" class="flex justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-600"></div>
+        </div>
+        
+        <div id="movieGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+            <!-- Movies will be injected here by JS -->
+        </div>
+
+        <div id="emptyState" class="text-center py-12 text-gray-500 hidden">
+            No se encontraron películas.
+        </div>
+    </main>
+
+    <div id="movieModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl my-8 relative flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b border-gray-100 shrink-0">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Agregar Nueva Película</h2>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 p-2 rounded-full transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body Form -->
+            <div class="p-6 overflow-y-auto modal-scroll">
+                <form id="movieForm" class="space-y-6">
+                    <input type="hidden" id="movieId">
+                    
+                    <!-- Basic Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                            <input type="text" id="title" required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Ej: La tumba de las luciérnagas">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha vista (Opcional)</label>
+                            <input type="text" id="date" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="DD/MM/YY">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Género</label>
+                            <input type="text" id="genre" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 outline-none" placeholder="Ej: Drama, Terror...">
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-100">
+
+                    <!-- Ratings -->
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                        <h3 class="text-sm font-bold text-gray-600 uppercase mb-4 flex items-center gap-2">
+                            <i data-lucide="star" class="w-4 h-4"></i> Calificaciones (0-10)
+                        </h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-blue-700 mb-1">Luis</label>
+                                <input type="text" id="luisScore" class="w-full px-3 py-2 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white" placeholder="0-10">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-rose-700 mb-1">Nadia</label>
+                                <input type="text" id="nadiaScore" class="w-full px-3 py-2 border border-rose-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none bg-white" placeholder="0-10">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Crítica general</label>
+                                <input type="text" id="criticScore" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-400 outline-none bg-white" placeholder="Ej: 8.5">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Público</label>
+                                <input type="text" id="publicScore" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-400 outline-none bg-white" placeholder="Ej: 9.0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-blue-700 mb-1">Observaciones Luis</label>
+                            <textarea id="luisNotes" rows="2" class="w-full px-4 py-2 border border-blue-200 bg-blue-50/30 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none" placeholder="¿Qué te pareció?"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-rose-700 mb-1">Observaciones Nadia</label>
+                            <textarea id="nadiaNotes" rows="2" class="w-full px-4 py-2 border border-rose-200 bg-rose-50/30 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none resize-none" placeholder="¿Qué te pareció?"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-3xl shrink-0">
+                <button type="button" id="cancelBtn" class="px-6 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-200 transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" form="movieForm" id="saveBtn" class="px-6 py-2.5 rounded-xl font-medium bg-rose-600 text-white hover:bg-rose-700 shadow-md transition-colors">
+                    Agregar Película
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Initial Seed Data
+        const initialMovies = [
+            { title: "La tumba de las luciérnagas", date: "", genre: "Drama", criticScore: "9.4", publicScore: "9", luisScore: "9", nadiaScore: "8", average: "8.9", luisNotes: "Muy linda y nuestra primera pelicula", nadiaNotes: "Es un buen recuerdo por ser nuestra primer película. Le hizo falta un poco más a la peli." },
+            { title: "Memorias de un caracol", date: "", genre: "Animación", criticScore: "8.1", publicScore: "8.1", luisScore: "8", nadiaScore: "9", average: "8.3", luisNotes: "Muy bonita, un poco rara pero está bien", nadiaNotes: "Me encanta el mensaje que da. Extraña, pero buena animación." },
+            { title: "Anora", date: "", genre: "Drama", criticScore: "9.1", publicScore: "6.5", luisScore: "8.5", nadiaScore: "8", average: "8.0", luisNotes: "Es buena, si me gustó la verdad.", nadiaNotes: "Es buena, pero nada sorprendente." },
+            { title: "Destino Final: Lazos De Sangre", date: "", genre: "Thriller", criticScore: "7.3", publicScore: "6.9", luisScore: "8", nadiaScore: "8", average: "7.6", luisNotes: "Mi primera de destino final y me agradó", nadiaNotes: "Me gusta la la relación a pelis anteriores, cumple." },
+            { title: "Lilo y Stitch", date: "", genre: "Aventura", criticScore: "5.3", publicScore: "4.9", luisScore: "8", nadiaScore: "8", average: "6.6", luisNotes: "Owww.", nadiaNotes: "Bonita y graciosa." },
+            { title: "Cómo entrenar a tu dragón", date: "", genre: "Aventura", criticScore: "6.1", publicScore: "7.6", luisScore: "8", nadiaScore: "8.5", average: "7.6", luisNotes: "Perfecta.", nadiaNotes: "Muy bonita animación e historia, aunque incompleta." },
+            { title: "Ballerina", date: "", genre: "Acción", criticScore: "5.9", publicScore: "6.6", luisScore: "9", nadiaScore: "8", average: "7.4", luisNotes: "Muy buena pelicula, buena continuacion, me encanta.", nadiaNotes: "Buena, desconocía sus inicios." },
+            { title: "Los tipos malos 2", date: "", genre: "Animación", criticScore: "6.4", publicScore: "7.7", luisScore: "7", nadiaScore: "7", average: "7.0", luisNotes: "Es buena, no ví la 1 pero está entetenida.", nadiaNotes: "Faltó ver el incio, pero entretenida." },
+            { title: "La Hora De La Desaparición", date: "", genre: "Misterio", criticScore: "8.1", publicScore: "7.3", luisScore: "9", nadiaScore: "9", average: "8.4", luisNotes: "Buen suspenso y misterio, me agrada aunque le faltó algo de historia.", nadiaNotes: "Me agradó la historia, la perspectiva de c/ personaje y escenas de suspenso." },
+            { title: "Haz Que Regrese", date: "", genre: "Suspenso", criticScore: "7.5", publicScore: "6.9", luisScore: "9", nadiaScore: "9", average: "8.1", luisNotes: "Muy buena honestamente, todo muy bien.", nadiaNotes: "Te provoca sensaciones y eso me agrada, algo sangrienta pero no demasiado. Buena trama." },
+            { title: "Jurassic World: El renacer", date: "", genre: "Ciencia ficción", criticScore: "5", publicScore: "5.3", luisScore: "3", nadiaScore: "4", average: "4.3", luisNotes: "No he visto todas pero siento que para ser la más nueva, le faltaron muchas cosas.", nadiaNotes: "Mucho que desear, no cumple con las expectativas." },
+            { title: "Sé lo que hicieron el verano pasado", date: "", genre: "Terror", criticScore: "4.2", publicScore: "4.1", luisScore: "6", nadiaScore: "7", average: "5.3", luisNotes: "Meh, está bien, pero nada increíble,", nadiaNotes: "Buena historia, buenas escenas de suspenso, le faltó un mejor final." },
+            { title: "Bambi", date: "", genre: "Terror", criticScore: "TBD", publicScore: "4.8", luisScore: "0", nadiaScore: "0", average: "1.6", luisNotes: "💩", nadiaNotes: "Mala en todos los aspectos." },
+            { title: "El Conjuro 4", date: "", genre: "Terror", criticScore: "5.4", publicScore: "5.7", luisScore: "8", nadiaScore: "7", average: "6.5", luisNotes: "Me gustó, está bien y me agrada la historia, pero para ser \"El conjuro\", me faltó más.", nadiaNotes: "Es buena/ entretenida, pero hizo falta más. Era una película fuerte." },
+            { title: "Silent Hill: El regrso", date: "", genre: "Terror", criticScore: "3.4", publicScore: "4.4", luisScore: "3", nadiaScore: "3.5", average: "3.6", luisNotes: "Muy \"xd\" con la historia.", nadiaNotes: "Buenos personajes, malísima trama/ historia." },
+            { title: "Primate", date: "", genre: "Terror", criticScore: "5.8", publicScore: "5.3", luisScore: "6", nadiaScore: "6", average: "5.8", luisNotes: "Es buena, pero le falta algo, no sé qué, pero algo le falta.", nadiaNotes: "Buena iniciativa perp mala ejecución." },
+            { title: "Hoppers", date: "", genre: "Animación", criticScore: "7.3", publicScore: "7.7", luisScore: "7.5", nadiaScore: "7", average: "7.4", luisNotes: "Es muy linda, es tierna, me gustó.", nadiaNotes: "Bonita historia, linda forma de representar a los animales. De repente pierde el hilo." },
+            { title: "La Casa de Papel", date: "", genre: "Acción", criticScore: "TBD", publicScore: "8.2", luisScore: "9", nadiaScore: "9", average: "8.7", luisNotes: "Muy buena, sin mas que agregar.", nadiaNotes: "La historia es buena, me agrada los giros que da a la trama." },
+            { title: "Cars", date: "", genre: "Animación", criticScore: "7.3", publicScore: "7.9", luisScore: "10", nadiaScore: "10", average: "8.8", luisNotes: "<3", nadiaNotes: "<3" },
+            { title: "Exit 8", date: "29/04/26", genre: "Misterio", criticScore: "7.1", publicScore: "6.5", luisScore: "2.6", nadiaScore: "2", average: "4.6", luisNotes: "Es interesante, pero nada increíble. (Me dormí)", nadiaNotes: "Demasiado repetitiva. Entiendo el concepto pero se vuelve tedioso. (Estuve a nada de dormir)." },
+            { title: "No dejes a los niños solos", date: "15/05/26", genre: "Terror Psicológico", criticScore: "6", publicScore: "TBD", luisScore: "8.8", nadiaScore: "8", average: "7.6", luisNotes: "Es buena, tiene buena trama y te mantiene todo el tiempo en suspenso sin animaciones baratas.", nadiaNotes: "Me sorprendió la manera de llevar la trama, normalmente no se ven así las películas de terror mexicanas. Buena trama, buenas escenas, sin necesidad de montar algo adicional." },
+            { title: "Obsesión", date: "20/05/26", genre: "Horror", criticScore: "8.2", publicScore: "9.5", luisScore: "9", nadiaScore: "8.5", average: "8.8", luisNotes: "Muy, muy buena, todo el tiempo te mantiene con la sensasión de incómodo, te atrapa, buena historia, me gustó mucho.", nadiaNotes: "Buena propuesta de terror, aún sin contar con monstruos, fantasmas o algo así. Me gustó." },
+            { title: "La novia del diablo", date: "03/06/26", genre: "Terror?", criticScore: "", publicScore: "", luisScore: "0", nadiaScore: "0", average: "0.0", luisNotes: "💩💩💩", nadiaNotes: "Mala en todos los aspectos." }
+        ];
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
+            authDomain: "nadiapp-b44ae.firebaseapp.com",
+            projectId: "nadiapp-b44ae",
+            storageBucket: "nadiapp-b44ae.firebasestorage.app",
+            messagingSenderId: "458286198231",
+            appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92"
+        };
+
+        const configToUse = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+        const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'peli-nad-default';
+
+        const app = initializeApp(configToUse);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // App State
+        let allMovies = [];
+        let currentUser = null;
+        let isEditing = false;
+
+        // DOM Elements
+        const movieGrid = document.getElementById('movieGrid');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const movieModal = document.getElementById('movieModal');
+        const movieForm = document.getElementById('movieForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth error:", error);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                fetchMovies(user);
+            } else {
+                loadingState.classList.add('hidden');
+            }
+        });
+
+        initAuth();
+
+        function fetchMovies(user) {
+            const moviesRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'movies');
+            const q = query(moviesRef);
+            
+            onSnapshot(q, async (snapshot) => {
+                if (snapshot.empty && allMovies.length === 0) {
+                    seedInitialData();
+                } else {
+                    allMovies = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    // Sort movies
+                    allMovies.sort((a, b) => {
+                        if (a.date && b.date) {
+                            const [da, ma, ya] = a.date.split('/');
+                            const [db, mb, yb] = b.date.split('/');
+                            const dateA = new Date(`20${ya}-${ma}-${da}`);
+                            const dateB = new Date(`20${yb}-${mb}-${db}`);
+                            return dateB - dateA;
+                        }
+                        return a.title.localeCompare(b.title);
+                    });
+
+                    renderMovies();
+                }
+            }, (error) => {
+                console.error("Error fetching movies:", error);
+                loadingState.classList.add('hidden');
+            });
+        }
+
+        async function seedInitialData() {
+            const moviesRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'movies');
+            try {
+                for (const movie of initialMovies) {
+                    const lScore = parseFloat(movie.luisScore) || 0;
+                    const nScore = parseFloat(movie.nadiaScore) || 0;
+                    const avg = ((lScore + nScore) / 2).toFixed(1);
+                    await addDoc(moviesRef, { ...movie, average: avg });
+                }
+            } catch (error) {
+                console.error("Error seeding initial data:", error);
+            }
+        }
+
+        function getScoreColor(score) {
+            const num = parseFloat(score);
+            if (isNaN(num)) return "bg-gray-200 text-gray-700";
+            if (num >= 8.5) return "bg-green-100 text-green-800 border-green-200";
+            if (num >= 7.0) return "bg-blue-100 text-blue-800 border-blue-200";
+            if (num >= 5.0) return "bg-yellow-100 text-yellow-800 border-yellow-200";
+            return "bg-red-100 text-red-800 border-red-200";
+        }
+
+        function renderMovies() {
+            loadingState.classList.add('hidden');
+            movieGrid.classList.remove('hidden');
+            movieGrid.innerHTML = '';
+
+            const filterText = searchInput.value.toLowerCase();
+            const filteredMovies = allMovies.filter(m => 
+                m.title.toLowerCase().includes(filterText) || 
+                (m.genre && m.genre.toLowerCase().includes(filterText))
+            );
+
+            if (filteredMovies.length === 0) {
+                emptyState.classList.remove('hidden');
+                movieGrid.classList.add('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                filteredMovies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = "bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow flex flex-col h-full group";
+                    
+                    const dateBadge = movie.date ? 
+                        `<span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3"></i> ${movie.date}
+                        </span>` : '';
+
+                    const luisNotes = movie.luisNotes ? 
+                        `<div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100 text-sm text-gray-700 mb-2">
+                            <div class="flex items-center gap-1.5 mb-1 text-blue-700 font-medium text-xs">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Luis dice:
+                            </div>
+                            <p class="italic">${movie.luisNotes}</p>
+                        </div>` : '';
+
+                    const nadiaNotes = movie.nadiaNotes ? 
+                        `<div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100 text-sm text-gray-700">
+                            <div class="flex items-center gap-1.5 mb-1 text-rose-700 font-medium text-xs">
+                                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Nadia dice:
+                            </div>
+                            <p class="italic">${movie.nadiaNotes}</p>
+                        </div>` : '';
+
+                    card.innerHTML = `
+                        <div class="p-5 flex-grow flex flex-col">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="text-xl font-bold text-gray-900 leading-tight pr-2">${movie.title}</h3>
+                                <div class="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                    <button data-action="edit" data-id="${movie.id}" class="p-1.5 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-50">
+                                        <i data-lucide="edit-2" class="w-4 h-4 pointer-events-none"></i>
+                                    </button>
+                                    <button data-action="delete" data-id="${movie.id}" class="p-1.5 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50">
+                                        <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="px-2.5 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-lg">
+                                    ${movie.genre || 'Sin género'}
+                                </span>
+                                ${dateBadge}
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 mb-5 text-center">
+                                <div class="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <div class="text-[10px] text-gray-500 uppercase font-semibold mb-1">Luis</div>
+                                    <div class="font-bold text-lg text-blue-600">${movie.luisScore || '-'}</div>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <div class="text-[10px] text-gray-500 uppercase font-semibold mb-1">Promedio</div>
+                                    <div class="font-bold text-xl inline-block px-2 py-0.5 rounded-md border ${getScoreColor(movie.average)}">
+                                        ${movie.average}
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded-xl border border-gray-100">
+                                    <div class="text-[10px] text-gray-500 uppercase font-semibold mb-1">Nadia</div>
+                                    <div class="font-bold text-lg text-rose-600">${movie.nadiaScore || '-'}</div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between text-xs text-gray-500 mb-4 px-1">
+                                <span>Crítica: <strong>${movie.criticScore || '-'}</strong></span>
+                                <span>Público: <strong>${movie.publicScore || '-'}</strong></span>
+                            </div>
+
+                            <div class="mt-auto">
+                                ${luisNotes}
+                                ${nadiaNotes}
+                            </div>
+                        </div>
+                    `;
+                    movieGrid.appendChild(card);
+                });
+            }
+            // Re-initialize icons for newly added HTML
+            lucide.createIcons();
+        }
+
+        function calculateAverage(luis, nadia) {
+            const lScore = parseFloat(luis) || 0;
+            const nScore = parseFloat(nadia) || 0;
+            if (luis === "" && nadia === "") return "0.0";
+            const count = (luis !== "" ? 1 : 0) + (nadia !== "" ? 1 : 0);
+            if (count === 0) return "0.0";
+            return ((lScore + nScore) / count).toFixed(1);
+        }
+
+        function openModal(movieId = null) {
+            movieForm.reset();
+            if (movieId) {
+                isEditing = true;
+                const movie = allMovies.find(m => m.id === movieId);
+                document.getElementById('movieId').value = movie.id;
+                document.getElementById('title').value = movie.title || '';
+                document.getElementById('date').value = movie.date || '';
+                document.getElementById('genre').value = movie.genre || '';
+                document.getElementById('luisScore').value = movie.luisScore || '';
+                document.getElementById('nadiaScore').value = movie.nadiaScore || '';
+                document.getElementById('criticScore').value = movie.criticScore || '';
+                document.getElementById('publicScore').value = movie.publicScore || '';
+                document.getElementById('luisNotes').value = movie.luisNotes || '';
+                document.getElementById('nadiaNotes').value = movie.nadiaNotes || '';
+                
+                modalTitle.textContent = 'Editar Película';
+                saveBtn.textContent = 'Guardar Cambios';
+            } else {
+                isEditing = false;
+                document.getElementById('movieId').value = '';
+                modalTitle.textContent = 'Agregar Nueva Película';
+                saveBtn.textContent = 'Agregar Película';
+            }
+            movieModal.classList.remove('hidden');
+            movieModal.classList.add('flex');
+        }
+
+        function closeModal() {
+            movieModal.classList.add('hidden');
+            movieModal.classList.remove('flex');
+        }
+
+        async function saveMovie(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const movieId = document.getElementById('movieId').value;
+            const luisS = document.getElementById('luisScore').value;
+            const nadiaS = document.getElementById('nadiaScore').value;
+
+            const movieData = {
+                title: document.getElementById('title').value,
+                date: document.getElementById('date').value,
+                genre: document.getElementById('genre').value,
+                luisScore: luisS,
+                nadiaScore: nadiaS,
+                criticScore: document.getElementById('criticScore').value,
+                publicScore: document.getElementById('publicScore').value,
+                luisNotes: document.getElementById('luisNotes').value,
+                nadiaNotes: document.getElementById('nadiaNotes').value,
+                average: calculateAverage(luisS, nadiaS)
+            };
+
+            try {
+                if (isEditing && movieId) {
+                    const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'movies', movieId);
+                    await updateDoc(docRef, movieData);
+                } else {
+                    const moviesRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'movies');
+                    await addDoc(moviesRef, movieData);
+                }
+                closeModal();
+            } catch (error) {
+                console.error("Error saving movie:", error);
+            }
+        }
+
+        async function deleteMovie(id) {
+            if (!currentUser) return;
+            // Un pequeño confirm nativo, aunque evitamos alert(), confirm() es aceptable para deletes manuales rápidos si no creamos un modal completo.
+            // Para mantener las reglas estrictas de NO alert/confirm, lo borramos directo o hacemos soft delete. Aquí lo borramos directo como en la version de React.
+            try {
+                const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'movies', id);
+                await deleteDoc(docRef);
+            } catch(error) {
+                console.error("Error deleting movie:", error);
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('openModalBtn').addEventListener('click', () => openModal());
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('cancelBtn').addEventListener('click', closeModal);
+        movieForm.addEventListener('submit', saveMovie);
+        searchInput.addEventListener('input', renderMovies);
+        
+        // Event Delegation for Edit/Delete buttons dynamically added
+        movieGrid.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            
+            const action = btn.getAttribute('data-action');
+            const id = btn.getAttribute('data-id');
+            
+            if (action === 'edit') openModal(id);
+            if (action === 'delete') deleteMovie(id);
+        });
+
+        // Initialize icons on load
+        lucide.createIcons();
+    </script>
+</body>
+</html>
