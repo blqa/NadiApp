@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nuestras Finanzas</title>
+    <title>FinaNad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -47,43 +47,83 @@
     <!-- Main App Container -->
     <div id="appContainer" class="max-w-md mx-auto bg-[#fdf2f8] min-h-screen shadow-lg pb-24 hidden relative overflow-hidden">
         
-        <!-- Header / Total Balance -->
-        <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
-            <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NadiNero 💕</h1>
-            <div class="text-center">
-                <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Balance Total</p>
-                <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
-            </div>
-        </header>
+        <!-- Tab: Finanzas -->
+        <div id="tab-finanzas" class="tab-content block">
+            <!-- Header / Total Balance -->
+            <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
+                <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">FinaNad 💕</h1>
+                <div class="text-center">
+                    <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Balance Total</p>
+                    <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
+                </div>
+            </header>
 
-        <!-- Accounts Section -->
-        <section class="px-5 mb-8">
-            <div class="flex justify-between items-center mb-4 pl-1">
-                <h3 class="text-lg font-bold text-slate-700">Mis Cuentas</h3>
-                <button onclick="openModal('accountModal')" class="bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1 active:scale-95">
-                    <span>+</span> Cuenta
+            <!-- Accounts Section -->
+            <section class="px-5 mb-8">
+                <div class="flex justify-between items-center mb-4 pl-1">
+                    <h3 class="text-lg font-bold text-slate-700">Mis Cuentas</h3>
+                    <button onclick="openModal('accountModal')" class="bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1 active:scale-95">
+                        <span>+</span> Cuenta
+                    </button>
+                </div>
+                
+                <!-- Accounts List Container -->
+                <div id="accountsList" class="grid grid-cols-1 gap-3">
+                    <!-- Accounts will be injected here by JS -->
+                    <p id="noAccountsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay cuentas. ¡Agrega una para empezar!</p>
+                </div>
+            </section>
+
+            <!-- Actions & Recent Movements -->
+            <section class="px-5">
+                <button onclick="openModal('transactionModal')" class="w-full bg-teal-100 text-teal-700 py-4 rounded-2xl font-bold text-lg shadow-sm hover:bg-teal-200 transition-colors mb-6 active:scale-[0.98] border border-teal-200">
+                    + Agregar Movimiento
                 </button>
-            </div>
+
+                <h3 class="text-lg font-bold text-slate-700 mb-3 pl-1">Últimos Movimientos</h3>
+                <div id="transactionsList" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 max-h-64 overflow-y-auto">
+                    <!-- Transactions will be injected here by JS -->
+                    <p id="noTransactionsMsg" class="text-center text-slate-400 text-sm py-2">No hay movimientos recientes.</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab: Objetivos -->
+        <div id="tab-objetivos" class="tab-content hidden">
+            <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
+                <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">FinaNad 💕</h1>
+                <div class="text-center">
+                    <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Ahorro Total en Objetivos</p>
+                    <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalSavingsView">$0.00</h2>
+                </div>
+            </header>
             
-            <!-- Accounts List Container -->
-            <div id="accountsList" class="grid grid-cols-1 gap-3">
-                <!-- Accounts will be injected here by JS -->
-                <p id="noAccountsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay cuentas. ¡Agrega una para empezar!</p>
-            </div>
-        </section>
+            <section class="px-5 mb-8">
+                <div class="flex justify-between items-center mb-4 pl-1">
+                    <h3 class="text-lg font-bold text-slate-700">Cajas de Ahorro</h3>
+                    <button onclick="openModal('goalModal')" class="bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-pink-200 transition-colors flex items-center gap-1 active:scale-95">
+                        <span>+</span> Objetivo
+                    </button>
+                </div>
+                
+                <div id="goalsList" class="grid grid-cols-1 gap-4">
+                    <!-- Goals injected here -->
+                    <p id="noGoalsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay objetivos. ¡Crea uno para empezar a ahorrar!</p>
+                </div>
+            </section>
+        </div>
 
-        <!-- Actions & Recent Movements -->
-        <section class="px-5">
-            <button onclick="openModal('transactionModal')" class="w-full bg-teal-100 text-teal-700 py-4 rounded-2xl font-bold text-lg shadow-sm hover:bg-teal-200 transition-colors mb-6 active:scale-[0.98] border border-teal-200">
-                + Agregar Movimiento
+        <!-- Bottom Navigation -->
+        <nav class="absolute bottom-0 w-full max-w-md bg-white border-t border-slate-100 flex justify-around p-3 z-30 pb-safe rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+            <button onclick="switchTab('finanzas')" id="nav-finanzas" class="nav-btn flex-1 flex flex-col items-center text-pink-500 transition-all">
+                <span class="text-2xl mb-1">💳</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Cuentas</span>
             </button>
-
-            <h3 class="text-lg font-bold text-slate-700 mb-3 pl-1">Últimos Movimientos</h3>
-            <div id="transactionsList" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 max-h-64 overflow-y-auto">
-                <!-- Transactions will be injected here by JS -->
-                <p id="noTransactionsMsg" class="text-center text-slate-400 text-sm py-2">No hay movimientos recientes.</p>
-            </div>
-        </section>
+            <button onclick="switchTab('objetivos')" id="nav-objetivos" class="nav-btn flex-1 flex flex-col items-center text-slate-300 hover:text-slate-400 transition-all grayscale opacity-70">
+                <span class="text-2xl mb-1">🎯</span>
+                <span class="text-[10px] font-bold uppercase tracking-wider">Objetivos</span>
+            </button>
+        </nav>
 
     </div>
 
@@ -96,18 +136,9 @@
             </div>
             
             <form id="addAccountForm" onsubmit="handleAddAccount(event)">
-                <div class="mb-4">
-                    <label class="block text-sm font-bold text-slate-600 mb-1">Nombre de la cuenta</label>
-                    <input type="text" id="accName" required placeholder="Ej. Ahorros Boda, Tarjeta de Crédito" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-slate-700">
-                </div>
                 <div class="mb-6">
-                    <label class="block text-sm font-bold text-slate-600 mb-1">Tipo de cuenta</label>
-                    <select id="accType" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-slate-700 appearance-none">
-                        <option value="efectivo">💵 Efectivo</option>
-                        <option value="debito">💳 Tarjeta de Débito</option>
-                        <option value="credito">💳 Tarjeta de Crédito</option>
-                        <option value="ahorro">🏦 Ahorro / Inversión</option>
-                    </select>
+                    <label class="block text-sm font-bold text-slate-600 mb-1">Nombre de la cuenta</label>
+                    <input type="text" id="accName" required placeholder="Ej. Ahorros Boda, Tarjeta Compartida" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-slate-700">
                 </div>
                 <button type="submit" id="btnSaveAccount" class="w-full bg-purple-500 text-white font-bold rounded-xl py-3 shadow-md shadow-purple-200 hover:bg-purple-600 active:scale-95 transition-all">
                     Crear Cuenta
@@ -168,6 +199,72 @@
         </div>
     </div>
 
+    <!-- Modal: Add Goal -->
+    <div id="goalModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-bold text-pink-600">Nuevo Objetivo</h3>
+                <button onclick="closeModal('goalModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+            </div>
+            
+            <form id="addGoalForm" onsubmit="handleAddGoal(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">¿Qué quieren lograr?</label>
+                    <input type="text" id="goalName" required placeholder="Ej. Viaje a la playa, Muebles" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all text-slate-700">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">¿Cuánto necesitan? (Meta)</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                        <input type="number" id="goalTarget" required min="1" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all text-slate-700 font-bold text-lg">
+                    </div>
+                </div>
+                <button type="submit" id="btnSaveGoal" class="w-full bg-pink-500 text-white font-bold rounded-xl py-3 shadow-md shadow-pink-200 hover:bg-pink-600 active:scale-95 transition-all">
+                    Crear Objetivo
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Goal Transaction (Add/Remove) -->
+    <div id="goalTxModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-bold text-indigo-600" id="goalTxTitle">Modificar Ahorro</h3>
+                <button onclick="closeModal('goalTxModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+            </div>
+            
+            <form id="goalTxForm" onsubmit="handleGoalTx(event)">
+                <input type="hidden" id="goalTxId">
+                <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
+                    <label class="flex-1 text-center cursor-pointer">
+                        <input type="radio" name="goalTxType" value="add" checked class="peer hidden">
+                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-indigo-500 peer-checked:shadow-sm transition-all">
+                            Abonar (+)
+                        </div>
+                    </label>
+                    <label class="flex-1 text-center cursor-pointer">
+                        <input type="radio" name="goalTxType" value="remove" class="peer hidden">
+                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-rose-500 peer-checked:shadow-sm transition-all">
+                            Retirar (-)
+                        </div>
+                    </label>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-slate-600 mb-1">Cantidad a mover</label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                        <input type="number" id="goalTxAmount" required min="0.01" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all text-slate-700 font-bold text-lg">
+                    </div>
+                </div>
+                <button type="submit" id="btnSaveGoalTx" class="w-full bg-indigo-500 text-white font-bold rounded-xl py-3 shadow-md shadow-indigo-200 hover:bg-indigo-600 active:scale-95 transition-all">
+                    Guardar
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Custom Alert Modal (replaces browser alert) -->
     <div id="alertModal" class="fixed inset-0 bg-slate-900/30 z-50 hidden flex-col items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-6 shadow-xl max-w-xs w-full text-center transform scale-95 transition-transform duration-200" id="alertBox">
@@ -180,7 +277,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Determine environment variables
         const envAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-nadi-app';
@@ -209,6 +306,7 @@
         let currentUserUid = null;
         let accountsData = [];
         let transactionsData = [];
+        let goalsData = []; // State for goals
 
         // Formatting utilities
         const formatMoney = (amount) => {
@@ -228,6 +326,35 @@
                 'ahorro': 'bg-yellow-100 text-yellow-700 border-yellow-200' 
             };
             return colors[type] || 'bg-slate-100 text-slate-700 border-slate-200';
+        };
+
+        // Navigation (Tabs)
+        window.switchTab = (tabName) => {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('block');
+                el.classList.add('hidden');
+            });
+            
+            // Reset Nav buttons styles
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('text-pink-500', 'grayscale-0', 'opacity-100');
+                el.classList.add('text-slate-300', 'grayscale', 'opacity-70');
+            });
+
+            // Show selected tab
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                activeTab.classList.add('block');
+            }
+
+            // Highlight active nav icon
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.classList.remove('text-slate-300', 'grayscale', 'opacity-70');
+                activeNav.classList.add('text-pink-500', 'grayscale-0', 'opacity-100');
+            }
         };
 
         // Custom Alert Function (Replacing alert())
@@ -282,7 +409,15 @@
                 // Reset forms on close
                 if(id === 'accountModal') document.getElementById('addAccountForm').reset();
                 if(id === 'transactionModal') document.getElementById('addTransactionForm').reset();
+                if(id === 'goalModal') document.getElementById('addGoalForm').reset();
+                if(id === 'goalTxModal') document.getElementById('goalTxForm').reset();
             }, 300);
+        };
+
+        window.openGoalTxModal = (goalId, goalName) => {
+            document.getElementById('goalTxId').value = goalId;
+            document.getElementById('goalTxTitle').innerText = `Ahorro: ${goalName}`;
+            openModal('goalTxModal');
         };
 
         // Authentication Flow
@@ -322,6 +457,7 @@
             // Enforce Strict Paths: /artifacts/{appId}/users/{userId}/{collectionName}
             const accountsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'accounts');
             const txRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'transactions');
+            const goalsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals');
 
             // Listen to Accounts
             onSnapshot(accountsRef, (snapshot) => {
@@ -357,6 +493,24 @@
                 updateUI();
             }, (error) => {
                 console.error("Error fetching transactions:", error);
+            });
+
+            // Listen to Goals
+            onSnapshot(goalsRef, (snapshot) => {
+                goalsData = [];
+                snapshot.forEach((doc) => {
+                    goalsData.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort goals locally
+                goalsData.sort((a, b) => {
+                    if(a.createdAt && b.createdAt) return b.createdAt.toMillis() - a.createdAt.toMillis();
+                    return 0;
+                });
+                
+                updateGoalsUI();
+            }, (error) => {
+                console.error("Error fetching goals:", error);
             });
         }
 
@@ -398,17 +552,14 @@
                     // Build Account Card
                     if (listEl) {
                         const card = document.createElement('div');
-                        const colorClasses = getColorForType(account.type);
-                        
-                        card.className = `bg-white border rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer ${colorClasses.split(' ')[2]}`; // apply border color
+                        card.className = "bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer"; 
                         card.innerHTML = `
                             <div class="flex items-center gap-3">
-                                <div class="${colorClasses} w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
-                                    ${getIconForType(account.type)}
+                                <div class="bg-pink-100 text-pink-600 w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
+                                    💳
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-slate-700 leading-tight">${account.name}</h4>
-                                    <span class="text-xs font-semibold uppercase tracking-wider opacity-70">${account.type}</span>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -435,8 +586,16 @@
             // Render Recent Transactions
             if(txListEl) txListEl.innerHTML = '';
             if (transactionsData.length === 0) {
-                if(txListEl && noTxMsg) txListEl.appendChild(noTxMsg);
+                if(txListEl && noTxMsg) {
+                    noTxMsg.classList.remove('hidden');
+                    noTxMsg.classList.add('block');
+                    txListEl.appendChild(noTxMsg);
+                }
             } else {
+                if(noTxMsg) {
+                    noTxMsg.classList.add('hidden');
+                    noTxMsg.classList.remove('block');
+                }
                 // Show max 10 recent transactions for performance/UI constraints
                 const recentTx = transactionsData.slice(0, 10);
                 recentTx.forEach(tx => {
@@ -466,13 +625,82 @@
         // Update Select Dropdown in Transaction Modal
         function updateTransactionAccountSelect() {
             const select = document.getElementById('txAccountSelect');
+            if(!select) return;
             select.innerHTML = '';
             accountsData.forEach(acc => {
                 const opt = document.createElement('option');
                 opt.value = acc.id;
-                opt.textContent = `${getIconForType(acc.type)} ${acc.name}`;
+                opt.textContent = `💳 ${acc.name}`;
                 select.appendChild(opt);
             });
+        }
+
+        // Update Goals UI
+        function updateGoalsUI() {
+            const listEl = document.getElementById('goalsList');
+            const noGoalsMsg = document.getElementById('noGoalsMsg');
+            const totalSavingsView = document.getElementById('totalSavingsView');
+            
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            
+            let totalSavings = 0;
+
+            if (goalsData.length === 0) {
+                if (noGoalsMsg) {
+                    noGoalsMsg.classList.remove('hidden');
+                    noGoalsMsg.classList.add('block');
+                }
+            } else {
+                if (noGoalsMsg) {
+                    noGoalsMsg.classList.add('hidden');
+                    noGoalsMsg.classList.remove('block');
+                }
+
+                goalsData.forEach(goal => {
+                    const current = goal.currentAmount || 0;
+                    const target = goal.targetAmount || 1;
+                    totalSavings += current;
+                    
+                    let percentage = (current / target) * 100;
+                    if (percentage > 100) percentage = 100;
+                    if (percentage < 0) percentage = 0;
+
+                    const isCompleted = current >= target;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-3 relative z-10">
+                            <div>
+                                <h4 class="font-bold text-slate-700 leading-tight text-lg">${goal.name}</h4>
+                                <span class="text-xs font-semibold ${isCompleted ? 'text-teal-500' : 'text-slate-400'}">${isCompleted ? '¡Objetivo Alcanzado! 🎉' : 'En progreso...'}</span>
+                            </div>
+                            <button onclick="openGoalTxModal('${goal.id}', '${goal.name}')" class="bg-indigo-50 text-indigo-500 w-10 h-10 rounded-full flex items-center justify-center font-bold hover:bg-indigo-100 active:scale-95 transition-all shadow-sm">
+                                <span class="text-xl leading-none">+/-</span>
+                            </button>
+                        </div>
+                        
+                        <div class="mb-2 relative z-10">
+                            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+                                <div class="${isCompleted ? 'bg-teal-400' : 'bg-pink-400'} h-3 rounded-full transition-all duration-700" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center text-sm relative z-10">
+                            <span class="font-black text-slate-700 text-lg">${formatMoney(current)}</span>
+                            <span class="text-slate-400 font-medium">de ${formatMoney(target)}</span>
+                        </div>
+                        
+                        ${isCompleted ? '<div class="absolute inset-0 bg-teal-50 opacity-10 z-0"></div>' : ''}
+                    `;
+                    listEl.appendChild(card);
+                });
+            }
+
+            if (totalSavingsView) {
+                totalSavingsView.innerText = formatMoney(totalSavings);
+            }
         }
 
         // Form Handlers
@@ -481,7 +709,6 @@
             if (!currentUserUid) return;
 
             const name = document.getElementById('accName').value.trim();
-            const type = document.getElementById('accType').value;
             const btn = document.getElementById('btnSaveAccount');
 
             if (!name) return;
@@ -493,7 +720,6 @@
                 const accountsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'accounts');
                 await addDoc(accountsRef, {
                     name: name,
-                    type: type,
                     createdAt: serverTimestamp()
                 });
 
@@ -542,6 +768,71 @@
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Guardar Movimiento";
+            }
+        };
+
+        window.handleAddGoal = async (e) => {
+            e.preventDefault();
+            if (!currentUserUid) return;
+
+            const name = document.getElementById('goalName').value.trim();
+            const targetAmount = parseFloat(document.getElementById('goalTarget').value);
+            const btn = document.getElementById('btnSaveGoal');
+
+            if (!name || !targetAmount || targetAmount <= 0) return;
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Guardando...";
+
+                const goalsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals');
+                await addDoc(goalsRef, {
+                    name: name,
+                    targetAmount: targetAmount,
+                    currentAmount: 0,
+                    createdAt: serverTimestamp()
+                });
+
+                closeModal('goalModal');
+            } catch (error) {
+                console.error("Error adding goal:", error);
+                showAlert("Error", "No se pudo crear el objetivo.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Crear Objetivo";
+            }
+        };
+
+        window.handleGoalTx = async (e) => {
+            e.preventDefault();
+            if (!currentUserUid) return;
+
+            const goalId = document.getElementById('goalTxId').value;
+            const txType = document.querySelector('input[name="goalTxType"]:checked').value;
+            const amount = parseFloat(document.getElementById('goalTxAmount').value);
+            const btn = document.getElementById('btnSaveGoalTx');
+
+            if (!amount || amount <= 0 || !goalId) return;
+
+            const finalAmount = txType === 'add' ? amount : -amount;
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Guardando...";
+
+                const goalRef = doc(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals', goalId);
+                // Increment (or decrement if negative) safely inside Firestore
+                await updateDoc(goalRef, {
+                    currentAmount: increment(finalAmount)
+                });
+
+                closeModal('goalTxModal');
+            } catch (error) {
+                console.error("Error updating goal:", error);
+                showAlert("Error", "No se pudo actualizar el ahorro.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Guardar";
             }
         };
 
