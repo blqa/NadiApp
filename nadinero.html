@@ -11,8 +11,10 @@
             font-family: 'Nunito', sans-serif;
             background-color: #fdf2f8; /* Soft pink-50 pastel background */
             -webkit-tap-highlight-color: transparent;
+            height: 100dvh; /* Altura dinámica perfecta para Safari/iOS */
+            overflow: hidden; /* Evita que el fondo blanco del navegador scrollee */
         }
-        
+
         /* Custom scrollbar for a cleaner look */
         ::-webkit-scrollbar {
             width: 6px;
@@ -34,16 +36,30 @@
             transform: scale(1) translateY(0);
             transition: opacity 300ms, transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* Zona segura para el 'Notch' y la barra inferior de iPhone */
+        .pb-safe {
+            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+        }
+
+        /* Oculta la barra de scroll en el contenido principal para verse como app nativa */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="text-slate-700 min-h-screen relative">
+<body class="text-slate-700 h-[100dvh] w-full overflow-hidden relative">
 
     <!-- Login Screen -->
     <div id="loginScreen" class="fixed inset-0 bg-[#fdf2f8] z-[60] hidden flex-col items-center justify-center p-6 transition-opacity duration-500 opacity-0">
         <div class="bg-white rounded-[2.5rem] p-8 shadow-xl w-full max-w-sm text-center transform transition-all">
             <h1 class="text-3xl font-extrabold text-pink-400 mb-2 tracking-wide">NaDinero 💕</h1>
             <p class="text-slate-500 font-medium mb-8">Ingresa la palabra secreta para continuar</p>
-            
+
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
                     <input type="password" id="secretWord" placeholder="Palabra secreta" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-transform duration-100 text-slate-700 text-center font-bold text-lg" autocomplete="off">
@@ -63,76 +79,81 @@
     </div>
 
     <!-- Main App Container -->
-    <div id="appContainer" class="max-w-md mx-auto bg-[#fdf2f8] min-h-screen shadow-lg pb-24 hidden relative overflow-hidden">
-        
-        <!-- Tab: Finanzas -->
-        <div id="tab-finanzas" class="tab-content block">
-            <!-- Header / Total Balance -->
-            <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
-                <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
-                <div class="text-center">
-                    <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Balance Total</p>
-                    <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
-                </div>
-            </header>
+    <div id="appContainer" class="w-full max-w-md mx-auto bg-[#fdf2f8] h-full flex flex-col hidden relative shadow-2xl overflow-hidden">
 
-            <!-- Accounts Section -->
-            <section class="px-5 mb-8">
-                <div class="flex justify-between items-center mb-4 pl-1">
-                    <h3 class="text-lg font-bold text-slate-700">Mis Cuentas</h3>
-                    <button onclick="openModal('accountModal')" class="bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1 active:scale-95">
-                        <span>+</span> Cuenta
+        <!-- Área de contenido con scroll independiente -->
+        <main class="flex-1 overflow-y-auto w-full relative no-scrollbar pb-6">
+
+            <!-- Tab: Finanzas -->
+            <div id="tab-finanzas" class="tab-content block">
+                <!-- Header / Total Balance -->
+                <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
+                    <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
+                    <div class="text-center">
+                        <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Balance Total</p>
+                        <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
+                    </div>
+                </header>
+
+                <!-- Accounts Section -->
+                <section class="px-5 mb-8">
+                    <div class="flex justify-between items-center mb-4 pl-1">
+                        <h3 class="text-lg font-bold text-slate-700">Mis Cuentas</h3>
+                        <button onclick="openModal('accountModal')" class="bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1 active:scale-95">
+                            <span>+</span> Cuenta
+                        </button>
+                    </div>
+
+                    <!-- Accounts List Container -->
+                    <div id="accountsList" class="grid grid-cols-1 gap-3">
+                        <!-- Accounts will be injected here by JS -->
+                        <p id="noAccountsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay cuentas. ¡Agrega una para empezar!</p>
+                    </div>
+                </section>
+
+                <!-- Actions & Recent Movements -->
+                <section class="px-5">
+                    <button onclick="openModal('transactionModal')" class="w-full bg-teal-100 text-teal-700 py-4 rounded-2xl font-bold text-lg shadow-sm hover:bg-teal-200 transition-colors mb-6 active:scale-[0.98] border border-teal-200">
+                        + Agregar Movimiento
                     </button>
-                </div>
-                
-                <!-- Accounts List Container -->
-                <div id="accountsList" class="grid grid-cols-1 gap-3">
-                    <!-- Accounts will be injected here by JS -->
-                    <p id="noAccountsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay cuentas. ¡Agrega una para empezar!</p>
-                </div>
-            </section>
 
-            <!-- Actions & Recent Movements -->
-            <section class="px-5">
-                <button onclick="openModal('transactionModal')" class="w-full bg-teal-100 text-teal-700 py-4 rounded-2xl font-bold text-lg shadow-sm hover:bg-teal-200 transition-colors mb-6 active:scale-[0.98] border border-teal-200">
-                    + Agregar Movimiento
-                </button>
+                    <h3 class="text-lg font-bold text-slate-700 mb-3 pl-1">Últimos Movimientos</h3>
+                    <div id="transactionsList" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 max-h-64 overflow-y-auto">
+                        <!-- Transactions will be injected here by JS -->
+                        <p id="noTransactionsMsg" class="text-center text-slate-400 text-sm py-2">No hay movimientos recientes.</p>
+                    </div>
+                </section>
+            </div>
 
-                <h3 class="text-lg font-bold text-slate-700 mb-3 pl-1">Últimos Movimientos</h3>
-                <div id="transactionsList" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 max-h-64 overflow-y-auto">
-                    <!-- Transactions will be injected here by JS -->
-                    <p id="noTransactionsMsg" class="text-center text-slate-400 text-sm py-2">No hay movimientos recientes.</p>
-                </div>
-            </section>
-        </div>
+            <!-- Tab: Objetivos -->
+            <div id="tab-objetivos" class="tab-content hidden">
+                <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
+                    <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
+                    <div class="text-center">
+                        <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Ahorro Total en Objetivos</p>
+                        <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalSavingsView">$0.00</h2>
+                    </div>
+                </header>
 
-        <!-- Tab: Objetivos -->
-        <div id="tab-objetivos" class="tab-content hidden">
-            <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
-                <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
-                <div class="text-center">
-                    <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Ahorro Total en Objetivos</p>
-                    <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalSavingsView">$0.00</h2>
-                </div>
-            </header>
-            
-            <section class="px-5 mb-8">
-                <div class="flex justify-between items-center mb-4 pl-1">
-                    <h3 class="text-lg font-bold text-slate-700">Cajas de Ahorro</h3>
-                    <button onclick="openModal('goalModal')" class="bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-pink-200 transition-colors flex items-center gap-1 active:scale-95">
-                        <span>+</span> Objetivo
-                    </button>
-                </div>
-                
-                <div id="goalsList" class="grid grid-cols-1 gap-4">
-                    <!-- Goals injected here -->
-                    <p id="noGoalsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay objetivos. ¡Crea uno para empezar a ahorrar!</p>
-                </div>
-            </section>
-        </div>
+                <section class="px-5 mb-8">
+                    <div class="flex justify-between items-center mb-4 pl-1">
+                        <h3 class="text-lg font-bold text-slate-700">Cajas de Ahorro</h3>
+                        <button onclick="openModal('goalModal')" class="bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-pink-200 transition-colors flex items-center gap-1 active:scale-95">
+                            <span>+</span> Objetivo
+                        </button>
+                    </div>
+
+                    <div id="goalsList" class="grid grid-cols-1 gap-4">
+                        <!-- Goals injected here -->
+                        <p id="noGoalsMsg" class="text-center text-slate-400 text-sm py-4 hidden">Aún no hay objetivos. ¡Crea uno para empezar a ahorrar!</p>
+                    </div>
+                </section>
+            </div>
+
+        </main> <!-- Cierre del área de contenido escroleable -->
 
         <!-- Bottom Navigation -->
-        <nav class="absolute bottom-0 w-full max-w-md bg-white border-t border-slate-100 flex justify-around p-3 z-30 pb-safe rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <nav class="w-full bg-white border-t border-slate-100 flex justify-around p-3 z-30 pb-safe rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex-shrink-0">
             <button onclick="switchTab('finanzas')" id="nav-finanzas" class="nav-btn flex-1 flex flex-col items-center text-pink-500 transition-all">
                 <span class="text-2xl mb-1">💳</span>
                 <span class="text-[10px] font-bold uppercase tracking-wider">Cuentas</span>
@@ -152,7 +173,7 @@
                 <h3 class="text-xl font-bold text-purple-600">Nueva Cuenta</h3>
                 <button onclick="closeModal('accountModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
-            
+
             <form id="addAccountForm" onsubmit="handleAddAccount(event)">
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-600 mb-1">Nombre de la cuenta</label>
@@ -172,7 +193,7 @@
                 <h3 class="text-xl font-bold text-teal-600">Nuevo Movimiento</h3>
                 <button onclick="closeModal('transactionModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
-            
+
             <form id="addTransactionForm" onsubmit="handleAddTransaction(event)">
                 <!-- Type Toggle -->
                 <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
@@ -224,7 +245,7 @@
                 <h3 class="text-xl font-bold text-pink-600">Nuevo Objetivo</h3>
                 <button onclick="closeModal('goalModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
-            
+
             <form id="addGoalForm" onsubmit="handleAddGoal(event)">
                 <div class="mb-4">
                     <label class="block text-sm font-bold text-slate-600 mb-1">¿Qué quieren lograr?</label>
@@ -251,7 +272,7 @@
                 <h3 class="text-xl font-bold text-indigo-600" id="goalTxTitle">Modificar Ahorro</h3>
                 <button onclick="closeModal('goalTxModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
-            
+
             <form id="goalTxForm" onsubmit="handleGoalTx(event)">
                 <input type="hidden" id="goalTxId">
                 <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
@@ -316,7 +337,7 @@
         let accountsData = [];
         let transactionsData = [];
         let goalsData = []; 
-        
+
         // Creamos un ID de App compartido para que ambos teléfonos apunten al mismo "documento" global
         const sharedAppId = 'finanad-shared-v1';
 
@@ -347,7 +368,7 @@
                 el.classList.remove('block');
                 el.classList.add('hidden');
             });
-            
+
             // Reset Nav buttons styles
             document.querySelectorAll('.nav-btn').forEach(el => {
                 el.classList.remove('text-pink-500', 'grayscale-0', 'opacity-100');
@@ -391,7 +412,7 @@
         window.openModal = (id) => {
             const modal = document.getElementById(id);
             const content = modal.querySelector('.modal-content');
-            
+
             if(id === 'transactionModal' && accountsData.length === 0) {
                 showAlert('Falta información', 'Primero debes crear al menos una cuenta para agregar movimientos.');
                 return;
@@ -399,7 +420,7 @@
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
-            
+
             // Animation trick
             content.classList.add('modal-enter');
             requestAnimationFrame(() => {
@@ -413,7 +434,7 @@
             const content = modal.querySelector('.modal-content');
             content.classList.remove('modal-enter-active');
             content.classList.add('modal-enter');
-            
+
             setTimeout(() => {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
@@ -477,11 +498,11 @@
             if (user) {
                 currentUserUid = user.uid; // Se usa solo por protocolo, los datos ahora son compartidos
                 initDataListeners();
-                
+
                 // Hide loading and login smoothly
                 loader.style.opacity = '0';
                 if(loginScreen) loginScreen.classList.add('opacity-0');
-                
+
                 setTimeout(() => {
                     loader.classList.add('hidden');
                     if(loginScreen) {
@@ -538,13 +559,13 @@
                 snapshot.forEach((doc) => {
                     transactionsData.push({ id: doc.id, ...doc.data() });
                 });
-                
+
                 // Sort transactions by date descending locally
                 transactionsData.sort((a, b) => {
                     if(a.createdAt && b.createdAt) return b.createdAt.toMillis() - a.createdAt.toMillis();
                     return 0;
                 });
-                
+
                 updateUI();
             }, (error) => {
                 console.error("Error fetching transactions:", error);
@@ -556,13 +577,13 @@
                 snapshot.forEach((doc) => {
                     goalsData.push({ id: doc.id, ...doc.data() });
                 });
-                
+
                 // Sort goals locally
                 goalsData.sort((a, b) => {
                     if(a.createdAt && b.createdAt) return b.createdAt.toMillis() - a.createdAt.toMillis();
                     return 0;
                 });
-                
+
                 updateGoalsUI();
             }, (error) => {
                 console.error("Error fetching goals:", error);
@@ -576,10 +597,10 @@
             const txListEl = document.getElementById('transactionsList');
             const noTxMsg = document.getElementById('noTransactionsMsg');
             const totalBalanceView = document.getElementById('totalBalanceView');
-            
+
             let totalGlobalBalance = 0;
             if(listEl) listEl.innerHTML = '';
-            
+
             // Render Accounts and calculate individual balances based on transactions
             if (accountsData.length === 0) {
                 if(noAccMsg) {
@@ -591,7 +612,7 @@
                     noAccMsg.classList.add('hidden');
                     noAccMsg.classList.remove('block');
                 }
-                
+
                 accountsData.forEach(account => {
                     // Calculate balance for this specific account
                     let accountBalance = 0;
@@ -601,7 +622,7 @@
                             if(tx.type === 'gasto') accountBalance -= tx.amount;
                         }
                     });
-                    
+
                     totalGlobalBalance += accountBalance;
 
                     // Build Account Card
@@ -657,7 +678,7 @@
                     // Find account name
                     const acc = accountsData.find(a => a.id === tx.accountId);
                     const accName = acc ? acc.name : 'Cuenta Eliminada';
-                    
+
                     const isIncome = tx.type === 'ingreso';
                     if (txListEl) {
                         const txItem = document.createElement('div');
@@ -695,10 +716,10 @@
             const listEl = document.getElementById('goalsList');
             const noGoalsMsg = document.getElementById('noGoalsMsg');
             const totalSavingsView = document.getElementById('totalSavingsView');
-            
+
             if (!listEl) return;
             listEl.innerHTML = '';
-            
+
             let totalSavings = 0;
 
             if (goalsData.length === 0) {
@@ -716,7 +737,7 @@
                     const current = goal.currentAmount || 0;
                     const target = goal.targetAmount || 1;
                     totalSavings += current;
-                    
+
                     let percentage = (current / target) * 100;
                     if (percentage > 100) percentage = 100;
                     if (percentage < 0) percentage = 0;
@@ -735,18 +756,18 @@
                                 <span class="text-xl leading-none">+/-</span>
                             </button>
                         </div>
-                        
+
                         <div class="mb-2 relative z-10">
                             <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
                                 <div class="${isCompleted ? 'bg-teal-400' : 'bg-pink-400'} h-3 rounded-full transition-all duration-700" style="width: ${percentage}%"></div>
                             </div>
                         </div>
-                        
+
                         <div class="flex justify-between items-center text-sm relative z-10">
                             <span class="font-black text-slate-700 text-lg">${formatMoney(current)}</span>
                             <span class="text-slate-400 font-medium">de ${formatMoney(target)}</span>
                         </div>
-                        
+
                         ${isCompleted ? '<div class="absolute inset-0 bg-teal-50 opacity-10 z-0"></div>' : ''}
                     `;
                     listEl.appendChild(card);
@@ -761,7 +782,7 @@
         // Form Handlers
         window.handleAddAccount = async (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('accName').value.trim();
             const btn = document.getElementById('btnSaveAccount');
 
@@ -770,7 +791,7 @@
             try {
                 btn.disabled = true;
                 btn.innerText = "Guardando...";
-                
+
                 const accountsRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'accounts');
                 await addDoc(accountsRef, {
                     name: name,
@@ -789,7 +810,7 @@
 
         window.handleAddTransaction = async (e) => {
             e.preventDefault();
-            
+
             const type = document.querySelector('input[name="txType"]:checked').value;
             const amount = parseFloat(document.getElementById('txAmount').value);
             const desc = document.getElementById('txDesc').value.trim();
@@ -826,7 +847,7 @@
 
         window.handleAddGoal = async (e) => {
             e.preventDefault();
-            
+
             const name = document.getElementById('goalName').value.trim();
             const targetAmount = parseFloat(document.getElementById('goalTarget').value);
             const btn = document.getElementById('btnSaveGoal');
@@ -857,7 +878,7 @@
 
         window.handleGoalTx = async (e) => {
             e.preventDefault();
-            
+
             const goalId = document.getElementById('goalTxId').value;
             const txType = document.querySelector('input[name="goalTxType"]:checked').value;
             const amount = parseFloat(document.getElementById('goalTxAmount').value);
@@ -892,4 +913,4 @@
 
     </script>
 </body>
-</html>inado
+</html>
