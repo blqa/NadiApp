@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FinaNad</title>
+    <title>NaDinero</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -37,6 +37,24 @@
     </style>
 </head>
 <body class="text-slate-700 min-h-screen relative">
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 bg-[#fdf2f8] z-[60] hidden flex-col items-center justify-center p-6 transition-opacity duration-500 opacity-0">
+        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl w-full max-w-sm text-center transform transition-all">
+            <h1 class="text-3xl font-extrabold text-pink-400 mb-2 tracking-wide">FinaNad 💕</h1>
+            <p class="text-slate-500 font-medium mb-8">Ingresa la palabra secreta para continuar</p>
+            
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="secretWord" placeholder="Palabra secreta" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-transform duration-100 text-slate-700 text-center font-bold text-lg" autocomplete="off">
+                    <p id="loginError" class="text-rose-500 text-sm mt-2 font-semibold hidden">Palabra incorrecta. Intenta de nuevo.</p>
+                </div>
+                <button type="submit" id="btnLogin" class="w-full bg-pink-500 text-white font-bold rounded-xl py-4 shadow-md shadow-pink-200 hover:bg-pink-600 active:scale-95 transition-all text-lg">
+                    Entrar
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center transition-opacity duration-300">
@@ -276,27 +294,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Determine environment variables
-        const envAppId = typeof __app_id !== 'undefined' ? __app_id : 'default-nadi-app';
-        let firebaseConfigData;
-        
-        try {
-            // Prioritize environment config for sandbox execution
-            firebaseConfigData = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                // Fallback to user provided config if running externally
-                apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
-                authDomain: "nadiapp-b44ae.firebaseapp.com",
-                projectId: "nadiapp-b44ae",
-                storageBucket: "nadiapp-b44ae.firebasestorage.app",
-                messagingSenderId: "458286198231",
-                appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92"
-            };
-        } catch (e) {
-            console.error("Error parsing config", e);
-        }
+        // Usamos directamente tu configuración para garantizar la conexión a tu base de datos
+        const firebaseConfigData = {
+            apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
+            authDomain: "nadiapp-b44ae.firebaseapp.com",
+            projectId: "nadiapp-b44ae",
+            storageBucket: "nadiapp-b44ae.firebasestorage.app",
+            messagingSenderId: "458286198231",
+            appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92"
+        };
 
         const app = initializeApp(firebaseConfigData);
         const db = getFirestore(app);
@@ -306,7 +315,10 @@
         let currentUserUid = null;
         let accountsData = [];
         let transactionsData = [];
-        let goalsData = []; // State for goals
+        let goalsData = []; 
+        
+        // Creamos un ID de App compartido para que ambos teléfonos apunten al mismo "documento" global
+        const sharedAppId = 'finanad-shared-v1';
 
         // Formatting utilities
         const formatMoney = (amount) => {
@@ -423,11 +435,7 @@
         // Authentication Flow
         async function authenticateUser() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Auth error:", error);
                 showAlert("Error de conexión", "No se pudo iniciar sesión en la base de datos.");
@@ -435,29 +443,76 @@
             }
         }
 
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const word = document.getElementById('secretWord').value.trim().toLowerCase();
+            const errorEl = document.getElementById('loginError');
+            const btn = document.getElementById('btnLogin');
+            const input = document.getElementById('secretWord');
+
+            if (word === 'nadia') {
+                errorEl.classList.add('hidden');
+                btn.disabled = true;
+                btn.innerText = "Entrando...";
+                await authenticateUser();
+            } else {
+                errorEl.classList.remove('hidden');
+                // Animación de temblor en caso de error
+                input.classList.add('-translate-x-2');
+                setTimeout(() => {
+                    input.classList.remove('-translate-x-2');
+                    input.classList.add('translate-x-2');
+                }, 100);
+                setTimeout(() => {
+                    input.classList.remove('translate-x-2');
+                }, 200);
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
+            const loader = document.getElementById('loadingOverlay');
+            const loginScreen = document.getElementById('loginScreen');
+            const appContainer = document.getElementById('appContainer');
+
             if (user) {
-                currentUserUid = user.uid;
+                currentUserUid = user.uid; // Se usa solo por protocolo, los datos ahora son compartidos
                 initDataListeners();
                 
-                // Hide loading screen smoothly
-                const loader = document.getElementById('loadingOverlay');
+                // Hide loading and login smoothly
+                loader.style.opacity = '0';
+                if(loginScreen) loginScreen.classList.add('opacity-0');
+                
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    if(loginScreen) {
+                        loginScreen.classList.add('hidden');
+                        loginScreen.classList.remove('flex');
+                    }
+                    appContainer.classList.remove('hidden');
+                }, 300);
+            } else {
+                // Show Login Screen if not authenticated yet
                 loader.style.opacity = '0';
                 setTimeout(() => {
                     loader.classList.add('hidden');
-                    document.getElementById('appContainer').classList.remove('hidden');
+                    if(loginScreen) {
+                        loginScreen.classList.remove('hidden');
+                        loginScreen.classList.add('flex');
+                        void loginScreen.offsetWidth; // trigger reflow
+                        loginScreen.classList.remove('opacity-0');
+                        loginScreen.classList.add('opacity-100');
+                    }
                 }, 300);
             }
         });
 
         // Initialize Firestore Listeners
         function initDataListeners() {
-            if (!currentUserUid) return;
-
-            // Enforce Strict Paths: /artifacts/{appId}/users/{userId}/{collectionName}
-            const accountsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'accounts');
-            const txRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'transactions');
-            const goalsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals');
+            // Utilizamos una ruta PÚBLICA y COMPARTIDA en lugar de atarla a un UID de usuario específico.
+            // De esta forma, cualquier dispositivo que abra la app leerá y escribirá en la misma ubicación.
+            const accountsRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'accounts');
+            const txRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'transactions');
+            const goalsRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'goals');
 
             // Listen to Accounts
             onSnapshot(accountsRef, (snapshot) => {
@@ -706,8 +761,7 @@
         // Form Handlers
         window.handleAddAccount = async (e) => {
             e.preventDefault();
-            if (!currentUserUid) return;
-
+            
             const name = document.getElementById('accName').value.trim();
             const btn = document.getElementById('btnSaveAccount');
 
@@ -717,7 +771,7 @@
                 btn.disabled = true;
                 btn.innerText = "Guardando...";
                 
-                const accountsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'accounts');
+                const accountsRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'accounts');
                 await addDoc(accountsRef, {
                     name: name,
                     createdAt: serverTimestamp()
@@ -735,8 +789,7 @@
 
         window.handleAddTransaction = async (e) => {
             e.preventDefault();
-            if (!currentUserUid) return;
-
+            
             const type = document.querySelector('input[name="txType"]:checked').value;
             const amount = parseFloat(document.getElementById('txAmount').value);
             const desc = document.getElementById('txDesc').value.trim();
@@ -752,7 +805,7 @@
                 btn.disabled = true;
                 btn.innerText = "Guardando...";
 
-                const txRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'transactions');
+                const txRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'transactions');
                 await addDoc(txRef, {
                     type: type, // 'ingreso' or 'gasto'
                     amount: amount,
@@ -773,8 +826,7 @@
 
         window.handleAddGoal = async (e) => {
             e.preventDefault();
-            if (!currentUserUid) return;
-
+            
             const name = document.getElementById('goalName').value.trim();
             const targetAmount = parseFloat(document.getElementById('goalTarget').value);
             const btn = document.getElementById('btnSaveGoal');
@@ -785,7 +837,7 @@
                 btn.disabled = true;
                 btn.innerText = "Guardando...";
 
-                const goalsRef = collection(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals');
+                const goalsRef = collection(db, 'artifacts', sharedAppId, 'public', 'data', 'goals');
                 await addDoc(goalsRef, {
                     name: name,
                     targetAmount: targetAmount,
@@ -805,8 +857,7 @@
 
         window.handleGoalTx = async (e) => {
             e.preventDefault();
-            if (!currentUserUid) return;
-
+            
             const goalId = document.getElementById('goalTxId').value;
             const txType = document.querySelector('input[name="goalTxType"]:checked').value;
             const amount = parseFloat(document.getElementById('goalTxAmount').value);
@@ -820,7 +871,7 @@
                 btn.disabled = true;
                 btn.innerText = "Guardando...";
 
-                const goalRef = doc(db, 'artifacts', envAppId, 'users', currentUserUid, 'goals', goalId);
+                const goalRef = doc(db, 'artifacts', sharedAppId, 'public', 'data', 'goals', goalId);
                 // Increment (or decrement if negative) safely inside Firestore
                 await updateDoc(goalRef, {
                     currentAmount: increment(finalAmount)
@@ -836,8 +887,8 @@
             }
         };
 
-        // Start Auth Flow on load
-        authenticateUser();
+        // NOTA: Hemos quitado la llamada automática a authenticateUser() aquí
+        // para que sea la pantalla de Login (o Firebase reconociendo la sesión) quien controle el acceso.
 
     </script>
 </body>
