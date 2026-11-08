@@ -2,41 +2,56 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#eef2ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Mis Películas - Tracker & Comunidad</title>
-    <!-- Tailwind CSS para los estilos responsivos -->
+    <title>PeliNad | NadiApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons para estrellas e íconos -->
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Quicksand', 'sans-serif'], serif: ['Playfair Display', 'serif'] } } } }</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="/assets/nadi.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .star-btn { transition: transform 0.2s, color 0.2s; }
-        .star-btn:hover { transform: scale(1.1); }
-        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(10px); }
-        .tab-active { border-bottom: 2px solid #6366f1; color: #fff; font-weight: 600; }
-        .tab-inactive { color: #94a3b8; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        body { background-attachment: fixed; }
+        .star-btn { transition: transform .2s, color .2s; }
+        .star-btn:hover { transform: scale(1.15); }
+        .fade-in { animation: fadeIn .4s cubic-bezier(.2,.8,.2,1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Pestañas en forma de píldora (los scripts alternan estas clases) */
+        .tab-active, .tab-inactive { padding: .55rem 1.1rem; border-radius: 9999px; font-weight: 700; font-size: .875rem; transition: all .25s; white-space: nowrap; }
+        .tab-active { color: #fff; background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 8px 18px -8px rgba(99, 102, 241, .7); }
+        .tab-inactive { color: #64748b; background: transparent; }
+        .tab-inactive:hover { color: #4f46e5; background: rgba(99, 102, 241, .08); }
+
+        .field { background: rgba(255,255,255,.9); border: 2px solid #e2e8f0; }
+        .field:focus { border-color: #818cf8; box-shadow: 0 0 0 4px rgba(99,102,241,.14); outline: none; }
+        .poster-card { transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
+        .poster-card:hover { box-shadow: 0 22px 40px -16px rgba(79, 70, 229, .35); }
     </style>
 </head>
 <body class="min-h-screen pb-20">
 
+    <div class="n-blob bg-indigo-300 w-72 h-72 -top-16 -left-20"></div>
+    <div class="n-blob bg-fuchsia-300 w-72 h-72 top-1/3 -right-24" style="animation-delay:-5s"></div>
+
     <!-- PANTALLA DE AUTENTICACIÓN -->
     <div id="auth-section" class="min-h-screen flex items-center justify-center p-4 relative z-10">
-        <div class="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
-            <div class="text-center mb-8">
-                <i class="ph ph-film-strip text-5xl text-indigo-500 mb-2"></i>
-                <h1 class="text-3xl font-bold">PeliNad</h1>
-                <p class="text-slate-400 mt-2">Guarda y comparte tus reseñas</p>
+        <a href="/" class="n-back absolute left-5" style="top:max(1.25rem, env(safe-area-inset-top))"><i class="ph-bold ph-caret-left text-[10px]"></i> NadiApp</a>
+        <div class="n-card n-rise p-8 w-full max-w-md">
+            <div class="text-center mb-7">
+                <div class="w-20 h-20 bg-gradient-to-br from-indigo-400 to-violet-500 rounded-[1.6rem] flex items-center justify-center mx-auto mb-4 shadow-xl shadow-indigo-200 rotate-3">
+                    <i class="ph-fill ph-film-strip text-4xl text-white"></i>
+                </div>
+                <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Peli<span class="text-indigo-500">Nad</span></h1>
+                <p class="font-display text-indigo-400 mt-1 text-lg">Guarda y comparte tus reseñas</p>
             </div>
 
             <!-- Pestañas de Auth -->
-            <div class="flex mb-6 border-b border-slate-700">
+            <div class="flex mb-6 bg-slate-100/80 p-1 rounded-full">
                 <button id="tab-login" class="flex-1 pb-2 tab-active" onclick="switchAuthTab('login')">Ingresar</button>
                 <button id="tab-register" class="flex-1 pb-2 tab-inactive" onclick="switchAuthTab('register')">Crear Cuenta</button>
             </div>
@@ -44,17 +59,17 @@
             <!-- Formulario Auth -->
             <form id="auth-form" class="space-y-4">
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Tu Nombre de Usuario</label>
-                    <input type="text" id="auth-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" placeholder="Ej: Nadia">
+                    <label class="block text-sm font-bold text-slate-500 mb-1.5">Tu nombre de usuario</label>
+                    <input type="text" id="auth-name" required class="field w-full rounded-2xl px-4 py-3.5 text-[16px] text-slate-800 font-semibold transition-all placeholder:text-slate-300" placeholder="Ej: Nadia">
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Contraseña</label>
-                    <input type="password" id="auth-password" required minlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors" placeholder="Mínimo 6 caracteres">
+                    <label class="block text-sm font-bold text-slate-500 mb-1.5">Contraseña</label>
+                    <input type="password" id="auth-password" required minlength="6" class="field w-full rounded-2xl px-4 py-3.5 text-[16px] text-slate-800 font-semibold transition-all placeholder:text-slate-300" placeholder="Mínimo 6 caracteres">
                 </div>
-                
-                <div id="auth-error" class="text-red-400 text-sm hidden bg-red-900/30 p-3 rounded-lg border border-red-800"></div>
 
-                <button type="submit" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors flex justify-center items-center gap-2">
+                <div id="auth-error" class="text-rose-600 text-sm hidden bg-rose-50 p-3 rounded-xl border border-rose-200 font-semibold"></div>
+
+                <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-105 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-indigo-200 active:scale-95 transition-all flex justify-center items-center gap-2">
                     <span id="auth-btn-text">Ingresar</span>
                     <i class="ph-bold ph-arrow-right"></i>
                 </button>
@@ -66,29 +81,32 @@
     <div id="app-section" class="hidden">
         
         <!-- Header & Nav -->
-        <header class="glass-panel sticky top-0 z-40 border-b border-slate-800">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <i class="ph-fill ph-popcorn text-3xl text-indigo-400"></i>
-                    <h1 class="text-xl font-bold hidden sm:block">PeliNad</h1>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="text-sm">
-                        <span class="text-slate-400">Hola,</span>
-                        <span id="display-name" class="font-bold text-indigo-300">Usuario</span>
+        <header class="n-glass sticky top-0 z-40 border-b border-white/80">
+            <div class="max-w-7xl mx-auto px-4 pt-3 pb-2 flex justify-between items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <a href="/" class="n-back shrink-0" aria-label="Volver a NadiApp"><i class="ph-bold ph-caret-left text-[10px]"></i> <span class="hidden sm:inline">NadiApp</span></a>
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-9 h-9 bg-gradient-to-br from-indigo-400 to-violet-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-indigo-200"><i class="ph-fill ph-popcorn text-xl"></i></span>
+                        <h1 class="text-xl font-extrabold text-gray-900 tracking-tight">Peli<span class="text-indigo-500">Nad</span></h1>
                     </div>
-                    <button id="logout-btn" class="bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-colors border border-slate-700">
-                        <i class="ph-bold ph-sign-out text-slate-300"></i>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="text-sm font-semibold">
+                        <span class="text-slate-400">Hola,</span>
+                        <span id="display-name" class="font-extrabold text-indigo-600">Usuario</span>
+                    </div>
+                    <button id="logout-btn" aria-label="Cerrar sesión" class="bg-white hover:bg-rose-50 w-10 h-10 flex items-center justify-center rounded-full transition-colors border border-slate-200 shadow-sm">
+                        <i class="ph-bold ph-sign-out text-slate-500"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Tabs de Navegación -->
-            <div class="max-w-7xl mx-auto px-4 flex gap-6">
+            <div class="max-w-7xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto hide-scrollbar">
                 <button id="nav-my-movies" class="py-3 tab-active" onclick="switchMainTab('my-movies')">Mis Calificaciones</button>
                 <button id="nav-community" class="py-3 tab-inactive flex items-center gap-2" onclick="switchMainTab('community')">
-                    Comunidad Global <i class="ph-fill ph-globe-hemisphere-west text-indigo-400"></i>
+                    Comunidad Global <i class="ph-fill ph-globe-hemisphere-west"></i>
                 </button>
             </div>
         </header>
@@ -101,11 +119,11 @@
                 
                 <!-- Buscador -->
                 <section class="mb-10">
-                    <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 shadow-lg">
+                    <div class="n-card !rounded-2xl p-1.5">
                         <form id="search-form" class="flex">
-                            <i class="ph ph-magnifying-glass text-xl text-slate-400 ml-3 mt-3"></i>
-                            <input type="text" id="search-input" class="w-full bg-transparent text-white px-3 py-3 focus:outline-none" placeholder="Buscar película para calificar (ej. Interstellar)...">
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-lg font-medium transition-colors m-1">
+                            <i class="ph ph-magnifying-glass text-xl text-indigo-300 ml-3 mt-3.5"></i>
+                            <input type="text" id="search-input" class="w-full bg-transparent text-slate-800 font-semibold px-3 py-3 text-[16px] focus:outline-none placeholder:text-slate-300 placeholder:font-medium" placeholder="Buscar película para calificar (ej. Interstellar)...">
+                            <button type="submit" class="bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-105 text-white px-6 rounded-xl font-bold shadow-md shadow-indigo-200 active:scale-95 transition-all m-0.5">
                                 Buscar
                             </button>
                         </form>
@@ -113,7 +131,7 @@
 
                     <!-- Resultados de Búsqueda Horizontal -->
                     <div id="search-results-container" class="mt-6 hidden">
-                        <h3 class="text-sm text-slate-400 mb-3 font-medium uppercase tracking-wider flex items-center gap-2">
+                        <h3 class="text-xs text-slate-400 mb-3 font-bold uppercase tracking-[.16em] flex items-center gap-2">
                             <i class="ph ph-film-slate"></i> Resultados
                         </h3>
                         <div id="search-results" class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
@@ -124,14 +142,14 @@
 
                 <!-- Cuadrícula de Mis Calificaciones -->
                 <section>
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
+                    <h2 class="text-2xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
                         <i class="ph-fill ph-star text-yellow-400"></i> Mis Películas Calificadas
                     </h2>
                     
-                    <div id="my-ratings-empty" class="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed hidden">
-                        <i class="ph ph-empty text-5xl text-slate-500 mb-3"></i>
-                        <h3 class="text-lg font-medium text-slate-300">Aún no has calificado películas</h3>
-                        <p class="text-slate-500 text-sm mt-1">Usa el buscador de arriba para empezar.</p>
+                    <div id="my-ratings-empty" class="text-center py-12 bg-white/60 rounded-[2rem] border-2 border-indigo-100 border-dashed hidden">
+                        <i class="ph ph-empty text-5xl text-indigo-300 mb-3"></i>
+                        <h3 class="text-lg font-bold text-slate-700">Aún no has calificado películas</h3>
+                        <p class="text-slate-500 text-sm font-medium mt-1">Usa el buscador de arriba para empezar.</p>
                     </div>
 
                     <div id="my-ratings-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -144,17 +162,17 @@
             <div id="view-community" class="hidden fade-in">
                 <div class="flex justify-between items-end mb-6">
                     <div>
-                        <h2 class="text-xl font-bold flex items-center gap-2">
+                        <h2 class="text-2xl font-extrabold text-gray-900 flex items-center gap-2">
                             <i class="ph-fill ph-users text-indigo-400"></i> Lo que otros están viendo
                         </h2>
-                        <p class="text-slate-400 text-sm mt-1">Películas calificadas por la comunidad.</p>
+                        <p class="text-slate-500 text-sm font-medium mt-1">Películas calificadas por la comunidad.</p>
                     </div>
                 </div>
 
-                <div id="community-empty" class="text-center py-12 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed hidden">
-                    <i class="ph ph-planet text-5xl text-slate-500 mb-3"></i>
-                    <h3 class="text-lg font-medium text-slate-300">La comunidad está tranquila</h3>
-                    <p class="text-slate-500 text-sm mt-1">¡Sé el primero en compartir una reseña!</p>
+                <div id="community-empty" class="text-center py-12 bg-white/60 rounded-[2rem] border-2 border-indigo-100 border-dashed hidden">
+                    <i class="ph ph-planet text-5xl text-indigo-300 mb-3"></i>
+                    <h3 class="text-lg font-bold text-slate-700">La comunidad está tranquila</h3>
+                    <p class="text-slate-500 text-sm font-medium mt-1">¡Sé el primero en compartir una reseña!</p>
                 </div>
 
                 <div id="community-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -166,29 +184,29 @@
     </div>
 
     <!-- MODAL: CALIFICAR / EDITAR PELÍCULA -->
-    <div id="rating-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-700 flex flex-col max-h-[90vh]">
+    <div id="rating-modal" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div class="relative h-40 bg-cover bg-center" id="modal-backdrop">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-white to-transparent"></div>
                 <button onclick="closeRatingModal()" class="absolute top-3 right-3 bg-black/50 p-2 rounded-full hover:bg-black text-white">
                     <i class="ph-bold ph-x"></i>
                 </button>
             </div>
             
             <div class="p-6 flex-1 overflow-y-auto">
-                <h3 id="modal-movie-title" class="text-2xl font-bold mb-1">Título</h3>
-                <p id="modal-movie-year" class="text-sm text-slate-400 mb-6">Año</p>
+                <h3 id="modal-movie-title" class="text-2xl font-extrabold text-gray-900 mb-1">Título</h3>
+                <p id="modal-movie-year" class="text-sm font-semibold text-slate-400 mb-6">Año</p>
 
                 <div class="mb-6 flex justify-center gap-2" id="star-container">
                     <!-- Estrellas inyectadas por JS -->
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm text-slate-400 mb-2">Tu reseña (opcional)</label>
-                    <textarea id="review-text" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-indigo-500 resize-none" placeholder="¿Qué te pareció la película?"></textarea>
+                    <label class="block text-sm font-bold text-slate-500 mb-2">Tu reseña (opcional)</label>
+                    <textarea id="review-text" rows="3" class="field w-full rounded-2xl px-4 py-3 text-[16px] text-slate-800 font-medium resize-none placeholder:text-slate-300" placeholder="¿Qué te pareció la película?"></textarea>
                 </div>
 
-                <button id="save-rating-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg transition-colors flex justify-center items-center gap-2">
+                <button id="save-rating-btn" class="w-full bg-gradient-to-r from-indigo-500 to-violet-500 hover:brightness-105 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-indigo-200 active:scale-95 transition-all flex justify-center items-center gap-2">
                     <i class="ph-bold ph-floppy-disk"></i> Guardar Calificación
                 </button>
             </div>
@@ -196,14 +214,14 @@
     </div>
 
     <!-- MODAL: ELIMINAR CONFIRMACIÓN -->
-    <div id="delete-confirm-modal" class="fixed inset-0 bg-black/80 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm fade-in">
-        <div class="bg-slate-800 p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center shadow-2xl">
+    <div id="delete-confirm-modal" class="fixed inset-0 bg-slate-900/50 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm fade-in">
+        <div class="bg-white p-7 rounded-[2rem] w-full max-w-sm text-center shadow-2xl">
             <i class="ph-fill ph-warning-circle text-5xl text-rose-500 mb-4 inline-block"></i>
-            <h3 class="text-lg font-bold mb-2">¿Eliminar reseña?</h3>
-            <p class="text-sm text-slate-400 mb-6">Estás a punto de eliminar tu reseña de <span id="delete-movie-title" class="font-bold text-white"></span>. Esta acción no se puede deshacer.</p>
+            <h3 class="text-xl font-extrabold text-gray-900 mb-2">¿Eliminar reseña?</h3>
+            <p class="text-sm text-slate-500 font-medium mb-6">Estás a punto de eliminar tu reseña de <span id="delete-movie-title" class="font-extrabold text-slate-900"></span>. Esta acción no se puede deshacer.</p>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white transition-colors font-medium">Cancelar</button>
-                <button id="confirm-delete-btn" class="flex-1 py-2.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-colors font-semibold flex justify-center items-center gap-2">
+                <button onclick="closeDeleteModal()" class="flex-1 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors font-bold">Cancelar</button>
+                <button id="confirm-delete-btn" class="flex-1 py-3 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white shadow-lg shadow-rose-200 transition-colors font-bold flex justify-center items-center gap-2">
                     Eliminar
                 </button>
             </div>
@@ -211,23 +229,23 @@
     </div>
 
     <!-- MODAL: RESEÑAS DE LA COMUNIDAD -->
-    <div id="community-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-slate-700 flex flex-col max-h-[90vh]">
-            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-900">
-                <h3 id="comm-modal-title" class="font-bold text-lg truncate pr-4">Reseñas de la comunidad</h3>
-                <button onclick="closeCommunityModal()" class="text-slate-400 hover:text-white p-1">
+    <div id="community-modal" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-[2rem] w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 id="comm-modal-title" class="font-extrabold text-lg text-gray-900 truncate pr-4">Reseñas de la comunidad</h3>
+                <button onclick="closeCommunityModal()" class="text-slate-400 hover:text-slate-700 p-1">
                     <i class="ph-bold ph-x text-xl"></i>
                 </button>
             </div>
             
-            <div class="p-6 flex-1 overflow-y-auto bg-slate-800" id="comm-reviews-container">
+            <div class="p-6 flex-1 overflow-y-auto bg-white" id="comm-reviews-container">
                 <!-- Reseñas inyectadas por JS -->
             </div>
         </div>
     </div>
 
     <!-- UI Auxiliar para mensajes -->
-    <div id="toast-message" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg transform transition-transform translate-y-20 opacity-0 z-[70] flex items-center gap-2 font-medium">
+    <div id="toast-message" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-3 rounded-2xl shadow-xl transform transition-transform translate-y-20 opacity-0 z-[70] flex items-center gap-2 font-medium">
         <i class="ph-fill ph-check-circle text-xl"></i> <span id="toast-text">Guardado correctamente</span>
     </div>
 
@@ -396,7 +414,7 @@
                 }
             } catch (error) {
                 console.error("Error buscando:", error);
-                searchResults.innerHTML = '<div class="text-red-400 p-4 w-full text-center">Error de conexión. Intenta de nuevo.</div>';
+                searchResults.innerHTML = '<div class="text-rose-500 p-4 w-full text-center">Error de conexión. Intenta de nuevo.</div>';
             }
         });
 
@@ -411,14 +429,14 @@
                 const card = document.createElement('div');
                 card.className = 'snap-start shrink-0 w-32 cursor-pointer group';
                 card.innerHTML = `
-                    <div class="relative rounded-lg overflow-hidden mb-2 aspect-[2/3] bg-slate-800 border border-slate-700 group-hover:border-indigo-500 transition-colors">
+                    <div class="relative rounded-lg overflow-hidden mb-2 aspect-[2/3] bg-white border-2 border-white shadow-md group-hover:border-indigo-400 transition-colors">
                         <img src="${posterUrl}" alt="${movie.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <i class="ph-fill ph-star text-3xl text-yellow-400 drop-shadow-md"></i>
                         </div>
                     </div>
-                    <h4 class="text-xs font-semibold text-white truncate w-full" title="${movie.title}">${movie.title}</h4>
-                    <p class="text-[10px] text-slate-400">${year}</p>
+                    <h4 class="text-xs font-bold text-slate-800 truncate w-full" title="${movie.title}">${movie.title}</h4>
+                    <p class="text-[10px] font-semibold text-slate-400">${year}</p>
                 `;
                 card.onclick = () => openRatingModal(movie, posterUrl, year);
                 searchResults.appendChild(card);
@@ -434,7 +452,7 @@
                 container.innerHTML = '';
                 for (let i = 1; i <= 5; i++) {
                     const star = document.createElement('i');
-                    star.className = 'ph text-slate-500 ph-star text-4xl cursor-pointer star-btn transition-colors';
+                    star.className = 'ph text-slate-300 ph-star text-4xl cursor-pointer star-btn transition-colors';
                     if (interactive) {
                         star.onmouseover = () => updateStarsVisual(i, containerId);
                         star.onmouseleave = () => updateStarsVisual(currentRating, containerId);
@@ -455,10 +473,10 @@
             stars.forEach((star, index) => {
                 if (index < rating) {
                     star.classList.replace('ph', 'ph-fill');
-                    star.classList.replace('text-slate-500', 'text-yellow-400');
+                    star.classList.replace('text-slate-300', 'text-yellow-400');
                 } else {
                     star.classList.replace('ph-fill', 'ph');
-                    star.classList.replace('text-yellow-400', 'text-slate-500');
+                    star.classList.replace('text-yellow-400', 'text-slate-300');
                 }
             });
         }
@@ -672,7 +690,7 @@
             ` : '';
 
             return `
-                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-slate-500 transition-colors group flex flex-col h-full shadow-lg relative cursor-pointer" ${isMyRating ? `onclick="editRating(${movie.movieId})"` : ''}>
+                <div class="bg-white rounded-3xl overflow-hidden border border-white poster-card group flex flex-col h-full shadow-lg shadow-indigo-100 relative cursor-pointer" ${isMyRating ? `onclick="editRating(${movie.movieId})"` : ''}>
                     <div class="relative aspect-[2/3] bg-slate-900">
                         <img src="${movie.posterUrl}" alt="${movie.title}" class="w-full h-full object-cover">
                         ${authorBadge}
@@ -683,8 +701,8 @@
                         </div>
                     </div>
                     <div class="p-3 flex-1 flex flex-col">
-                        <h4 class="font-semibold text-sm text-white line-clamp-2 leading-tight flex-1" title="${movie.title}">${movie.title}</h4>
-                        <p class="text-xs text-slate-400 mt-1">${movie.year}</p>
+                        <h4 class="font-bold text-sm text-slate-800 line-clamp-2 leading-tight flex-1" title="${movie.title}">${movie.title}</h4>
+                        <p class="text-xs font-semibold text-slate-400 mt-1">${movie.year}</p>
                     </div>
                 </div>
             `;
@@ -763,21 +781,21 @@
                 const date = new Date(r.timestamp).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
 
                 const reviewEl = document.createElement('div');
-                reviewEl.className = "bg-slate-900 p-4 rounded-xl border border-slate-700 mb-3";
+                reviewEl.className = "bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-3";
                 reviewEl.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
                         <div class="flex items-center gap-2">
-                            <div class="bg-indigo-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-md">
+                            <div class="bg-gradient-to-br from-indigo-500 to-violet-500 w-8 h-8 rounded-full flex items-center justify-center font-bold text-white shadow-md">
                                 ${r.username.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <h5 class="font-semibold text-indigo-300 text-sm">${r.username}</h5>
+                                <h5 class="font-bold text-indigo-600 text-sm">${r.username}</h5>
                                 <div class="flex gap-1 mt-0.5">${starsHTML}</div>
                             </div>
                         </div>
-                        <span class="text-[10px] text-slate-500">${date}</span>
+                        <span class="text-[10px] font-semibold text-slate-400">${date}</span>
                     </div>
-                    ${r.review ? `<p class="text-sm text-slate-300 mt-3 italic bg-slate-800/50 p-3 rounded-lg border-l-2 border-indigo-500">"${r.review}"</p>` : `<p class="text-xs text-slate-500 mt-2">Sin comentario escrito.</p>`}
+                    ${r.review ? `<p class="text-sm text-slate-600 mt-3 italic bg-white p-3 rounded-xl border-l-4 border-indigo-400">"${r.review}"</p>` : `<p class="text-xs text-slate-400 mt-2">Sin comentario escrito.</p>`}
                 `;
                 container.appendChild(reviewEl);
             });

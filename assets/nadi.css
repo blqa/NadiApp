@@ -1,0 +1,120 @@
+/* ==========================================================
+   NadiApp Design System
+   Compartido por: index, lunad, nadinero, peliculas
+   ========================================================== */
+:root {
+    --n-bg: #fff7f8;
+    --n-ink: #1f2937;
+    --n-muted: #6b7280;
+    --n-rose: #f43f5e;
+    --n-fuchsia: #c026d3;
+    --n-emerald: #10b981;
+    --n-indigo: #6366f1;
+    --n-radius: 2rem;
+    --n-ease: cubic-bezier(.2, .8, .2, 1);
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+    font-family: 'Quicksand', system-ui, sans-serif;
+    color: var(--n-ink);
+    background:
+        radial-gradient(1100px 560px at 8% -10%, #ffe4e6 0%, transparent 60%),
+        radial-gradient(900px 560px at 100% 15%, #fae8ff 0%, transparent 55%),
+        var(--n-bg);
+    background-attachment: fixed;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+}
+
+/* Tipografía de acento */
+.font-display { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 700; }
+
+.text-gradient {
+    background: linear-gradient(120deg, #e11d48 0%, #c026d3 60%, #7c3aed 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Superficies */
+.n-glass {
+    background: rgba(255, 255, 255, .72);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, .9);
+}
+.n-card {
+    background: rgba(255, 255, 255, .82);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, .95);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 12px 34px -14px rgba(225, 29, 72, .20);
+    border-radius: var(--n-radius);
+}
+
+/* Barra superior con enlace al hub */
+.n-back {
+    display: inline-flex; align-items: center; gap: .4rem;
+    font-size: .75rem; font-weight: 700; color: #6b7280;
+    background: rgba(255, 255, 255, .8); border: 1px solid rgba(255, 255, 255, .95);
+    padding: .4rem .8rem; border-radius: 9999px; box-shadow: 0 2px 10px -4px rgba(0, 0, 0, .12);
+    transition: transform .2s var(--n-ease), color .2s;
+}
+.n-back:hover { color: #e11d48; transform: translateX(-2px); }
+
+/* Manchas de fondo */
+.n-blob { position: fixed; border-radius: 9999px; filter: blur(70px); opacity: .4; z-index: 0; pointer-events: none; animation: n-float 14s ease-in-out infinite; }
+@keyframes n-float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(24px, -30px) scale(1.08); } }
+
+/* Entrada suave */
+.n-rise { animation: n-rise .6s var(--n-ease) both; }
+@keyframes n-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.animate-fade-in { animation: n-rise .45s var(--n-ease) both; }
+
+/* Utilidades de móvil */
+.pt-safe { padding-top: max(1.25rem, var(--sat)); }
+.pb-safe { padding-bottom: max(.75rem, var(--sab)); }
+.no-scrollbar::-webkit-scrollbar, .hide-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar, .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.modal-scrollable { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+
+/* Foco accesible */
+:focus-visible { outline: 3px solid rgba(244, 63, 94, .55); outline-offset: 2px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; }
+
+/* Barra flotante inferior */
+.n-dock {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: max(.9rem, var(--sab)); z-index: 30;
+    width: min(92vw, 26rem);
+    background: rgba(255, 255, 255, .86);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, .95);
+    box-shadow: 0 18px 40px -12px rgba(31, 41, 55, .25);
+    border-radius: 9999px;
+    padding: .4rem;
+    display: flex; justify-content: space-around; align-items: center; gap: .25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .n-blob, .n-rise, .animate-fade-in { animation: none !important; }
+    * { scroll-behavior: auto !important; }
+}
+
+/* Pestaña activa del dock (los scripts alternan la clase de color) */
+.n-dock button { border-radius: 9999px; transition: background .25s, color .25s, transform .2s; }
+.n-dock button:active { transform: scale(.94); }
+.n-dock button.text-rose-500 { background: #fff1f2; }
+.n-dock button.text-emerald-600 { background: #ecfdf5; }
+.n-dock button.text-indigo-600 { background: #eef2ff; }
+
+/* Anillo de progreso (Lunad) */
+.n-ring {
+    --p: 0; --size: 9.5rem; --th: 11px;
+    width: var(--size); height: var(--size); border-radius: 9999px; position: relative;
+    background: conic-gradient(#fff calc(var(--p) * 1%), rgba(255,255,255,.22) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--th)), #000 calc(100% - var(--th) + 1px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - var(--th)), #000 calc(100% - var(--th) + 1px));
+    transition: background .8s var(--n-ease);
+}

@@ -2,70 +2,46 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FinaNad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ecfdf5">
+    <title>FinaNad | NadiApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['Quicksand', 'sans-serif'], serif: ['Playfair Display', 'serif'] } } } }</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/nadi.css">
     <style>
-        body {
-            font-family: 'Nunito', sans-serif;
-            background-color: #fdf2f8; /* Soft pink-50 pastel background */
-            -webkit-tap-highlight-color: transparent;
-            height: 100dvh; /* Altura dinámica perfecta para Safari/iOS */
-            overflow: hidden; /* Evita que el fondo blanco del navegador scrollee */
-        }
-
-        /* Custom scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #fbcfe8; /* pink-200 */
-            border-radius: 20px;
-        }
-
-        .modal-enter {
-            opacity: 0;
-            transform: scale(0.95) translateY(10px);
-        }
-        .modal-enter-active {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-            transition: opacity 300ms, transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Zona segura para el 'Notch' y la barra inferior de iPhone */
-        .pb-safe {
-            padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-        }
-
-        /* Oculta la barra de scroll en el contenido principal para verse como app nativa */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
+        body { height: 100vh; height: 100dvh; overflow: hidden; }
+        .modal-enter { opacity: 0; transform: scale(0.95) translateY(10px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: opacity 300ms, transform 300ms cubic-bezier(0.4, 0, 0.2, 1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background-color: #a7f3d0; border-radius: 20px; }
+        .field { background: rgba(255,255,255,.85); border: 2px solid #e2e8f0; }
     </style>
 </head>
 <body class="text-slate-700 h-[100dvh] w-full overflow-hidden relative">
 
+    <div class="n-blob bg-emerald-200 w-72 h-72 -top-16 -left-20"></div>
+    <div class="n-blob bg-emerald-200 w-72 h-72 top-1/3 -right-24" style="animation-delay:-5s"></div>
+
     <!-- Login Screen -->
-    <div id="loginScreen" class="fixed inset-0 bg-[#fdf2f8] z-[60] hidden flex-col items-center justify-center p-6 transition-opacity duration-500 opacity-0">
-        <div class="bg-white rounded-[2.5rem] p-8 shadow-xl w-full max-w-sm text-center transform transition-all">
-            <h1 class="text-3xl font-extrabold text-pink-400 mb-2 tracking-wide">NaDinero 💕</h1>
-            <p class="text-slate-500 font-medium mb-8">Ingresa la palabra secreta para continuar</p>
+    <div id="loginScreen" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-6 transition-opacity duration-500 opacity-0" style="background:linear-gradient(160deg,#ecfdf5,#fff7f8 60%)">
+        <a href="/" class="n-back absolute left-5" style="top:max(1.25rem, var(--sat))"><i class="fa-solid fa-chevron-left text-[10px]"></i> NadiApp</a>
+        <div class="n-card p-8 w-full max-w-sm text-center transform transition-all">
+            <div class="w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-[1.6rem] flex items-center justify-center mx-auto mb-5 shadow-xl shadow-emerald-200 -rotate-3">
+                <i class="fa-solid fa-wallet text-4xl text-white"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Fina<span class="text-emerald-500">Nad</span></h1>
+            <p class="font-display text-emerald-500 mt-1 mb-8 text-lg">Nuestras finanzas, en orden</p>
 
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <input type="password" id="secretWord" placeholder="Palabra secreta" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-transform duration-100 text-slate-700 text-center font-bold text-lg" autocomplete="off">
+                    <input type="password" id="secretWord" placeholder="Palabra secreta" class="field w-full rounded-2xl px-4 py-4 outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-100 transition-transform duration-100 text-slate-700 text-center font-bold text-lg placeholder:text-slate-300 placeholder:font-semibold" autocomplete="off">
                     <p id="loginError" class="text-rose-500 text-sm mt-2 font-semibold hidden">Palabra incorrecta. Intenta de nuevo.</p>
                 </div>
-                <button type="submit" id="btnLogin" class="w-full bg-pink-500 text-white font-bold rounded-xl py-4 shadow-md shadow-pink-200 hover:bg-pink-600 active:scale-95 transition-all text-lg">
+                <button type="submit" id="btnLogin" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-500 text-white font-bold rounded-2xl py-4 shadow-lg shadow-emerald-200 active:scale-95 transition-all text-lg">
                     Entrar
                 </button>
             </form>
@@ -74,32 +50,39 @@
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center transition-opacity duration-300">
-        <div class="w-12 h-12 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mb-4"></div>
-        <p class="text-pink-500 font-semibold animate-pulse">Cargando nuestras finanzas...</p>
+        <div class="w-12 h-12 border-4 border-emerald-100 border-t-emerald-500 rounded-full animate-spin mb-4"></div>
+        <p class="text-emerald-600 font-bold animate-pulse">Cargando nuestras finanzas...</p>
     </div>
 
     <!-- Main App Container -->
-    <div id="appContainer" class="w-full max-w-md mx-auto bg-[#fdf2f8] h-full flex flex-col hidden relative shadow-2xl overflow-hidden">
+    <div id="appContainer" class="w-full max-w-md mx-auto h-full flex flex-col hidden relative z-10 overflow-hidden">
 
         <!-- Área de contenido con scroll independiente -->
-        <main class="flex-1 overflow-y-auto w-full relative no-scrollbar pb-6">
+        <main class="flex-1 overflow-y-auto w-full relative no-scrollbar pb-32">
 
             <!-- Tab: Finanzas -->
             <div id="tab-finanzas" class="tab-content block">
                 <!-- Header / Total Balance -->
-                <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
-                    <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
-                    <div class="text-center">
-                        <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Balance Total</p>
-                        <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
+                <header class="px-5 pt-safe pb-2 mb-4 relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <a href="/" class="n-back"><i class="fa-solid fa-chevron-left text-[10px]"></i> NadiApp</a>
+                        <span class="text-sm font-extrabold text-gray-800">Fina<span class="text-emerald-500">Nad</span></span>
+                    </div>
+                    <div class="rounded-[2.2rem] p-7 text-center relative overflow-hidden shadow-2xl shadow-emerald-200/70 text-white" style="background:linear-gradient(135deg,#10b981,#0d9488 60%,#0891b2)">
+                        <div class="absolute -right-10 -top-10 w-44 h-44 bg-white opacity-15 rounded-full blur-2xl"></div>
+                        <i class="fa-solid fa-wallet absolute -left-3 -bottom-4 text-[7rem] text-white opacity-10 -rotate-12"></i>
+                        <p class="relative text-xs font-bold uppercase tracking-[.2em] text-emerald-50/90 mb-2">Balance total</p>
+                        <div class="relative inline-block bg-white/95 rounded-2xl px-6 py-2 shadow-lg">
+                            <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalBalanceView">$0.00</h2>
+                        </div>
                     </div>
                 </header>
 
                 <!-- Accounts Section -->
                 <section class="px-5 mb-8">
                     <div class="flex justify-between items-center mb-4 pl-1">
-                        <h3 class="text-lg font-bold text-slate-700">Mis Cuentas</h3>
-                        <button onclick="openModal('accountModal')" class="bg-purple-100 text-purple-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-purple-200 transition-colors flex items-center gap-1 active:scale-95">
+                        <h3 class="text-xl font-extrabold text-slate-800">Mis <span class="font-display text-emerald-500">cuentas</span></h3>
+                        <button onclick="openModal('accountModal')" class="bg-emerald-100 text-emerald-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1 active:scale-95">
                             <span>+</span> Cuenta
                         </button>
                     </div>
@@ -113,12 +96,12 @@
 
                 <!-- Actions & Recent Movements -->
                 <section class="px-5">
-                    <button onclick="openModal('transactionModal')" class="w-full bg-teal-100 text-teal-700 py-4 rounded-2xl font-bold text-lg shadow-sm hover:bg-teal-200 transition-colors mb-6 active:scale-[0.98] border border-teal-200">
+                    <button onclick="openModal('transactionModal')" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-500 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-emerald-200 hover:brightness-105 transition-all mb-6 active:scale-[0.98]">
                         + Agregar Movimiento
                     </button>
 
-                    <h3 class="text-lg font-bold text-slate-700 mb-3 pl-1">Últimos Movimientos</h3>
-                    <div id="transactionsList" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 space-y-3 max-h-64 overflow-y-auto">
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-3 pl-1">Últimos <span class="font-display text-emerald-500">movimientos</span></h3>
+                    <div id="transactionsList" class="n-card !rounded-3xl p-4 space-y-1 max-h-72 overflow-y-auto">
                         <!-- Transactions will be injected here by JS -->
                         <p id="noTransactionsMsg" class="text-center text-slate-400 text-sm py-2">No hay movimientos recientes.</p>
                     </div>
@@ -127,18 +110,25 @@
 
             <!-- Tab: Objetivos -->
             <div id="tab-objetivos" class="tab-content hidden">
-                <header class="bg-white rounded-b-[2.5rem] shadow-sm p-8 mb-6 relative z-10">
-                    <h1 class="text-2xl font-extrabold text-pink-400 text-center mb-6 tracking-wide">NaDinero 💕</h1>
-                    <div class="text-center">
-                        <p class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-1">Ahorro Total en Objetivos</p>
-                        <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalSavingsView">$0.00</h2>
+                <header class="px-5 pt-safe pb-2 mb-4 relative z-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <a href="/" class="n-back"><i class="fa-solid fa-chevron-left text-[10px]"></i> NadiApp</a>
+                        <span class="text-sm font-extrabold text-gray-800">Fina<span class="text-emerald-500">Nad</span></span>
+                    </div>
+                    <div class="rounded-[2.2rem] p-7 text-center relative overflow-hidden shadow-2xl shadow-emerald-200/70 text-white" style="background:linear-gradient(135deg,#14b8a6,#10b981 55%,#84cc16)">
+                        <div class="absolute -right-10 -top-10 w-44 h-44 bg-white opacity-15 rounded-full blur-2xl"></div>
+                        <i class="fa-solid fa-bullseye absolute -left-3 -bottom-4 text-[7rem] text-white opacity-10 -rotate-12"></i>
+                        <p class="relative text-xs font-bold uppercase tracking-[.2em] text-emerald-50/90 mb-2">Ahorro total en objetivos</p>
+                        <div class="relative inline-block bg-white/95 rounded-2xl px-6 py-2 shadow-lg">
+                            <h2 class="text-4xl font-black text-slate-800 tracking-tight" id="totalSavingsView">$0.00</h2>
+                        </div>
                     </div>
                 </header>
 
                 <section class="px-5 mb-8">
                     <div class="flex justify-between items-center mb-4 pl-1">
-                        <h3 class="text-lg font-bold text-slate-700">Cajas de Ahorro</h3>
-                        <button onclick="openModal('goalModal')" class="bg-pink-100 text-pink-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-pink-200 transition-colors flex items-center gap-1 active:scale-95">
+                        <h3 class="text-xl font-extrabold text-slate-800">Cajas de <span class="font-display text-emerald-500">ahorro</span></h3>
+                        <button onclick="openModal('goalModal')" class="bg-emerald-100 text-emerald-600 px-4 py-1.5 rounded-full text-sm font-bold shadow-sm hover:bg-emerald-200 transition-colors flex items-center gap-1 active:scale-95">
                             <span>+</span> Objetivo
                         </button>
                     </div>
@@ -153,13 +143,13 @@
         </main> <!-- Cierre del área de contenido escroleable -->
 
         <!-- Bottom Navigation -->
-        <nav class="w-full bg-white border-t border-slate-100 flex justify-around p-3 z-30 pb-safe rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.05)] flex-shrink-0">
-            <button onclick="switchTab('finanzas')" id="nav-finanzas" class="nav-btn flex-1 flex flex-col items-center text-pink-500 transition-all">
-                <span class="text-2xl mb-1">💳</span>
+        <nav class="n-dock" aria-label="Navegación principal">
+            <button onclick="switchTab('finanzas')" id="nav-finanzas" class="nav-btn flex-1 flex flex-col items-center py-2 text-emerald-600 transition-all">
+                <i class="fa-solid fa-credit-card text-lg mb-0.5"></i>
                 <span class="text-[10px] font-bold uppercase tracking-wider">Cuentas</span>
             </button>
-            <button onclick="switchTab('objetivos')" id="nav-objetivos" class="nav-btn flex-1 flex flex-col items-center text-slate-300 hover:text-slate-400 transition-all grayscale opacity-70">
-                <span class="text-2xl mb-1">🎯</span>
+            <button onclick="switchTab('objetivos')" id="nav-objetivos" class="nav-btn flex-1 flex flex-col items-center py-2 text-gray-400 hover:text-emerald-500 transition-all">
+                <i class="fa-solid fa-bullseye text-lg mb-0.5"></i>
                 <span class="text-[10px] font-bold uppercase tracking-wider">Objetivos</span>
             </button>
         </nav>
@@ -167,19 +157,19 @@
     </div>
 
     <!-- Modal: Add Account -->
-    <div id="accountModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+    <div id="accountModal" class="fixed inset-0 bg-slate-900/30 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] p-6 shadow-2xl modal-content transform transition-all">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-purple-600">Nueva Cuenta</h3>
+                <h3 class="text-xl font-bold text-emerald-600">Nueva Cuenta</h3>
                 <button onclick="closeModal('accountModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
 
             <form id="addAccountForm" onsubmit="handleAddAccount(event)">
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-600 mb-1">Nombre de la cuenta</label>
-                    <input type="text" id="accName" required placeholder="Ej. Ahorros Boda, Tarjeta Compartida" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-purple-300 focus:ring-2 focus:ring-purple-100 transition-all text-slate-700">
+                    <input type="text" id="accName" required placeholder="Ej. Ahorros Boda, Tarjeta Compartida" class="w-full field rounded-xl px-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700">
                 </div>
-                <button type="submit" id="btnSaveAccount" class="w-full bg-purple-500 text-white font-bold rounded-xl py-3 shadow-md shadow-purple-200 hover:bg-purple-600 active:scale-95 transition-all">
+                <button type="submit" id="btnSaveAccount" class="w-full bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-md shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all">
                     Crear Cuenta
                 </button>
             </form>
@@ -187,10 +177,10 @@
     </div>
 
     <!-- Modal: Add Transaction -->
-    <div id="transactionModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+    <div id="transactionModal" class="fixed inset-0 bg-slate-900/30 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] p-6 shadow-2xl modal-content transform transition-all">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-teal-600">Nuevo Movimiento</h3>
+                <h3 class="text-xl font-bold text-emerald-600">Nuevo Movimiento</h3>
                 <button onclick="closeModal('transactionModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
 
@@ -205,7 +195,7 @@
                     </label>
                     <label class="flex-1 text-center cursor-pointer">
                         <input type="radio" name="txType" value="ingreso" class="peer hidden">
-                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-teal-500 peer-checked:shadow-sm transition-all">
+                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-emerald-500 peer-checked:shadow-sm transition-all">
                             Ingreso
                         </div>
                     </label>
@@ -215,23 +205,23 @@
                     <label class="block text-sm font-bold text-slate-600 mb-1">Cantidad</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                        <input type="number" id="txAmount" required min="0.01" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 outline-none focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-slate-700 font-bold text-lg">
+                        <input type="number" id="txAmount" required min="0.01" step="0.01" placeholder="0.00" class="w-full field rounded-xl pl-8 pr-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700 font-bold text-lg">
                     </div>
                 </div>
 
                 <div class="mb-4">
                     <label class="block text-sm font-bold text-slate-600 mb-1">Concepto</label>
-                    <input type="text" id="txDesc" required placeholder="Ej. Cena, Supermercado, Sueldo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-slate-700">
+                    <input type="text" id="txDesc" required placeholder="Ej. Cena, Supermercado, Sueldo" class="w-full field rounded-xl px-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700">
                 </div>
 
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-600 mb-1">Cuenta afectada</label>
-                    <select id="txAccountSelect" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-teal-300 focus:ring-2 focus:ring-teal-100 transition-all text-slate-700 appearance-none">
+                    <select id="txAccountSelect" required class="w-full field rounded-xl px-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700 appearance-none">
                         <!-- Options injected by JS -->
                     </select>
                 </div>
 
-                <button type="submit" id="btnSaveTransaction" class="w-full bg-teal-500 text-white font-bold rounded-xl py-3 shadow-md shadow-teal-200 hover:bg-teal-600 active:scale-95 transition-all">
+                <button type="submit" id="btnSaveTransaction" class="w-full bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-md shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all">
                     Guardar Movimiento
                 </button>
             </form>
@@ -239,26 +229,26 @@
     </div>
 
     <!-- Modal: Add Goal -->
-    <div id="goalModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+    <div id="goalModal" class="fixed inset-0 bg-slate-900/30 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] p-6 shadow-2xl modal-content transform transition-all">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-pink-600">Nuevo Objetivo</h3>
+                <h3 class="text-xl font-bold text-emerald-600">Nuevo Objetivo</h3>
                 <button onclick="closeModal('goalModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
 
             <form id="addGoalForm" onsubmit="handleAddGoal(event)">
                 <div class="mb-4">
                     <label class="block text-sm font-bold text-slate-600 mb-1">¿Qué quieren lograr?</label>
-                    <input type="text" id="goalName" required placeholder="Ej. Viaje a la playa, Muebles" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all text-slate-700">
+                    <input type="text" id="goalName" required placeholder="Ej. Viaje a la playa, Muebles" class="w-full field rounded-xl px-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700">
                 </div>
                 <div class="mb-6">
                     <label class="block text-sm font-bold text-slate-600 mb-1">¿Cuánto necesitan? (Meta)</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                        <input type="number" id="goalTarget" required min="1" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all text-slate-700 font-bold text-lg">
+                        <input type="number" id="goalTarget" required min="1" step="0.01" placeholder="0.00" class="w-full field rounded-xl pl-8 pr-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700 font-bold text-lg">
                     </div>
                 </div>
-                <button type="submit" id="btnSaveGoal" class="w-full bg-pink-500 text-white font-bold rounded-xl py-3 shadow-md shadow-pink-200 hover:bg-pink-600 active:scale-95 transition-all">
+                <button type="submit" id="btnSaveGoal" class="w-full bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-md shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all">
                     Crear Objetivo
                 </button>
             </form>
@@ -266,10 +256,10 @@
     </div>
 
     <!-- Modal: Goal Transaction (Add/Remove) -->
-    <div id="goalTxModal" class="fixed inset-0 bg-slate-900/40 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl modal-content transform transition-all">
+    <div id="goalTxModal" class="fixed inset-0 bg-slate-900/30 z-40 hidden flex-col items-center justify-end sm:justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white/95 backdrop-blur-xl w-full max-w-sm rounded-[2rem] p-6 shadow-2xl modal-content transform transition-all">
             <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-indigo-600" id="goalTxTitle">Modificar Ahorro</h3>
+                <h3 class="text-xl font-bold text-emerald-600" id="goalTxTitle">Modificar Ahorro</h3>
                 <button onclick="closeModal('goalTxModal')" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
             </div>
 
@@ -278,7 +268,7 @@
                 <div class="flex rounded-xl bg-slate-100 p-1 mb-5">
                     <label class="flex-1 text-center cursor-pointer">
                         <input type="radio" name="goalTxType" value="add" checked class="peer hidden">
-                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-indigo-500 peer-checked:shadow-sm transition-all">
+                        <div class="py-2 rounded-lg font-bold text-sm text-slate-400 peer-checked:bg-white peer-checked:text-emerald-500 peer-checked:shadow-sm transition-all">
                             Abonar (+)
                         </div>
                     </label>
@@ -294,10 +284,10 @@
                     <label class="block text-sm font-bold text-slate-600 mb-1">Cantidad a mover</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
-                        <input type="number" id="goalTxAmount" required min="0.01" step="0.01" placeholder="0.00" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-3 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all text-slate-700 font-bold text-lg">
+                        <input type="number" id="goalTxAmount" required min="0.01" step="0.01" placeholder="0.00" class="w-full field rounded-xl pl-8 pr-4 py-3 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all text-slate-700 font-bold text-lg">
                     </div>
                 </div>
-                <button type="submit" id="btnSaveGoalTx" class="w-full bg-indigo-500 text-white font-bold rounded-xl py-3 shadow-md shadow-indigo-200 hover:bg-indigo-600 active:scale-95 transition-all">
+                <button type="submit" id="btnSaveGoalTx" class="w-full bg-emerald-500 text-white font-bold rounded-xl py-3 shadow-md shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all">
                     Guardar
                 </button>
             </form>
@@ -306,10 +296,10 @@
 
     <!-- Custom Alert Modal (replaces browser alert) -->
     <div id="alertModal" class="fixed inset-0 bg-slate-900/30 z-50 hidden flex-col items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 shadow-xl max-w-xs w-full text-center transform scale-95 transition-transform duration-200" id="alertBox">
+        <div class="bg-white rounded-[2rem] p-6 shadow-2xl max-w-xs w-full text-center transform scale-95 transition-transform duration-200" id="alertBox">
             <h4 class="text-lg font-bold text-slate-800 mb-2" id="alertTitle">Atención</h4>
             <p class="text-slate-600 mb-6 text-sm" id="alertMessage">Mensaje aquí</p>
-            <button onclick="closeAlert()" class="bg-pink-100 text-pink-600 font-bold py-2 px-6 rounded-xl hover:bg-pink-200 active:scale-95 transition-all w-full">Entendido</button>
+            <button onclick="closeAlert()" class="bg-emerald-100 text-emerald-600 font-bold py-2 px-6 rounded-xl hover:bg-emerald-200 active:scale-95 transition-all w-full">Entendido</button>
         </div>
     </div>
 
@@ -371,8 +361,8 @@
 
             // Reset Nav buttons styles
             document.querySelectorAll('.nav-btn').forEach(el => {
-                el.classList.remove('text-pink-500', 'grayscale-0', 'opacity-100');
-                el.classList.add('text-slate-300', 'grayscale', 'opacity-70');
+                el.classList.remove('text-emerald-600');
+                el.classList.add('text-gray-400');
             });
 
             // Show selected tab
@@ -385,8 +375,8 @@
             // Highlight active nav icon
             const activeNav = document.getElementById(`nav-${tabName}`);
             if (activeNav) {
-                activeNav.classList.remove('text-slate-300', 'grayscale', 'opacity-70');
-                activeNav.classList.add('text-pink-500', 'grayscale-0', 'opacity-100');
+                activeNav.classList.remove('text-gray-400');
+                activeNav.classList.add('text-emerald-600');
             }
         };
 
@@ -628,11 +618,11 @@
                     // Build Account Card
                     if (listEl) {
                         const card = document.createElement('div');
-                        card.className = "bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow cursor-pointer"; 
+                        card.className = "n-card !rounded-3xl p-4 flex items-center justify-between hover:-translate-y-0.5 hover:shadow-lg transition-all cursor-pointer"; 
                         card.innerHTML = `
                             <div class="flex items-center gap-3">
-                                <div class="bg-pink-100 text-pink-600 w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-inner">
-                                    💳
+                                <div class="bg-gradient-to-br from-emerald-400 to-teal-500 text-white w-11 h-11 rounded-2xl flex items-center justify-center text-lg shadow-md shadow-emerald-200">
+                                    <i class="fa-solid fa-credit-card"></i>
                                 </div>
                                 <div>
                                     <h4 class="font-bold text-slate-700 leading-tight">${account.name}</h4>
@@ -682,13 +672,13 @@
                     const isIncome = tx.type === 'ingreso';
                     if (txListEl) {
                         const txItem = document.createElement('div');
-                        txItem.className = "flex justify-between items-center py-2 border-b border-slate-50 last:border-0";
+                        txItem.className = "flex justify-between items-center py-2.5 border-b border-slate-100 last:border-0";
                         txItem.innerHTML = `
                             <div class="flex flex-col">
                                 <span class="font-bold text-sm text-slate-700">${tx.desc}</span>
                                 <span class="text-xs text-slate-400 font-medium">${accName}</span>
                             </div>
-                            <span class="font-bold text-sm ${isIncome ? 'text-teal-500' : 'text-rose-500'}">
+                            <span class="font-bold text-sm ${isIncome ? 'text-emerald-500' : 'text-rose-500'}">
                                 ${isIncome ? '+' : '-'}${formatMoney(tx.amount)}
                             </span>
                         `;
@@ -706,7 +696,7 @@
             accountsData.forEach(acc => {
                 const opt = document.createElement('option');
                 opt.value = acc.id;
-                opt.textContent = `💳 ${acc.name}`;
+                opt.textContent = acc.name;
                 select.appendChild(opt);
             });
         }
@@ -745,21 +735,21 @@
                     const isCompleted = current >= target;
 
                     const card = document.createElement('div');
-                    card.className = "bg-white border border-slate-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden";
+                    card.className = "n-card !rounded-3xl p-5 hover:-translate-y-0.5 hover:shadow-lg transition-all relative overflow-hidden";
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-3 relative z-10">
                             <div>
                                 <h4 class="font-bold text-slate-700 leading-tight text-lg">${goal.name}</h4>
-                                <span class="text-xs font-semibold ${isCompleted ? 'text-teal-500' : 'text-slate-400'}">${isCompleted ? '¡Objetivo Alcanzado! 🎉' : 'En progreso...'}</span>
+                                <span class="text-xs font-semibold ${isCompleted ? 'text-emerald-500' : 'text-slate-400'}">${isCompleted ? '¡Objetivo Alcanzado! 🎉' : 'En progreso...'}</span>
                             </div>
-                            <button onclick="openGoalTxModal('${goal.id}', '${goal.name}')" class="bg-indigo-50 text-indigo-500 w-10 h-10 rounded-full flex items-center justify-center font-bold hover:bg-indigo-100 active:scale-95 transition-all shadow-sm">
+                            <button onclick="openGoalTxModal('${goal.id}', '${goal.name}')" class="bg-emerald-50 text-emerald-600 w-10 h-10 rounded-full flex items-center justify-center font-bold hover:bg-emerald-100 active:scale-95 transition-all shadow-sm">
                                 <span class="text-xl leading-none">+/-</span>
                             </button>
                         </div>
 
                         <div class="mb-2 relative z-10">
                             <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
-                                <div class="${isCompleted ? 'bg-teal-400' : 'bg-pink-400'} h-3 rounded-full transition-all duration-700" style="width: ${percentage}%"></div>
+                                <div class="${isCompleted ? 'bg-gradient-to-r from-emerald-400 to-lime-400' : 'bg-gradient-to-r from-emerald-400 to-teal-500'} h-3 rounded-full transition-all duration-700" style="width: ${percentage}%"></div>
                             </div>
                         </div>
 
@@ -768,7 +758,7 @@
                             <span class="text-slate-400 font-medium">de ${formatMoney(target)}</span>
                         </div>
 
-                        ${isCompleted ? '<div class="absolute inset-0 bg-teal-50 opacity-10 z-0"></div>' : ''}
+                        ${isCompleted ? '<div class="absolute inset-0 bg-emerald-50 opacity-10 z-0"></div>' : ''}
                     `;
                     listEl.appendChild(card);
                 });
