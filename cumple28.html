@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Permite cargar la imagen de Imgur sin restricciones de hotlinking -->
+    <meta name="referrer" content="no-referrer">
+    <title>¡Feliz Cumpleaños, Nadia! ✨</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts: Playfair Display (Elegante), Dancing Script (Carta), Montserrat (Moderna) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'serif'],
+                        script: ['"Dancing Script"', 'cursive'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                    },
+                    colors: {
+                        obsidian: '#0a070d',
+                        midnight: '#130d18',
+                        rosegold: {
+                            light: '#f9ded7',
+                            DEFAULT: '#e6b2a6',
+                            dark: '#c48b7f',
+                        },
+                        gold: {
+                            light: '#fbf0d9',
+                            DEFAULT: '#d4af37',
+                            metallic: '#e5c158',
+                            dark: '#997a15',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-dark: #0a070d;
+            --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 50%, #d4af37 100%);
+            --rosegold-gradient: linear-gradient(135deg, #f3e7e9 0%, #e3eeff 0%, #e6b2a6 45%, #d4af37 100%);
+            --ticket-gold: linear-gradient(135deg, #2a1f2d 0%, #17111a 45%, #241920 100%);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fdf8f5;
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Fondo de portada con URL exacta solicitada */
+        .hero-bg {
+            background-image: url('https://i.imgur.com/zmiN40B.jpeg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
+
+        /* Textos con efecto metálico oro / rose gold */
+        .text-gold-gradient {
+            background: linear-gradient(to right, #f9ded7, #e5c158, #e6b2a6, #fbf0d9);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shineText 5s linear infinite;
+        }
+
+        @keyframes shineText {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        /* Animación de latido romántico para el botón principal */
+        @keyframes heartbeatPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(230, 178, 166, 0.7), 0 10px 25px -5px rgba(212, 175, 55, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 14px rgba(230, 178, 166, 0), 0 15px 30px -5px rgba(212, 175, 55, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(230, 178, 166, 0), 0 10px 25px -5px rgba(212, 175, 55, 0.4);
+            }
+        }
+
+        .btn-pulse {
+            animation: heartbeatPulse 2.2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+            background: linear-gradient(135deg, #e6b2a6 0%, #d4af37 50%, #c48b7f 100%);
+            background-size: 200% 200%;
+        }
+
+        /* Aparición suave al hacer scroll */
+        .reveal-section {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Contenedor de la Carta */
+        .letter-paper {
+            background: linear-gradient(160deg, rgba(31, 22, 35, 0.92) 0%, rgba(19, 13, 24, 0.96) 100%);
+            border: 1px solid rgba(230, 178, 166, 0.35);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.8),
+                0 0 35px rgba(230, 178, 166, 0.12),
+                inset 0 0 25px rgba(212, 175, 55, 0.06);
+            position: relative;
+        }
+
+        .letter-paper::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 1rem;
+            pointer-events: none;
+        }
+
+        /* Sistema 3D para el Boleto VIP */
+        .ticket-scene {
+            perspective: 1400px;
+            width: 100%;
+            max-width: 440px;
+            height: 290px;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        @media (min-width: 400px) {
+            .ticket-scene {
+                height: 275px;
+            }
+        }
+
+        .ticket-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .ticket-card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Soporte para giro 3D también al pasar el mouse en computadoras */
+        @media (hover: hover) and (pointer: fine) {
+            .ticket-scene:hover .ticket-card {
+                transform: rotateY(180deg);
+            }
+        }
+
+        /* Animación para el botón de música flotante cuando está reproduciendo */
+        @keyframes musicGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55), 0 10px 25px rgba(0, 0, 0, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(212, 175, 55, 0), 0 10px 25px rgba(212, 175, 55, 0.4);
+            }
+        }
+
+        .music-playing {
+            animation: musicGlow 2s infinite;
+            border-color: #d4af37 !important;
+        }
+
+        .ticket-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 1.25rem;
+            overflow: hidden;
+            box-shadow: 
+                0 20px 45px rgba(0, 0, 0, 0.75),
+                0 0 25px rgba(212, 175, 55, 0.22);
+        }
+
+        /* Frente del Boleto (Dorado Metálico Lujoso) */
+        .ticket-front {
+            background: linear-gradient(135deg, #231924 0%, #120c14 55%, #2b1d24 100%);
+            border: 1.5px solid rgba(212, 175, 55, 0.55);
+        }
+
+        /* Reverso del Boleto (Detalles del Viaje) */
+        .ticket-back {
+            background: linear-gradient(135deg, #fdf6f0 0%, #f5e6d8 50%, #ebd1be 100%);
+            color: #1e1420;
+            transform: rotateY(180deg);
+            border: 2px solid #d4af37;
+        }
+
+        /* Muescas circulares laterales de boleto real */
+        .ticket-notch-left,
+        .ticket-notch-right {
+            position: absolute;
+            top: 50%;
+            width: 28px;
+            height: 28px;
+            background-color: var(--bg-dark);
+            border-radius: 9999px;
+            transform: translateY(-50%);
+            z-index: 20;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.8);
+        }
+
+        .ticket-notch-left {
+            left: -15px;
+            border-right: 1.5px solid rgba(212, 175, 55, 0.6);
+        }
+
+        .ticket-notch-right {
+            right: -15px;
+            border-left: 1.5px solid rgba(212, 175, 55, 0.6);
+        }
+
+        /* Brillo diagonal animado sobre el boleto */
+        .ticket-shimmer {
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                115deg,
+                transparent 20%,
+                rgba(255, 235, 185, 0.16) 45%,
+                rgba(230, 178, 166, 0.28) 50%,
+                rgba(255, 235, 185, 0.16) 55%,
+                transparent 80%
+            );
+            animation: ticketSweep 4.5s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ticketSweep {
+            0% { left: -140%; }
+            55%, 100% { left: 140%; }
+        }
+
+        /* Cajas del reloj de cuenta regresiva */
+        .countdown-box {
+            background: linear-gradient(145deg, rgba(32, 23, 38, 0.9), rgba(16, 11, 20, 0.95));
+            border: 1px solid rgba(230, 178, 166, 0.35);
+            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="relative min-h-screen selection:bg-rosegold selection:text-obsidian">
+
+    <!-- Lienzo de partículas doradas flotantes (Ambiente romántico) -->
+    <canvas id="sparkles-canvas" class="fixed inset-0 pointer-events-none z-10 opacity-70"></canvas>
+
+    <!-- ==========================================
+         REPRODUCTOR DE MÚSICA FLOTANTE
+    =========================================== -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://docs.google.com/uc?export=download&id=1ezlf9g26wmG5uWrB6uOkRfHvH_jY-pUb" type="audio/mpeg">
+        <source src="https://docs.google.com/uc?export=open&id=1ezlf9g26wmG5uWrB6uOkRfHvH_jY-pUb" type="audio/mp4">
+    </audio>
+
+    <button
+        id="music-toggle"
+        type="button"
+        aria-label="Reproducir o pausar música de fondo"
+        title="Música de fondo"
+        class="fixed bottom-5 right-5 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-obsidian/85 backdrop-blur-md border border-rosegold/45 text-gold flex items-center justify-center shadow-[0_10px_25px_rgba(0,0,0,0.75)] hover:scale-105 active:scale-95 transition-all duration-300 group"
+    >
+        <!-- Anillo sutil animado -->
+        <span id="music-ring" class="absolute inset-0 rounded-full border border-gold/40 scale-100 opacity-0 transition-all duration-500"></span>
+        <!-- Ícono de nota musical -->
+        <svg id="music-icon-note" class="w-5 h-5 sm:w-6 sm:h-6 text-rosegold-light group-hover:text-gold transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+        </svg>
+    </button>
+
+    <!-- ==========================================
+         1. HERO SECTION (PORTADA)
+    =========================================== -->
+    <header id="hero" class="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+        <!-- Imagen de fondo exacta con soporte de respaldo para máxima compatibilidad -->
+        <div class="absolute inset-0 hero-bg scale-105 transition-transform duration-1000">
+            <img 
+                src="https://i.imgur.com/zmiN40B.jpeg" 
+                alt="Nadia y Luis Ángel" 
+                referrerpolicy="no-referrer"
+                class="w-full h-full object-cover object-center opacity-0"
+                onerror="this.parentElement.style.backgroundImage='radial-gradient(circle at center, #2d1b2e 0%, #0a070d 100%)'"
+            />
+        </div>
+
+        <!-- Overlay oscuro multicapa para que el texto resalte con elegancia -->
+        <div class="absolute inset-0 bg-gradient-to-b from-obsidian/70 via-obsidian/65 to-obsidian z-0"></div>
+        <div class="absolute inset-0 bg-radial from-transparent via-obsidian/40 to-obsidian/90 z-0"></div>
+
+        <!-- Contenido Central de Portada -->
+        <div class="relative z-20 px-6 max-w-xl mx-auto text-center flex flex-col items-center">
+            <!-- Insignia superior sutil -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-rosegold/40 mb-6 shadow-lg">
+                <span class="w-2 h-2 rounded-full bg-rosegold animate-ping"></span>
+                <span class="text-xs uppercase tracking-[0.25em] text-rosegold-light font-medium">Edición Especial · 26 Años</span>
+            </div>
+
+            <!-- Título Principal Solicitado -->
+            <h1 class="font-serif text-4xl sm:text-6xl font-bold leading-tight tracking-wide mb-4 drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)]">
+                <span class="block text-white mb-1">¡Feliz Cumpleaños,</span>
+                <span class="text-gold-gradient italic">Mi Amor!</span>
+            </h1>
+
+            <p class="text-sm sm:text-base text-rosegold-light/90 font-light tracking-wider max-w-xs sm:max-w-md mb-10 drop-shadow">
+                Hoy celebramos a la mujer más increíble y el inicio de una nueva aventura juntos.
+            </p>
+
+            <!-- Botón con animación de latido (pulse) -->
+            <a 
+                href="#carta" 
+                id="btn-discover"
+                class="btn-pulse group relative inline-flex items-center gap-3 px-8 py-4 rounded-full text-obsidian font-semibold text-sm sm:text-base tracking-wide transition-all duration-300 active:scale-95"
+            >
+                <span>Descubre tu sorpresa</span>
+                <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                </svg>
+            </a>
+        </div>
+
+        <!-- Indicador inferior de scroll -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center opacity-70 animate-bounce">
+            <span class="text-[10px] uppercase tracking-[0.25em] text-rosegold-light mb-1">Desliza</span>
+            <svg class="w-4 h-4 text-rosegold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </div>
+    </header>
+
+    <!-- ==========================================
+         2. SECCIÓN DE LA CARTA
+    =========================================== -->
+    <main class="relative z-20 px-4 sm:px-8 max-w-4xl mx-auto space-y-24 py-20">
+        
+        <section id="carta" class="reveal-section scroll-mt-12 max-w-2xl mx-auto">
+            <!-- Encabezado decorativo -->
+            <div class="text-center mb-8">
+                <span class="text-xs uppercase tracking-[0.3em] text-rosegold/80 block mb-2">Para ti</span>
+                <div class="flex items-center justify-center gap-3">
+                    <span class="h-[1px] w-12 bg-gradient-to-r from-transparent to-rosegold/60"></span>
+                    <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span class="h-[1px] w-12 bg-gradient-to-l from-transparent to-rosegold/60"></span>
+                </div>
+            </div>
+
+            <!-- Contenedor Tipo Carta Elegante -->
+            <div class="letter-paper rounded-2xl p-7 sm:p-12 relative">
+                <!-- Sello de cera dorado superior -->
+                <div class="-top-6 left-1/2 -translate-x-1/2 absolute w-12 h-12 rounded-full bg-gradient-to-br from-rosegold via-gold to-gold-dark flex items-center justify-center shadow-lg border-2 border-obsidian">
+                    <span class="font-serif font-bold text-obsidian text-sm tracking-tighter">N&L</span>
+                </div>
+
+                <!-- Comillas decorativas -->
+                <div class="text-gold/20 font-serif text-6xl leading-none select-none mb-2">“</div>
+
+                <!-- Texto exacto actualizado con fuente Dancing Script -->
+                <p class="font-script text-2xl sm:text-3xl leading-relaxed sm:leading-loose text-rosegold-light text-center px-1 sm:px-4 drop-shadow-sm">
+                    Nadia, me encanta compartir la vida contigo. Amo nuestras risas, nuestras aventuras y cada momento que pasamos juntos. Para celebrar tu cumpleaños, quiero regalarte algo especial para que nos desconectemos de todo y solo disfrutemos nosotros dos.
+                </p>
+
+                <div class="text-gold/20 font-serif text-6xl leading-none text-right select-none mt-2">”</div>
+
+                <!-- Firma -->
+                <div class="mt-6 pt-5 border-t border-rosegold/20 flex items-center justify-between text-xs text-rosegold/80">
+                    <span class="uppercase tracking-widest">Con todo mi amor</span>
+                    <span class="font-script text-xl text-gold">Luis Ángel ♥</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             3. EL BOLETO VIP (LA SORPRESA PRINCIPAL CON CONFETI)
+        =========================================== -->
+        <section id="boleto-section" class="reveal-section scroll-mt-10 max-w-2xl mx-auto">
+            <div class="text-center mb-6">
+                <span class="inline-block px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-[11px] uppercase tracking-[0.25em] text-gold-light mb-2">
+                    Tu Regalo Exclusivo
+                </span>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white">
+                    Pase <span class="text-gold-gradient">VIP Dorado</span>
+                </h2>
+                <p id="ticket-hint" class="text-xs sm:text-sm text-rosegold-light/80 mt-2 flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4 text-gold animate-spin" style="animation-duration: 5s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Toca o pasa el cursor sobre el boleto para revelar tu destino</span>
+                </p>
+            </div>
+
+            <!-- Escena 3D Interactiva -->
+            <div class="ticket-scene" id="vip-ticket" role="button" tabindex="0" aria-label="Boleto VIP interactivo, toca para voltear">
+                <div class="ticket-card" id="ticket-card-inner">
+                    
+                    <!-- CARA FRONTAL DEL BOLETO (CUBIERTA DORADA) -->
+                    <div class="ticket-face ticket-front p-6 flex flex-col justify-between">
+                        <div class="ticket-shimmer"></div>
+                        <div class="ticket-notch-left"></div>
+                        <div class="ticket-notch-right"></div>
+
+                        <!-- Fila Superior -->
+                        <div class="flex items-center justify-between border-b border-gold/25 pb-3">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                                </svg>
+                                <span class="text-xs font-semibold tracking-[0.25em] uppercase text-gold-light">Golden Boarding Pass</span>
+                            </div>
+                            <span class="text-xs font-mono text-rosegold px-2 py-0.5 rounded bg-rosegold/10 border border-rosegold/30">
+                                N° 26-VIP
+                            </span>
+                        </div>
+
+                        <!-- Centro del Frente -->
+                        <div class="my-auto text-center py-2">
+                            <p class="text-[11px] uppercase tracking-[0.35em] text-rosegold/80 mb-1">Exclusivo para</p>
+                            <h3 class="font-serif text-3xl sm:text-4xl font-bold text-gold-gradient tracking-wider">
+                                NADIA
+                            </h3>
+                            <div class="mt-3 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-gold/20 via-rosegold/25 to-gold/20 border border-gold/50">
+                                <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+                                <span class="text-xs font-medium tracking-wider text-gold-light">Toca para abrir tu sorpresa ✨</span>
+                            </div>
+                        </div>
+
+                        <!-- Fila Inferior Frente -->
+                        <div class="flex items-center justify-between border-t border-gold/25 pt-3 text-[11px] text-rosegold-light/70">
+                            <span>PRIMERA CLASE · ROMANCE</span>
+                            <span class="font-mono tracking-widest">★★★★★★</span>
+                        </div>
+                    </div>
+
+                    <!-- CARA TRASERA DEL BOLETO (DATOS DEL VIAJE REVELADOS) -->
+                    <div class="ticket-face ticket-back p-5 sm:p-6 flex flex-col justify-between">
+                        <div class="ticket-notch-left"></div>
+                        <div class="ticket-notch-right"></div>
+
+                        <!-- Cabecera del Pase VIP -->
+                        <div class="flex items-center justify-between border-b border-amber-900/20 pb-2.5">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-800 block">Pase Abordaje Confirmado</span>
+                                <h3 class="font-serif text-lg sm:text-xl font-bold text-obsidian leading-tight">Escapada de Cumpleaños</h3>
+                            </div>
+                            <div class="bg-obsidian text-gold px-2.5 py-1 rounded-lg text-[10px] font-bold tracking-widest uppercase shadow">
+                                VIP PASS
+                            </div>
+                        </div>
+
+                        <!-- Grilla de Datos Exactos Solicitados -->
+                        <div class="grid grid-cols-2 gap-x-3 gap-y-2.5 my-auto py-2 text-left pl-2 pr-1">
+                            <div class="col-span-1">
+                                <span class="text-[10px] uppercase tracking-wider text-amber-900/70 font-semibold block">Pasajera VIP</span>
+                                <p class="text-sm sm:text-base font-bold text-obsidian">Nadia</p>
+                            </div>
+                            <div class="col-span-1">
+                                <span class="text-[10px] uppercase tracking-wider text-amber-900/70 font-semibold block">Destino</span>
+                                <p class="text-xs sm:text-sm font-bold text-obsidian leading-snug">Fin de semana en Morelos</p>
+                            </div>
+                            <div class="col-span-2 bg-white/60 rounded-lg p-2 border border-amber-900/15">
+                                <span class="text-[10px] uppercase tracking-wider text-amber-900/70 font-semibold block">Incluye</span>
+                                <p class="text-xs sm:text-sm font-semibold text-obsidian">Alberca privada, relajación total y gastos pagados</p>
+                            </div>
+                            <div class="col-span-2">
+                                <span class="text-[10px] uppercase tracking-wider text-amber-900/70 font-semibold block">Acompañante</span>
+                                <p class="text-xs sm:text-sm font-bold text-obsidian">Luis Ángel <span class="font-medium text-amber-950/80">(Tu chofer, chef y novio).</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Pie con código de barras decorativo -->
+                        <div class="border-t border-dashed border-amber-900/30 pt-2 flex items-center justify-between">
+                            <span class="text-[10px] font-medium text-amber-900/80">16 · OCT · 2026 | 18:00 HRS</span>
+                            <!-- Código de barras en SVG -->
+                            <svg class="h-5 w-24 text-obsidian/80" fill="currentColor" viewBox="0 0 120 24">
+                                <rect x="2" y="2" width="3" height="20"/><rect x="8" y="2" width="1.5" height="20"/><rect x="13" y="2" width="4" height="20"/><rect x="20" y="2" width="2" height="20"/><rect x="25" y="2" width="5" height="20"/><rect x="33" y="2" width="1.5" height="20"/><rect x="38" y="2" width="3" height="20"/><rect x="44" y="2" width="2" height="20"/><rect x="50" y="2" width="4" height="20"/><rect x="57" y="2" width="1.5" height="20"/><rect x="62" y="2" width="3" height="20"/><rect x="68" y="2" width="5" height="20"/><rect x="76" y="2" width="2" height="20"/><rect x="81" y="2" width="1.5" height="20"/><rect x="86" y="2" width="4" height="20"/><rect x="93" y="2" width="2" height="20"/><rect x="98" y="2" width="3" height="20"/><rect x="104" y="2" width="5" height="20"/><rect x="112" y="2" width="2" height="20"/><rect x="116" y="2" width="2" height="20"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             4. SECCIÓN DE RECUERDOS (NUESTRA HISTORIA)
+        =========================================== -->
+        <section id="nuestra-historia" class="reveal-section scroll-mt-10">
+            <div class="text-center mb-8">
+                <span class="inline-block px-3 py-1 rounded-full bg-rosegold/10 border border-rosegold/30 text-[11px] uppercase tracking-[0.25em] text-rosegold-light mb-2">
+                    Cada mes contigo es único
+                </span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">
+                    Nuestra <span class="text-gold-gradient italic">Historia</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-rosegold-light/80 mt-2 max-w-md mx-auto">
+                    Un recorrido por las aventuras, risas y momentos que nos han traído hasta aquí.
+                </p>
+            </div>
+
+            <!-- Contenedor exacto solicitado para renderizar RDM_DATA -->
+            <div id="rdm-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4"></div>
+        </section>
+
+        <!-- ==========================================
+             5. CUENTA REGRESIVA Y CIERRE (WHATSAPP)
+        =========================================== -->
+        <section id="cuenta-regresiva" class="reveal-section text-center pb-10 max-w-2xl mx-auto">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-rosegold/10 border border-rosegold/30 mb-4 text-rosegold">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+
+            <!-- Texto exacto solicitado arriba del reloj -->
+            <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-white mb-2 px-2">
+                Prepara tus maletas, paso por ti en...
+            </h2>
+            <p class="text-xs uppercase tracking-[0.25em] text-rosegold/80 mb-8">
+                Viernes 16 de Octubre de 2026 · 18:00 hrs
+            </p>
+
+            <!-- Grid del Reloj (Días, Horas, Minutos, Segundos) -->
+            <div class="grid grid-cols-4 gap-2.5 sm:gap-4 max-w-md mx-auto">
+                <!-- Días -->
+                <div class="countdown-box rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center">
+                    <span id="cd-days" class="font-serif text-2xl sm:text-4xl font-bold text-gold-gradient tabular-nums">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-rosegold-light/70 mt-1">Días</span>
+                </div>
+
+                <!-- Horas -->
+                <div class="countdown-box rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center">
+                    <span id="cd-hours" class="font-serif text-2xl sm:text-4xl font-bold text-gold-gradient tabular-nums">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-rosegold-light/70 mt-1">Horas</span>
+                </div>
+
+                <!-- Minutos -->
+                <div class="countdown-box rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center">
+                    <span id="cd-minutes" class="font-serif text-2xl sm:text-4xl font-bold text-gold-gradient tabular-nums">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-rosegold-light/70 mt-1">Minutos</span>
+                </div>
+
+                <!-- Segundos -->
+                <div class="countdown-box rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center">
+                    <span id="cd-seconds" class="font-serif text-2xl sm:text-4xl font-bold text-rosegold tabular-nums">00</span>
+                    <span class="text-[10px] sm:text-xs uppercase tracking-widest text-rosegold-light/70 mt-1">Segundos</span>
+                </div>
+            </div>
+
+            <!-- Botón grande y verde de WhatsApp solicitado -->
+            <div class="mt-12 px-2">
+                <a 
+                    href="https://wa.me/525510590927?text=%C2%A1Amor%2C%20me%20encant%C3%B3%20la%20sorpresa!%20Ya%20estoy%20empacando%20el%20traje%20de%20ba%C3%B1o%20%F0%9F%A7%B3%E2%9D%A4%EF%B8%8F"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-phone="5510590927"
+                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 sm:py-5 rounded-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 hover:from-emerald-400 hover:to-green-500 text-white font-bold text-base sm:text-lg tracking-wide shadow-[0_12px_30px_rgba(16,185,129,0.45)] hover:shadow-[0_15px_35px_rgba(16,185,129,0.65)] transition-all duration-300 hover:-translate-y-0.5 active:scale-95"
+                >
+                    <svg class="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24">
+                        <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.625.846 5.059 2.284 7.033l-1.492 5.447 5.581-1.464c1.908 1.168 4.151 1.844 6.555 1.844 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+                    </svg>
+                    <span>¡Acepto el regalo y obvio voy!</span>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer romántico -->
+    <footer class="relative z-20 border-t border-white/10 py-8 text-center text-xs text-rosegold-light/50 px-4">
+        <p>Hecho con todo el corazón para <span class="text-rosegold font-medium">Nadia</span> · Cumpleaños 26 ✨</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            /* =====================================================
+               1. REPRODUCTOR DE MÚSICA FLOTANTE
+            ===================================================== */
+            const bgMusic = document.getElementById('bg-music');
+            const musicToggle = document.getElementById('music-toggle');
+            const musicRing = document.getElementById('music-ring');
+            let isMusicPlaying = false;
+
+            function updateMusicUI(playing) {
+                if (playing) {
+                    musicToggle.classList.add('music-playing');
+                    musicRing.classList.remove('opacity-0');
+                    musicRing.classList.add('animate-ping', 'opacity-40');
+                } else {
+                    musicToggle.classList.remove('music-playing');
+                    musicRing.classList.add('opacity-0');
+                    musicRing.classList.remove('animate-ping', 'opacity-40');
+                }
+            }
+
+            musicToggle.addEventListener('click', () => {
+                if (bgMusic.paused) {
+                    bgMusic.play().then(() => {
+                        isMusicPlaying = true;
+                        updateMusicUI(true);
+                    }).catch((err) => {
+                        console.warn('No se pudo reproducir el audio automáticamente:', err);
+                    });
+                } else {
+                    bgMusic.pause();
+                    isMusicPlaying = false;
+                    updateMusicUI(false);
+                }
+            });
+
+            /* =====================================================
+               2. INTERACCIÓN DEL BOLETO VIP (3D FLIP + CANVAS-CONFETTI DORADO)
+            ===================================================== */
+            const vipTicket = document.getElementById('vip-ticket');
+            const ticketCardInner = document.getElementById('ticket-card-inner');
+            const ticketHint = document.getElementById('ticket-hint');
+            let lastConfettiTime = 0;
+
+            function triggerGoldenConfetti() {
+                const now = Date.now();
+                // Evita saturar si el usuario pasa el mouse repetidas veces muy rápido
+                if (now - lastConfettiTime < 1800) return;
+                lastConfettiTime = now;
+
+                if (typeof confetti === 'function') {
+                    const goldColors = ['#d4af37', '#e5c158', '#f9ded7', '#e6b2a6', '#fbf0d9', '#ffd700'];
+
+                    confetti({
+                        particleCount: 80,
+                        spread: 75,
+                        origin: { y: 0.6 },
+                        colors: goldColors
+                    });
+
+                    setTimeout(() => {
+                        confetti({
+                            particleCount: 50,
+                            angle: 60,
+                            spread: 55,
+                            origin: { x: 0.15, y: 0.65 },
+                            colors: goldColors
+                        });
+                        confetti({
+                            particleCount: 50,
+                            angle: 120,
+                            spread: 55,
+                            origin: { x: 0.85, y: 0.65 },
+                            colors: goldColors
+                        });
+                    }, 220);
+                }
+
+                launchGoldBurst();
+            }
+
+            function toggleTicketFlip() {
+                const isFlipped = ticketCardInner.classList.toggle('is-flipped');
+                if (isFlipped) {
+                    ticketHint.innerHTML = '<span>✨ ¡Sorpresa revelada! (Toca de nuevo para girar) ✨</span>';
+                    triggerGoldenConfetti();
+                } else {
+                    ticketHint.innerHTML = '<span>Toca o pasa el cursor sobre el boleto para ver los detalles</span>';
+                }
+            }
+
+            vipTicket.addEventListener('click', toggleTicketFlip);
+            vipTicket.addEventListener('mouseenter', () => {
+                triggerGoldenConfetti();
+            });
+            vipTicket.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleTicketFlip();
+                }
+            });
+
+            /* =====================================================
+               3. SECCIÓN DE RECUERDOS (NUESTRA HISTORIA)
+            ===================================================== */
+            const RDM_DATA = [
+                { date: "Marzo 2026", title: "Tarde de Stranger Things", icon: "tv", image: "https://i.imgur.com/c9N0qQA.jpeg", story: "Me acompañaste a recoger a mi hermana a su escuela y verla tan feliz de vernos me llenó el corazón. Después llegamos a mi casa, comimos juntos y nos pusimos a ver Stranger Things los tres. Fue una tarde sencilla, pero de las más lindas y tranquilas que recuerdo." },
+                { date: "Febrero 2026", title: "Paseo por el Zoológico", icon: "sun", image: "https://i.imgur.com/WTCor6e.jpeg", story: "Decidimos ir al zoológico de Aragón porque yo tenía muchísimas ganas de visitarlo. Caminamos, vimos a los animalitos y pasamos un rato muy entretenido (incluso mi mamá nos acompañó un ratito). Todo fue muy especial y salieron unas fotos preciosas que siempre voy a atesorar." },
+                { date: "Enero 2026", title: "Caminata en Tlalpan", icon: "footprints", image: "https://i.imgur.com/cESeW0S.png", story: "Es un día normal, no hicimos mucho en enero ya que nos enfocamos más en trabajar, pero es un recuerdo lindo de nuestro 'hijito' y nosotros caminando por Tlalpan hacia nuestras casitas." },
+                { date: "Diciembre 2025", title: "Fiesta de Fin de Año", icon: "party-popper", image: "https://i.imgur.com/VWhovSK.jpeg", story: "Fue una reunión de fin de año con compañeros del trabajo donde comimos carnita deliciosa. Pasamos mucho frío y no llegamos a nuestras casas para descansar juntitos, pero terminé bien borrachito y muy feliz con mi amorcito." },
+                { date: "Noviembre 2025", title: "Carrera y Arte", icon: "palette", image: "https://i.imgur.com/nG2DwyG.jpeg", story: "Una carrera muy linda en la mañana con tu mamá, sobrinos y Thonys. Aunque llegué tarde por el tráfico, el día se arregló pintando en tu casita y comiendo un rico pollo rostizado de barbacoa." },
+                { date: "Octubre 2025", title: "Carrera de Disfraces", icon: "trophy", image: "https://i.imgur.com/NADoali.png", story: "Octubre fue un mes increíble (¡y el cumpleaños de la cumpleañera!), pero el recuerdo de la carrera se lleva el premio. El simple hecho de vestirnos con nuestros disfraces y cruzar la meta juntos fue una prueba de lo mucho que podemos divertirnos sin importar el plan. Un recuerdo de esfuerzo y risas que solo tú y yo entendemos." },
+                { date: "Septiembre 2025", title: "Sushi Sorpresa", icon: "utensils-crossed", image: "https://i.imgur.com/8KdnXcO.png", story: "Después de varias semanas, por fin te di la sorpresa de llevarte a comer el sushi que tanto querías. Verte emocionada al entrar al restaurante ya era el mejor regalo para mí. La cena estuvo deliciosa y el ambiente muy bonito. Fue nuestra forma de celebrar un mes más, recordando que hasta los deseos más pequeños se cumplen cuando estamos juntos." },
+                { date: "Agosto 2025", title: "Aventura en Huasca", icon: "globe", image: "https://i.imgur.com/6oUe2OE.png", story: "Este fue, sin duda, el mejor mes de todos. Te llevé de sorpresa a Huasca de Ocampo. No tenías idea hasta que llegamos. Pasamos dos días sin dinero, nos mojamos muchísimo por la lluvia y pasamos mucho frío, pero logramos comer, hospedarnos y fuimos inmensamente felices. Nada importó porque dormimos juntos. Terminamos super pobres, pero no me arrepiento de haber vivido esa aventura contigo. Lo valió todo." },
+                { date: "Julio 2025", title: "Nuestro Primer Mes", icon: "star", image: "https://i.imgur.com/meMSF3e.png", story: "¡Nuestro primer mes! 🥳 Lo celebramos con una cena especial en 'Los Tacos de Peri'. Me acuerdo perfecto de esa noche, no solo por los tacos (que estaban buenísimos), sino porque grabamos un video diciendo cómo nos sentíamos. Es un tesoro tener ese clip. Es increíble ver todo lo que hemos construido desde ese momento." },
+                { date: "Junio 2025", title: "Maruchan & Cars", icon: "film", image: "https://i.imgur.com/2JLEukH.png", story: "Nuestro primer recuerdo del mes. La primera vez que vimos 'Cars' juntos en tu casa. El plan era simple: nos preparamos unas Maruchan (que sabían a gloria) y nos acurrucamos a ver la película. No sé qué fue mejor, la película, las sopas o tu compañía. Creo que fue todo junto. Un plan sencillo, pero perfecto." }
+            ];
+
+            const container = document.getElementById('rdm-grid');
+            container.innerHTML = RDM_DATA.map((item, index) => `
+    <div class="group relative overflow-hidden rounded-[2rem] bg-white shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 h-[450px] flex flex-col ${index === 0 ? 'md:col-span-2' : 'col-span-1'}">
+        <div class="absolute inset-0 bg-gray-100">
+            <img src="${item.image}" alt="${item.title}" referrerpolicy="no-referrer" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-60 group-hover:opacity-80 transition-opacity"></div>
+        </div>
+        <div class="absolute top-6 left-6 z-10">
+            <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-semibold tracking-wider uppercase border border-white/30">${item.date}</span>
+        </div>
+        <div class="mt-auto relative z-10 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 text-white">
+                <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+            </div>
+            <h3 class="font-serif text-3xl text-white mb-2">${item.title}</h3>
+            <p class="text-white/80 text-sm line-clamp-2 group-hover:line-clamp-none transition-all duration-300 font-light">${item.story}</p>
+        </div>
+    </div>
+`).join('');
+
+            // Inicializar los íconos de Lucide recién inyectados en el DOM
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            /* =====================================================
+               4. RELOJ DE CUENTA REGRESIVA (16 de Octubre de 2026, 18:00 hrs)
+            ===================================================== */
+            const daysEl = document.getElementById('cd-days');
+            const hoursEl = document.getElementById('cd-hours');
+            const minutesEl = document.getElementById('cd-minutes');
+            const secondsEl = document.getElementById('cd-seconds');
+
+            // Fecha objetivo: 16 de octubre de 2026 a las 18:00:00 (hora local)
+            const targetDate = new Date(2026, 9, 16, 18, 0, 0).getTime();
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    daysEl.textContent = '00';
+                    hoursEl.textContent = '00';
+                    minutesEl.textContent = '00';
+                    secondsEl.textContent = '00';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                daysEl.textContent = String(days).padStart(2, '0');
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+
+            /* =====================================================
+               5. ANIMACIONES AL HACER SCROLL (INTERSECTION OBSERVER)
+            ===================================================== */
+            const revealElements = document.querySelectorAll('.reveal-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.18 });
+
+            revealElements.forEach(el => observer.observe(el));
+
+            /* =====================================================
+               6. PARTÍCULAS DORADAS Y DE ORO ROSA EN CANVAS
+            ===================================================== */
+            const canvas = document.getElementById('sparkles-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let ambientParticles = [];
+            let burstParticles = [];
+
+            function resizeCanvas() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const palette = ['#d4af37', '#e6b2a6', '#f9ded7', '#fbf0d9'];
+
+            // Crear partículas flotantes suaves de ambiente
+            for (let i = 0; i < 38; i++) {
+                ambientParticles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    radius: Math.random() * 2 + 0.6,
+                    color: palette[Math.floor(Math.random() * palette.length)],
+                    speedY: -(Math.random() * 0.35 + 0.1),
+                    speedX: (Math.random() - 0.5) * 0.25,
+                    alpha: Math.random() * 0.65 + 0.2
+                });
+            }
+
+            // Explosión de destellos dorados al voltear el boleto VIP
+            function launchGoldBurst() {
+                const centerX = width / 2;
+                const centerY = height / 2;
+                for (let i = 0; i < 55; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 5.5 + 1.5;
+                    burstParticles.push({
+                        x: centerX,
+                        y: centerY,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed - 1.5,
+                        radius: Math.random() * 3.2 + 1.5,
+                        color: palette[Math.floor(Math.random() * palette.length)],
+                        alpha: 1,
+                        decay: Math.random() * 0.018 + 0.012
+                    });
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, width, height);
+
+                // Dibujar partículas ambientales
+                ambientParticles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+
+                    if (p.y < -10) p.y = height + 10;
+                    if (p.x < -10) p.x = width + 10;
+                    if (p.x > width + 10) p.x = -10;
+
+                    ctx.save();
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+
+                // Dibujar partículas de celebración cuando se revela el boleto
+                for (let i = burstParticles.length - 1; i >= 0; i--) {
+                    const b = burstParticles[i];
+                    b.x += b.vx;
+                    b.y += b.vy;
+                    b.vy += 0.08; // gravedad ligera
+                    b.alpha -= b.decay;
+
+                    if (b.alpha <= 0) {
+                        burstParticles.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.save();
+                    ctx.globalAlpha = b.alpha;
+                    ctx.fillStyle = b.color;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                requestAnimationFrame(animateParticles);
+            }
+
+            animateParticles();
+        });
+    </script>
+</body>
+</html>

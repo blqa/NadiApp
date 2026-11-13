@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Se optimiza el viewport para evitar comportamientos extraños, pero permitiendo accesibilidad visual -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NadiApp - LuNad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sab: env(safe-area-inset-bottom);
+        }
+        
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #fff1f2; 
+            -webkit-tap-highlight-color: transparent;
+            /* FIX VITAL PARA MÓVILES: Usa 100dvh para evitar que la barra de Chrome/Safari rompa el layout */
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
+        
+        .day-period { 
+            background-color: #ffe4e6; color: #e11d48; font-weight: bold; border: 1px solid #fecdd3; 
+        } 
+        .day-fertile { 
+            background-color: #fdf4ff; color: #c026d3; border: 1px solid #f5d0fe; 
+        } 
+        .day-ovulation { 
+            background-color: #f0abfc; color: #86198f; font-weight: bold; border: 2px solid #d946ef; box-shadow: 0 0 12px rgba(217, 70, 239, 0.4); 
+        }
+        .day-normal { 
+            background-color: transparent; color: #4b5563; 
+        }
+        
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.6); 
+        }
+        
+        /* Ocultar barra de scroll pero mantener funcionalidad */
+        ::-webkit-scrollbar { 
+            width: 0px; background: transparent; 
+        }
+        
+        /* Utilidades para Notch y barras home en iOS/Android modernos */
+        .pt-safe { padding-top: max(1.5rem, var(--sat)); }
+        .pb-safe { padding-bottom: max(1rem, var(--sab)); }
+        
+        /* Fix modal scrolling iOS */
+        .modal-scrollable {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+    </style>
+</head>
+
+<body class="text-gray-800 antialiased flex flex-col w-full">
+
+    <div id="loginScreen" class="absolute inset-0 z-50 bg-rose-50 flex flex-col items-center justify-center p-6">
+        <div class="bg-white p-6 sm:p-8 rounded-[2rem] shadow-xl shadow-rose-100 w-full max-w-sm text-center glass-panel">
+            <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+                <i class="fa-solid fa-moon text-4xl text-rose-400 drop-shadow-sm"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-rose-500 mb-2">LuNad</h1>
+            <p class="text-rose-300 mb-8 text-sm font-medium">Tu ciclo, tu ritmo</p>
+            
+            <div class="relative mb-6">
+                <i class="fa-solid fa-wand-magic-sparkles absolute left-4 top-1/2 transform -translate-y-1/2 text-rose-300"></i>
+                <!-- FIX iOS: text-[16px] evita el zoom automático al hacer focus -->
+                <input type="text" id="loginId" placeholder="Ingresa tu palabra clave" class="w-full bg-rose-50/50 border-2 border-rose-100 rounded-2xl py-3 pl-12 pr-4 text-[16px] text-gray-700 font-medium focus:outline-none focus:border-rose-400 focus:bg-white transition-all">
+            </div>
+            
+            <button id="btnLogin" class="w-full bg-gradient-to-r from-rose-400 to-rose-500 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2">
+                <span>Entrar a mi espacio</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+            
+            <div id="loginLoader" class="hidden mt-4 text-rose-400 text-sm font-medium animate-pulse">
+                <i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Preparando tu app...
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="mainApp" class="hidden flex-col h-full w-full relative bg-rose-50/30">
+        
+        <!-- Header (Con pt-safe para el notch del móvil) -->
+        <header class="pt-safe pb-4 px-6 bg-white/80 backdrop-blur-xl rounded-b-3xl shadow-sm z-10 flex justify-between items-center border-b border-rose-50 flex-shrink-0">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Hola, <span class="text-rose-500">Nadia</span> ✨</h2>
+                <p id="headerDate" class="text-xs sm:text-sm font-medium text-gray-400 capitalize">Cargando...</p>
+            </div>
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-full flex items-center justify-center text-rose-400 shadow-inner border border-white shrink-0">
+                <i class="fa-solid fa-user-astronaut text-lg sm:text-xl"></i>
+            </div>
+        </header>
+
+        <!-- pb-32 asegura que el contenido no se quede oculto debajo de la barra de navegación fija -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 pb-32 relative">
+            
+            <!-- VISTA: Resumen -->
+            <div id="viewSummary" class="space-y-6 animate-fade-in max-w-lg mx-auto">
+                <!-- Tarjeta Principal del Ciclo -->
+                <div class="bg-gradient-to-br from-rose-400 to-pink-500 rounded-[2rem] p-6 text-white shadow-xl shadow-rose-200 relative overflow-hidden">
+                    <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+                    <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-white opacity-10 rounded-full blur-xl"></div>
+                    
+                    <i class="fa-solid fa-droplet absolute right-4 bottom-4 text-8xl text-white opacity-10 transform rotate-12"></i>
+                    
+                    <div class="relative z-10">
+                        <h3 class="text-base sm:text-lg font-medium text-rose-50 drop-shadow-sm">Día del ciclo</h3>
+                        <div class="flex items-baseline gap-2 my-1">
+                            <span class="text-6xl sm:text-7xl font-bold tracking-tighter drop-shadow-md" id="cycleDayDisplay">--</span>
+                            <span class="text-rose-100 font-medium text-lg">días</span>
+                        </div>
+                        <div class="inline-block bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full mt-2 border border-white/30 max-w-full">
+                            <p id="cycleStatusText" class="text-[13px] sm:text-sm font-bold text-white shadow-sm truncate">Calculando estado...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btnLogPeriodMain" class="w-full bg-white text-rose-500 font-bold py-4 rounded-2xl shadow-md shadow-rose-100/50 border border-rose-50 flex items-center justify-center gap-3 active:scale-95 transition-all text-sm sm:text-base">
+                    <div class="w-8 h-8 bg-rose-50 rounded-full flex items-center justify-center"><i class="fa-solid fa-plus text-rose-400"></i></div>
+                    Registrar periodo hoy
+                </button>
+            </div>
+
+            <!-- VISTA: Calendario -->
+            <div id="viewCalendar" class="hidden space-y-4 sm:space-y-5 animate-fade-in max-w-lg mx-auto">
+                <div class="flex justify-between items-center bg-white/80 backdrop-blur-md p-2 rounded-2xl shadow-sm border border-rose-50">
+                    <button id="btnPrevMonth" class="w-10 h-10 flex items-center justify-center rounded-xl text-rose-400 hover:bg-rose-50 active:scale-95 transition-all"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h3 id="currentMonthYear" class="font-bold text-gray-700 capitalize text-sm tracking-wide">Mes Año</h3>
+                    <button id="btnNextMonth" class="w-10 h-10 flex items-center justify-center rounded-xl text-rose-400 hover:bg-rose-50 active:scale-95 transition-all"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+
+                <div class="flex justify-center flex-wrap gap-2 sm:gap-5 text-[10px] sm:text-[11px] font-bold text-gray-500 bg-white/50 py-2 px-1 rounded-full">
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-100 border border-rose-300"></span> Periodo</div>
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-fuchsia-100 border border-fuchsia-300"></span> Fértil</div>
+                    <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-fuchsia-300 border-2 border-fuchsia-500"></span> Ovulación</div>
+                </div>
+
+                <div class="bg-white p-3 sm:p-5 rounded-[2rem] shadow-lg shadow-rose-100/40 border border-rose-50">
+                    <div class="grid grid-cols-7 gap-1 text-center mb-2 sm:mb-3">
+                        <div class="text-[9px] sm:text-[10px] font-bold text-rose-300 uppercase">Do</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase">Lu</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase">Ma</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase">Mi</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase">Ju</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase">Vi</div>
+                        <div class="text-[9px] sm:text-[10px] font-bold text-rose-300 uppercase">Sa</div>
+                    </div>
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-y-2 sm:gap-y-3 gap-x-1">
+                        <!-- Generado por JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: Ajustes -->
+            <div id="viewSettings" class="hidden space-y-6 animate-fade-in max-w-lg mx-auto">
+                <h3 class="text-xl font-bold text-gray-800 px-2">Ajustes del Ciclo</h3>
+                
+                <div class="bg-white p-5 sm:p-6 rounded-[2rem] shadow-sm border border-rose-50 space-y-5">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-500 shrink-0 mt-1">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-sm font-bold text-gray-700 mb-0.5">Objetivo actual</label>
+                            <p class="text-[11px] sm:text-xs text-gray-400 mb-2">¿Para qué usas NadiApp?</p>
+                            <select id="settingGoal" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 sm:px-4 text-[16px] text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-purple-200 appearance-none">
+                                <option value="track">Rastrear mi ciclo</option>
+                                <option value="avoid">Evitar embarazo</option>
+                                <option value="conceive">Buscar embarazo</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="h-px w-full bg-gray-100"></div>
+
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-sky-100 rounded-full flex items-center justify-center text-sky-500 shrink-0 mt-1">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-sm font-bold text-gray-700 mb-0.5">Duración del ciclo</label>
+                            <p class="text-[11px] sm:text-xs text-gray-400 mb-2">Días promedio entre cada periodo</p>
+                            <input type="number" id="settingCycleLength" value="28" min="20" max="45" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 sm:px-4 text-[16px] text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-sky-200">
+                        </div>
+                    </div>
+                    
+                    <div class="h-px w-full bg-gray-100"></div>
+
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-500 shrink-0 mt-1">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <div class="w-full">
+                            <label class="block text-sm font-bold text-gray-700 mb-0.5">Duración del periodo</label>
+                            <p class="text-[11px] sm:text-xs text-gray-400 mb-2">Días promedio de sangrado</p>
+                            <input type="number" id="settingPeriodLength" value="5" min="2" max="10" class="w-full bg-slate-50 border border-slate-100 rounded-xl py-2.5 px-3 sm:px-4 text-[16px] text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-rose-200">
+                        </div>
+                    </div>
+                    
+                    <button id="btnSaveSettings" class="w-full bg-gray-900 text-white font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition-transform mt-2 flex items-center justify-center gap-2 text-sm sm:text-base">
+                        <i class="fa-solid fa-check"></i> Guardar Ajustes
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- FIX VITAL: Menú Fixed para evitar saltos del teclado y del scroll -->
+        <nav class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-rose-100 pb-safe pt-2 px-6 flex justify-around items-center rounded-t-3xl shadow-[0_-10px_40px_rgba(255,228,230,0.5)] z-20">
+            <button id="navSummary" class="flex flex-col items-center p-2 text-rose-500 transition-colors w-16">
+                <i class="fa-solid fa-house text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Hoy</span>
+            </button>
+            <button id="navCalendar" class="flex flex-col items-center p-2 text-sky-300 hover:text-rose-400 transition-colors w-16">
+                <i class="fa-regular fa-calendar text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Calendario</span>
+            </button>
+            <button id="navSettings" class="flex flex-col items-center p-2 text-sky-300 hover:text-rose-400 transition-colors w-16">
+                <i class="fa-solid fa-sliders text-xl mb-1"></i>
+                <span class="text-[10px] font-bold">Ajustes</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastMsg" class="fixed top-12 left-1/2 transform -translate-x-1/2 bg-gray-900/95 backdrop-blur-sm text-white px-5 sm:px-6 py-2 sm:py-3 rounded-full text-xs sm:text-sm font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[200] flex items-center gap-2 scale-90 border border-gray-700 whitespace-nowrap">
+        <i class="fa-solid fa-check-circle text-green-400"></i> <span id="toastText">Mensaje</span>
+    </div>
+
+    <!-- Modal Registro Diario -->
+    <div id="dailyModal" class="fixed inset-0 bg-rose-900/50 backdrop-blur-sm z-[100] hidden flex-col justify-end transition-opacity duration-300 opacity-0">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-5 sm:p-6 pb-safe shadow-2xl transform transition-transform duration-300 translate-y-full max-h-[85vh] overflow-y-auto modal-scrollable" id="dailyModalContent">
+            <div class="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4 sm:mb-5"></div>
+            
+            <div class="flex justify-between items-center mb-5 px-1 sm:px-2">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-gray-800 capitalize" id="modalDateTitle">Fecha</h3>
+                    <p class="text-[10px] sm:text-xs font-bold text-rose-400 uppercase tracking-wider mt-1">Registro Diario</p>
+                </div>
+                <button id="closeModalBtn" class="w-9 h-9 sm:w-10 sm:h-10 bg-gray-50 hover:bg-gray-100 rounded-full flex items-center justify-center text-gray-500 transition-colors"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-5 sm:space-y-6 mb-6 px-1 sm:px-2">
+                
+                <!-- Periodo -->
+                <div class="flex items-center justify-between bg-rose-50 p-3.5 sm:p-4 rounded-2xl border border-rose-100">
+                    <div class="flex items-center gap-2.5 sm:gap-3">
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-rose-500 shadow-sm shrink-0"><i class="fa-solid fa-droplet text-sm sm:text-base"></i></div>
+                        <div>
+                            <h4 class="font-bold text-gray-700 text-xs sm:text-sm">Inicio del periodo</h4>
+                            <p class="text-[10px] sm:text-[11px] text-gray-500 leading-tight">Marcar este día como el Día 1</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                        <input type="checkbox" id="togglePeriodModal" class="sr-only peer">
+                        <div class="w-10 h-5 sm:w-11 sm:h-6 bg-rose-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                    </label>
+                </div>
+
+                <!-- Emociones -->
+                <div>
+                    <h5 class="text-[10px] sm:text-[11px] font-bold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">¿Cómo te sientes?</h5>
+                    <div class="flex justify-between px-1" id="moodOptions">
+                        <button class="flex flex-col items-center gap-1 transition-all mood-btn" data-mood="feliz">
+                            <span class="text-3xl sm:text-4xl grayscale opacity-40 transition-all duration-200 emoji">😊</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 label">Feliz</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1 transition-all mood-btn" data-mood="sensible">
+                            <span class="text-3xl sm:text-4xl grayscale opacity-40 transition-all duration-200 emoji">🥺</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 label">Sensible</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1 transition-all mood-btn" data-mood="triste">
+                            <span class="text-3xl sm:text-4xl grayscale opacity-40 transition-all duration-200 emoji">😔</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 label">Triste</span>
+                        </button>
+                        <button class="flex flex-col items-center gap-1 transition-all mood-btn" data-mood="enojada">
+                            <span class="text-3xl sm:text-4xl grayscale opacity-40 transition-all duration-200 emoji">😠</span>
+                            <span class="text-[9px] sm:text-[10px] font-bold text-gray-400 label">Enojada</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Síntomas -->
+                <div>
+                    <h5 class="text-[10px] sm:text-[11px] font-bold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">Síntomas Físicos</h5>
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2" id="symptomOptions">
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all sym-btn" data-symptom="Cólicos">Cólicos</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all sym-btn" data-symptom="Dolor de cabeza">Jaqueca</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all sym-btn" data-symptom="Acné">Acné</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all sym-btn" data-symptom="Fatiga">Fatiga</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all sym-btn" data-symptom="Antojos">Antojos</button>
+                    </div>
+                </div>
+
+                <!-- Intensidad del Flujo -->
+                <div id="flowSection" class="hidden transition-all duration-300">
+                    <h5 class="text-[10px] sm:text-[11px] font-bold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">Intensidad del Flujo</h5>
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2" id="flowOptions">
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-rose-200 text-rose-400 bg-white transition-all flow-btn shadow-sm" data-flow="Manchado">Manchado</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-rose-200 text-rose-400 bg-white transition-all flow-btn shadow-sm" data-flow="Ligero">Ligero</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-rose-200 text-rose-400 bg-white transition-all flow-btn shadow-sm" data-flow="Medio">Medio</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-rose-200 text-rose-400 bg-white transition-all flow-btn shadow-sm" data-flow="Abundante">Abundante</button>
+                    </div>
+                </div>
+
+                <!-- Flujo Cervical -->
+                <div>
+                    <h5 class="text-[10px] sm:text-[11px] font-bold text-gray-400 mb-2 sm:mb-3 uppercase tracking-wider">Flujo Cervical</h5>
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2" id="cervicalOptions">
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all cerv-btn" data-cervical="Seco">Seco</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all cerv-btn" data-cervical="Pegajoso">Pegajoso</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all cerv-btn" data-cervical="Cremoso">Cremoso</button>
+                        <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 transition-all cerv-btn" data-cervical="Clara de huevo">Clara de huevo</button>
+                    </div>
+                </div>
+
+                <div class="pt-1">
+                    <div class="flex items-center justify-between bg-sky-50 p-3.5 sm:p-4 rounded-2xl border border-sky-100">
+                        <div class="flex items-center gap-2.5 sm:gap-3">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center text-sky-400 shadow-sm shrink-0"><i class="fa-solid fa-heart text-sm sm:text-base"></i></div>
+                            <div>
+                                <h4 class="font-bold text-gray-700 text-xs sm:text-sm">Actividad íntima</h4>
+                                <p class="text-[10px] sm:text-[11px] text-gray-500">Registro privado</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input type="checkbox" id="toggleIntimate" class="sr-only peer">
+                            <div class="w-10 h-5 sm:w-11 sm:h-6 bg-sky-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 sm:after:h-5 sm:after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- Protección -->
+                    <div id="protectionSection" class="hidden mt-3 pl-2 sm:pl-4 transition-all">
+                        <h5 class="text-[9px] sm:text-[10px] font-bold text-gray-400 mb-1.5 uppercase">Protección usada</h5>
+                        <div class="flex flex-wrap gap-1.5 sm:gap-2" id="protectionOptions">
+                            <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-gray-200 text-gray-500 active-prot transition-colors" data-val="Condón">Condón</button>
+                            <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-gray-200 text-gray-500 transition-colors" data-val="Pastilla/DIU">Pastilla/DIU</button>
+                            <button class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold border border-gray-200 text-gray-500 transition-colors" data-val="Ninguna">Ninguna</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnSaveLog" class="w-full bg-rose-500 text-white font-bold py-3.5 sm:py-4 rounded-2xl shadow-lg shadow-rose-200 active:scale-95 transition-transform flex justify-center items-center gap-2 text-sm sm:text-base">
+                <i class="fa-solid fa-check"></i> Guardar Registro
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
+            authDomain: "nadiapp-b44ae.firebaseapp.com",
+            projectId: "nadiapp-b44ae",
+            storageBucket: "nadiapp-b44ae.firebasestorage.app",
+            messagingSenderId: "458286198231",
+            appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = firebaseConfig.appId;
+        
+        let uid = null;
+        let cyclesData = [];
+        let logsData = {};
+        let userSettings = { cycleLength: 28, periodLength: 5, goal: 'track' };
+        
+        let currentDate = new Date();
+        let selectedDateForLog = null;
+        let currentSelectedProtection = "Condón";
+        let currentMood = null;
+        let currentSymptoms = [];
+        let currentFlow = null;
+        let currentCervical = null;
+
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+        const headerDate = document.getElementById('headerDate');
+        const toastMsg = document.getElementById('toastMsg');
+        const toastText = document.getElementById('toastText');
+        const loginLoader = document.getElementById('loginLoader');
+        const btnLogin = document.getElementById('btnLogin');
+
+        function showToast(msg) {
+            toastText.innerText = msg;
+            toastMsg.classList.remove('opacity-0', 'scale-90');
+            toastMsg.classList.add('opacity-100', 'scale-100');
+            setTimeout(() => {
+                toastMsg.classList.remove('opacity-100', 'scale-100');
+                toastMsg.classList.add('opacity-0', 'scale-90');
+            }, 3000);
+        }
+
+        const formatDate = (date) => {
+            const d = new Date(date);
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        };
+        const addDays = (dateStr, days) => {
+            const d = new Date(dateStr);
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            d.setDate(d.getDate() + days);
+            return formatDate(d);
+        };
+        
+        headerDate.innerText = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const navSummary = document.getElementById('navSummary');
+        const navCalendar = document.getElementById('navCalendar');
+        const navSettings = document.getElementById('navSettings');
+        
+        const viewSummary = document.getElementById('viewSummary');
+        const viewCalendar = document.getElementById('viewCalendar');
+        const viewSettings = document.getElementById('viewSettings');
+
+        function switchView(activeNav, activeView) {
+            [navSummary, navCalendar, navSettings].forEach(n => {
+                n.classList.remove('text-rose-500');
+                n.classList.add('text-sky-300');
+            });
+            activeNav.classList.remove('text-sky-300');
+            activeNav.classList.add('text-rose-500');
+            
+            [viewSummary, viewCalendar, viewSettings].forEach(v => v.classList.add('hidden'));
+            activeView.classList.remove('hidden');
+            
+            if(activeView === viewCalendar) renderCalendar();
+        }
+
+        navSummary.addEventListener('click', () => switchView(navSummary, viewSummary));
+        navCalendar.addEventListener('click', () => switchView(navCalendar, viewCalendar));
+        navSettings.addEventListener('click', () => switchView(navSettings, viewSettings));
+
+        btnLogin.addEventListener('click', async () => {
+            const val = document.getElementById('loginId').value.trim().toLowerCase();
+            if(!val) return showToast("Ingresa tu palabra clave");
+            
+            btnLogin.disabled = true;
+            btnLogin.classList.add('opacity-50');
+            loginLoader.classList.remove('hidden');
+
+            const email = `${val}@godsplan.site`;
+            const pass = "GodsPlan2026!";
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                uid = userCredential.user.uid;
+                entrarApp();
+            } catch (error) {
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        const newUser = await createUserWithEmailAndPassword(auth, email, pass);
+                        uid = newUser.user.uid;
+                        entrarApp();
+                    } catch (createError) {
+                        showToast("Error al configurar cuenta");
+                        resetLogin();
+                    }
+                } else {
+                    showToast("Error de conexión");
+                    resetLogin();
+                }
+            }
+        });
+
+        function resetLogin() {
+            btnLogin.disabled = false;
+            btnLogin.classList.remove('opacity-50');
+            loginLoader.classList.add('hidden');
+        }
+
+        function entrarApp() {
+            loginScreen.classList.add('hidden');
+            mainApp.classList.remove('hidden');
+            mainApp.classList.add('flex');
+            loadData();
+        }
+
+        function loadData() {
+            const settingsRef = doc(db, 'artifacts', appId, 'users', uid, 'settings', 'userSettings');
+            onSnapshot(settingsRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    userSettings = docSnap.data();
+                    document.getElementById('settingCycleLength').value = userSettings.cycleLength || 28;
+                    document.getElementById('settingPeriodLength').value = userSettings.periodLength || 5;
+                    if(userSettings.goal) document.getElementById('settingGoal').value = userSettings.goal;
+                }
+                updateDashboard();
+                renderCalendar();
+            }, (error) => { console.log("Error loading settings", error); });
+
+            const cyclesRef = collection(db, 'artifacts', appId, 'users', uid, 'cycles');
+            onSnapshot(cyclesRef, (snapshot) => {
+                cyclesData = [];
+                snapshot.forEach(doc => { cyclesData.push({ id: doc.id, ...doc.data() }); });
+                cyclesData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+                updateDashboard();
+                renderCalendar();
+            });
+
+            const logsRef = collection(db, 'artifacts', appId, 'users', uid, 'logs');
+            onSnapshot(logsRef, (snapshot) => {
+                logsData = {};
+                snapshot.forEach(doc => { logsData[doc.id] = doc.data(); });
+                renderCalendar();
+            });
+        }
+
+        function updateDashboard() {
+            const cycleDayDisplay = document.getElementById('cycleDayDisplay');
+            const cycleStatusText = document.getElementById('cycleStatusText');
+            
+            if(cyclesData.length === 0) {
+                cycleDayDisplay.innerText = "-";
+                cycleStatusText.innerText = "¡Registra tu primer periodo!";
+                return;
+            }
+
+            const lastPeriod = cyclesData[0].startDate;
+            const today = formatDate(new Date());
+            const diffTime = new Date(today) - new Date(lastPeriod);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            
+            cycleDayDisplay.innerText = diffDays;
+            
+            const pLen = userSettings.periodLength;
+            const cLen = userSettings.cycleLength;
+            const ovuDay = cLen - 14;
+            const goal = userSettings.goal || 'track';
+            
+            cycleStatusText.className = "text-[13px] sm:text-sm font-bold text-white shadow-sm transition-all duration-300 truncate";
+
+            if(diffDays <= pLen) {
+                cycleStatusText.innerText = "Fase menstrual 🩸";
+            } 
+            else if (diffDays >= (ovuDay - 4) && diffDays <= ovuDay) {
+                if (goal === 'avoid') {
+                    cycleStatusText.innerText = "⚠️ RIESGO ALTO DE EMBARAZO ⚠️";
+                    cycleStatusText.className = "text-[11px] sm:text-[12px] font-black text-rose-200 animate-pulse drop-shadow-md tracking-wider truncate";
+                } else if (goal === 'conceive') {
+                    cycleStatusText.innerText = "🎯 ¡Ventana ideal para concebir! ✨";
+                    cycleStatusText.className = "text-xs sm:text-sm font-black text-fuchsia-200 animate-pulse drop-shadow-md truncate";
+                } else {
+                    cycleStatusText.innerText = "Ventana fértil ✨";
+                }
+            } 
+            else if (diffDays > cLen) {
+                if (goal === 'avoid') {
+                    cycleStatusText.innerText = "Retraso: Recomendable prueba 👀";
+                    cycleStatusText.className = "text-[12px] sm:text-[13px] font-black text-orange-200 drop-shadow-md truncate";
+                } else if (goal === 'conceive') {
+                    cycleStatusText.innerText = "Retraso: ¡Positivo a la vista! 🤞";
+                    cycleStatusText.className = "text-xs sm:text-sm font-black text-fuchsia-200 animate-pulse drop-shadow-md truncate";
+                } else {
+                    cycleStatusText.innerText = "Retraso posible 👀";
+                }
+            } 
+            else {
+                cycleStatusText.innerText = "Fase folicular / lútea";
+            }
+        }
+
+        document.getElementById('btnLogPeriodMain').addEventListener('click', async () => {
+            const todayStr = formatDate(new Date());
+            const cyclesRef = collection(db, 'artifacts', appId, 'users', uid, 'cycles');
+            await addDoc(cyclesRef, { startDate: todayStr, timestamp: Date.now() });
+            showToast("Periodo registrado 🩸");
+        });
+
+        document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+            const cl = parseInt(document.getElementById('settingCycleLength').value) || 28;
+            const pl = parseInt(document.getElementById('settingPeriodLength').value) || 5;
+            const goal = document.getElementById('settingGoal').value;
+            
+            const btn = document.getElementById('btnSaveSettings');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            
+            const settingsRef = doc(db, 'artifacts', appId, 'users', uid, 'settings', 'userSettings');
+            await setDoc(settingsRef, { cycleLength: cl, periodLength: pl, goal: goal });
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar Ajustes';
+                showToast("Ajustes actualizados");
+            }, 500);
+        });
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const monthYearText = document.getElementById('currentMonthYear');
+            grid.innerHTML = '';
+            
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            monthYearText.innerText = new Date(year, month).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            let predictions = {};
+            const pLen = userSettings.periodLength;
+            const cLen = userSettings.cycleLength;
+            const ovuDay = cLen - 14;
+
+            if (cyclesData.length > 0) {
+                cyclesData.slice(0, 3).forEach(cycle => {
+                    const start = cycle.startDate;
+                    for(let i=0; i<pLen; i++) predictions[addDays(start, i)] = 'period';
+                    for(let i=(ovuDay-4); i<=ovuDay; i++) predictions[addDays(start, i)] = 'fertile';
+                    predictions[addDays(start, ovuDay)] = 'ovulation';
+                    
+                    const nextPeriod = addDays(start, cLen);
+                    for(let i=0; i<pLen; i++) predictions[addDays(nextPeriod, i)] = 'period';
+                    for(let i=(ovuDay-4); i<=ovuDay; i++) predictions[addDays(nextPeriod, i)] = 'fertile';
+                    predictions[addDays(nextPeriod, ovuDay)] = 'ovulation';
+                });
+            }
+
+            for(let i=0; i<firstDay; i++) {
+                grid.innerHTML += `<div></div>`;
+            }
+
+            for(let day=1; day<=daysInMonth; day++) {
+                const d = new Date(year, month, day);
+                const dateStr = formatDate(d);
+                
+                /* FIX iOS/MOVIL: h-8 w-8 adaptables a h-10 w-10 previenen overflow horizontal */
+                let classes = "h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center rounded-full mx-auto text-[13px] sm:text-sm transition-all cursor-pointer relative ";
+                
+                const pred = predictions[dateStr];
+                if(pred === 'period') classes += "day-period";
+                else if (pred === 'fertile') classes += "day-fertile";
+                else if (pred === 'ovulation') classes += "day-ovulation";
+                else classes += "day-normal hover:bg-slate-50";
+
+                let indicators = '';
+                if(logsData[dateStr]) {
+                    if(logsData[dateStr].intimate) {
+                        indicators += `<i class="fa-solid fa-heart text-[7px] sm:text-[8px] text-sky-400 drop-shadow-sm"></i>`;
+                    }
+                    if(logsData[dateStr].mood || (logsData[dateStr].symptoms && logsData[dateStr].symptoms.length > 0)) {
+                        indicators += `<div class="w-1.5 h-1.5 rounded-full bg-rose-400 shadow-sm"></div>`;
+                    }
+                }
+                
+                const isCycleStart = cyclesData.find(c => c.startDate === dateStr);
+                if(isCycleStart) {
+                    classes += " ring-2 ring-offset-1 sm:ring-offset-2 ring-rose-500 bg-rose-500 text-white font-bold border-none";
+                }
+
+                const isToday = dateStr === formatDate(new Date());
+                if(isToday && !pred && !isCycleStart) classes += " bg-gray-800 text-white font-bold";
+
+                grid.innerHTML += `
+                    <div class="py-0.5 sm:py-1">
+                        <div class="${classes}" onclick="openDailyModal('${dateStr}')">
+                            ${day}
+                            <div class="absolute -bottom-1 flex gap-0.5 items-center justify-center w-full">
+                                ${indicators}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        document.getElementById('btnPrevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+        document.getElementById('btnNextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        const dailyModal = document.getElementById('dailyModal');
+        const dailyModalContent = document.getElementById('dailyModalContent');
+        const modalDateTitle = document.getElementById('modalDateTitle');
+        const togglePeriodModal = document.getElementById('togglePeriodModal');
+        const toggleIntimate = document.getElementById('toggleIntimate');
+        const protectionSection = document.getElementById('protectionSection');
+        const protectionOptions = document.querySelectorAll('#protectionOptions button');
+
+        window.openDailyModal = (dateStr) => {
+            selectedDateForLog = dateStr;
+            const d = new Date(dateStr);
+            d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+            modalDateTitle.innerText = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+
+            const log = logsData[dateStr] || {};
+            const isCycleStart = cyclesData.some(c => c.startDate === dateStr);
+            
+            togglePeriodModal.checked = isCycleStart;
+            
+            if(isCycleStart) {
+                document.getElementById('flowSection').classList.remove('hidden');
+            } else {
+                document.getElementById('flowSection').classList.add('hidden');
+            }
+
+            if(log.intimate) {
+                toggleIntimate.checked = true;
+                protectionSection.classList.remove('hidden');
+                currentSelectedProtection = log.protection || "Condón";
+            } else {
+                toggleIntimate.checked = false;
+                protectionSection.classList.add('hidden');
+            }
+
+            currentMood = log.mood || null;
+            currentSymptoms = log.symptoms || [];
+            currentFlow = log.flow || null;
+            currentCervical = log.cervical || null;
+
+            updateMoodUI();
+            updateSymptomsUI();
+            updateFlowUI();
+            updateCervicalUI();
+            updateProtectionUI();
+
+            dailyModal.classList.remove('hidden');
+            dailyModal.classList.add('flex');
+            setTimeout(() => {
+                dailyModal.classList.remove('opacity-0');
+                dailyModalContent.classList.remove('translate-y-full');
+            }, 10);
+        };
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            dailyModalContent.classList.add('translate-y-full');
+            dailyModal.classList.add('opacity-0');
+            setTimeout(() => { 
+                dailyModal.classList.add('hidden');
+                dailyModal.classList.remove('flex');
+            }, 300);
+        });
+
+        togglePeriodModal.addEventListener('change', (e) => {
+            const flowSection = document.getElementById('flowSection');
+            if(e.target.checked) {
+                flowSection.classList.remove('hidden');
+            } else {
+                flowSection.classList.add('hidden');
+                currentFlow = null; 
+                updateFlowUI();
+            }
+        });
+
+        toggleIntimate.addEventListener('change', (e) => {
+            if(e.target.checked) protectionSection.classList.remove('hidden');
+            else protectionSection.classList.add('hidden');
+        });
+
+        protectionOptions.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                currentSelectedProtection = e.target.getAttribute('data-val');
+                updateProtectionUI();
+            });
+        });
+
+        function updateProtectionUI() {
+            protectionOptions.forEach(btn => {
+                if(btn.getAttribute('data-val') === currentSelectedProtection) {
+                    btn.classList.replace('bg-transparent', 'bg-sky-100');
+                    btn.classList.replace('border-gray-200', 'border-sky-300');
+                    btn.classList.replace('text-gray-500', 'text-sky-700');
+                    btn.classList.add('bg-sky-100', 'border-sky-300', 'text-sky-700');
+                } else {
+                    btn.classList.remove('bg-sky-100', 'border-sky-300', 'text-sky-700');
+                    btn.classList.add('border-gray-200', 'text-gray-500');
+                }
+            });
+        }
+
+        document.querySelectorAll('.mood-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = e.currentTarget.getAttribute('data-mood');
+                currentMood = (currentMood === val) ? null : val;
+                updateMoodUI();
+            });
+        });
+
+        function updateMoodUI() {
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                const emoji = btn.querySelector('.emoji');
+                const label = btn.querySelector('.label');
+                if(btn.getAttribute('data-mood') === currentMood) {
+                    emoji.classList.remove('grayscale', 'opacity-40');
+                    emoji.classList.add('scale-125');
+                    label.classList.remove('text-gray-400');
+                    label.classList.add('text-rose-500');
+                } else {
+                    emoji.classList.add('grayscale', 'opacity-40');
+                    emoji.classList.remove('scale-125');
+                    label.classList.remove('text-rose-500');
+                    label.classList.add('text-gray-400');
+                }
+            });
+        }
+
+        document.querySelectorAll('.sym-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = e.currentTarget.getAttribute('data-symptom');
+                if(currentSymptoms.includes(val)) {
+                    currentSymptoms = currentSymptoms.filter(s => s !== val);
+                } else {
+                    currentSymptoms.push(val);
+                }
+                updateSymptomsUI();
+            });
+        });
+
+        function updateSymptomsUI() {
+            document.querySelectorAll('.sym-btn').forEach(btn => {
+                const val = btn.getAttribute('data-symptom');
+                if(currentSymptoms.includes(val)) {
+                    btn.classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
+                    btn.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+                } else {
+                    btn.classList.remove('bg-rose-500', 'text-white', 'border-rose-600');
+                    btn.classList.add('bg-slate-50', 'text-slate-500', 'border-slate-200');
+                }
+            });
+        }
+
+        document.querySelectorAll('.flow-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = e.currentTarget.getAttribute('data-flow');
+                currentFlow = (currentFlow === val) ? null : val;
+                updateFlowUI();
+            });
+        });
+
+        function updateFlowUI() {
+            document.querySelectorAll('.flow-btn').forEach(btn => {
+                if(btn.getAttribute('data-flow') === currentFlow) {
+                    btn.classList.replace('bg-white', 'bg-rose-500');
+                    btn.classList.replace('text-rose-400', 'text-white');
+                } else {
+                    btn.classList.replace('bg-rose-500', 'bg-white');
+                    btn.classList.replace('text-white', 'text-rose-400');
+                }
+            });
+        }
+
+        document.querySelectorAll('.cerv-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const val = e.currentTarget.getAttribute('data-cervical');
+                currentCervical = (currentCervical === val) ? null : val;
+                updateCervicalUI();
+            });
+        });
+
+        function updateCervicalUI() {
+            document.querySelectorAll('.cerv-btn').forEach(btn => {
+                if(btn.getAttribute('data-cervical') === currentCervical) {
+                    btn.classList.replace('bg-slate-50', 'bg-purple-100');
+                    btn.classList.replace('border-slate-200', 'border-purple-300');
+                    btn.classList.replace('text-slate-500', 'text-purple-700');
+                } else {
+                    btn.classList.replace('bg-purple-100', 'bg-slate-50');
+                    btn.classList.replace('border-purple-300', 'border-slate-200');
+                    btn.classList.replace('text-purple-700', 'text-slate-500');
+                }
+            });
+        }
+
+        document.getElementById('btnSaveLog').addEventListener('click', async () => {
+            const btn = document.getElementById('btnSaveLog');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            
+            try {
+                const cyclesRef = collection(db, 'artifacts', appId, 'users', uid, 'cycles');
+                const existingCycle = cyclesData.find(c => c.startDate === selectedDateForLog);
+                
+                if(togglePeriodModal.checked && !existingCycle) {
+                    await addDoc(cyclesRef, { startDate: selectedDateForLog, timestamp: Date.now() });
+                } else if (!togglePeriodModal.checked && existingCycle) {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', uid, 'cycles', existingCycle.id));
+                }
+
+                const logRef = doc(db, 'artifacts', appId, 'users', uid, 'logs', selectedDateForLog);
+                const payload = { updatedAt: Date.now() };
+                
+                if(toggleIntimate.checked) {
+                    payload.intimate = true;
+                    payload.protection = currentSelectedProtection;
+                }
+                if(currentMood) payload.mood = currentMood;
+                if(currentSymptoms.length > 0) payload.symptoms = currentSymptoms;
+                
+                if(togglePeriodModal.checked && currentFlow) payload.flow = currentFlow;
+                if(currentCervical) payload.cervical = currentCervical;
+
+                if(!toggleIntimate.checked && !currentMood && currentSymptoms.length === 0 && !currentCervical && (!togglePeriodModal.checked || !currentFlow)) {
+                    await deleteDoc(logRef);
+                } else {
+                    await setDoc(logRef, payload);
+                }
+
+                showToast("Registro guardado ✨");
+                document.getElementById('closeModalBtn').click();
+            } catch(e) {
+                console.error(e);
+                showToast("Error de conexión");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Guardar Registro';
+            }
+        });
+
+    </script>
+</body>
+</html>
