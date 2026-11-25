@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nadia & Luis | Mis Escritos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['"Playfair Display"', 'serif'], sans: ['"Inter"', 'sans-serif'] },
+                    colors: { romantic: { dark: '#2D1B2E', pink: '#F7CAD0', rose: '#E11D48' } },
+                    animation: { 'fade-in-up': 'fadeInUp 0.8s ease-out forwards' },
+                    keyframes: { 
+                        fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #FAFAFA; color: #2D1B2E; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
+        .noise-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative justify-center items-center">
+    <div class="noise-bg"></div>
+    <canvas id="particleCanvas" class="fixed top-0 left-0 w-full h-full -z-10 opacity-30"></canvas>
+    
+    <!-- Resplandor de fondo -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-rose-100/40 rounded-full blur-[80px] -z-10"></div>
+
+    <main class="w-full max-w-lg px-6 animate-fade-in-up z-10">
+        <div class="glass-card p-10 md:p-14 rounded-[2rem] shadow-2xl text-center border-rose-100 relative overflow-hidden">
+            
+            <div class="inline-block p-4 rounded-full bg-rose-50 mb-6 shadow-sm">
+                <i data-lucide="archive-restore" class="w-8 h-8 text-rose-400"></i>
+            </div>
+            
+            <h1 class="font-serif text-3xl md:text-4xl text-gray-900 mb-4">Los escritos se han reubicado</h1>
+            
+            <p class="text-gray-500 font-light text-sm md:text-base leading-relaxed mb-10">
+                Para mantener todos nuestros recuerdos y confesiones en un solo lugar, la bitácora ha sido movida a la sección de <strong>Detalles</strong> dentro del archivo principal.
+            </p>
+            
+            <a href="/nadiayluis/" class="inline-flex items-center justify-center gap-3 bg-rose-500 text-white font-bold py-4 px-8 rounded-full hover:bg-rose-600 transition-all duration-300 shadow-lg hover:shadow-rose-500/30 transform hover:scale-105 w-full md:w-auto">
+                Ir al Archivo
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+
+            <p class="text-xs text-gray-400 mt-8 tracking-wide">
+                Redirigiendo automáticamente en <span id="countdown" class="font-bold text-rose-400">8</span> segundos...
+            </p>
+        </div>
+    </main>
+
+    <footer class="absolute bottom-6 w-full text-center text-gray-400 text-xs uppercase tracking-widest opacity-60">
+        escritos.nadiayluis.art
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Lógica de Redirección y Contador
+        let secondsLeft = 8;
+        const countdownEl = document.getElementById('countdown');
+        const targetUrl = "/nadiayluis/";
+
+        const timer = setInterval(() => {
+            secondsLeft--;
+            countdownEl.innerText = secondsLeft;
+            if (secondsLeft <= 0) {
+                clearInterval(timer);
+                window.location.href = targetUrl;
+            }
+        }, 1000);
+
+        // Lógica de las Partículas (Conservando el estilo original)
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() { 
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight; 
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        const particleCount = window.innerWidth < 768 ? 15 : 30;
+        let particles = Array.from({length: particleCount}, () => ({
+            x: Math.random() * canvas.width, 
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2 + 0.5, 
+            d: Math.random() * Math.PI * 2, 
+            s: Math.random() * 0.2 + 0.05,
+            c: ['#F7CAD0', '#C59FC9', '#A5B4FC'][Math.floor(Math.random()*3)]
+        }));
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y -= p.s; 
+                p.x += Math.sin(p.d) * 0.1;
+                if(p.y < -10) { 
+                    p.y = canvas.height + 10; 
+                    p.x = Math.random() * canvas.width; 
+                }
+                ctx.fillStyle = p.c; 
+                ctx.beginPath(); 
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); 
+                ctx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
