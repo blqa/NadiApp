@@ -40,6 +40,50 @@
     .lista h2 { font-size: 1.6rem; line-height: 1.2; }
     .lista .artista { color: var(--tinta-suave); margin: .15rem 0 0; }
     .lista .porque { margin: .6rem 0 0; font-family: var(--serif); font-size: 1.1rem; line-height: 1.6; }
+
+    /* ---------- Canciones dedicadas ---------- */
+    .dedicadas-seccion { max-width: 44rem; margin-top: 5rem; }
+    .dedicadas-seccion > h2 { font-size: clamp(1.9rem, 5vw, 2.4rem); line-height: 1.1; }
+    .dedicadas-seccion > .intro { color: var(--tinta-suave); margin: .5rem 0 2rem; }
+    .dedicadas { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.25rem; }
+    .dedicada {
+      background: var(--hoja);
+      border: 1px solid var(--polvo);
+      border-radius: 16px;
+      padding: 1.5rem 1.5rem 1.25rem;
+      box-shadow: 0 18px 36px -28px color-mix(in srgb, var(--cereza) 60%, transparent);
+    }
+    .dedicada h3 { font-size: 1.45rem; line-height: 1.2; margin: 0; }
+    .dedicada .artista { color: var(--tinta-suave); margin: .15rem 0 0; font-size: .95rem; }
+    .dedicada blockquote {
+      margin: 1.1rem 0 0;
+      padding: .2rem 0 .2rem 1.1rem;
+      border-left: 2px solid var(--cereza);
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(1.15rem, 3.2vw, 1.35rem);
+      line-height: 1.55;
+      white-space: pre-line;
+      font-variation-settings: "SOFT" 100, "opsz" 36;
+    }
+    .dedicada .acciones { display: flex; flex-wrap: wrap; gap: .6rem 1rem; align-items: center; margin-top: 1.25rem; }
+    .dedicada .acciones a, .dedicada .borrar { color: var(--tinta-suave); font-size: .9rem; }
+    .dedicada .borrar { background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; font: inherit; font-size: .9rem; margin-left: auto; }
+    .dedicada .borrar:hover, .dedicada .acciones a:hover { color: var(--cereza); }
+    .dedicada .tiempo { color: var(--cereza); font-size: .9rem; }
+    .video { margin-top: 1.1rem; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; background: #000; }
+    .video iframe { width: 100%; height: 100%; border: 0; display: block; }
+    .vacio { color: var(--tinta-suave); font-family: var(--serif); font-size: 1.15rem; }
+
+    .nube-dedicadas { margin-top: 2.5rem; border-top: 1px solid var(--polvo); padding-top: 1.5rem; }
+    form.agregar { display: grid; gap: .9rem; margin-top: 1.5rem; }
+    form.agregar[hidden], .video[hidden] { display: none; }
+    form.agregar h3 { font-size: 1.35rem; margin: 0; }
+    form.agregar label { display: grid; gap: .35rem; font-size: .9rem; color: var(--tinta-suave); }
+    form.agregar .fila { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    form.agregar .ayuda { font-size: .85rem; color: var(--tinta-suave); margin: -.4rem 0 0; }
+    form.agregar .error { color: var(--cereza); font-size: .92rem; margin: 0; min-height: 1.3em; }
+    @media (max-width: 30rem) { form.agregar .fila { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -51,6 +95,30 @@
 
     <div class="reproductor" id="reproductor"></div>
     <ol class="lista" id="lista" hidden></ol>
+
+    <section class="dedicadas-seccion" aria-labelledby="titulo-dedicadas">
+      <h2 id="titulo-dedicadas">Canciones que te dedico</h2>
+      <p class="intro">Cada una tiene una parte que es para ti. Dale play y empieza justo ahí.</p>
+      <ul class="dedicadas" id="dedicadas"></ul>
+
+      <div class="nube-dedicadas">
+        <div id="acceso"></div>
+        <form class="agregar" id="agregar" hidden>
+          <h3>Dedicarle una canción</h3>
+          <label>Canción<input class="campo" name="titulo" maxlength="100" required placeholder="Nombre de la canción"></label>
+          <label>Artista (opcional)<input class="campo" name="artista" maxlength="80"></label>
+          <label>La parte que le dedicas<textarea class="campo" name="parte" maxlength="800" required placeholder="Escribe aquí esa parte de la letra…"></textarea></label>
+          <label>Link de YouTube<input class="campo" name="link" type="url" required placeholder="https://youtu.be/…"></label>
+          <div class="fila">
+            <label>Empieza en (min:seg)<input class="campo" name="desde" placeholder="1:15" inputmode="numeric"></label>
+            <label>Termina en (opcional)<input class="campo" name="hasta" placeholder="1:45" inputmode="numeric"></label>
+          </div>
+          <p class="ayuda">Si tu link ya trae el tiempo (por ejemplo “?t=75”), puedes dejar “Empieza en” vacío.</p>
+          <p class="error" id="error-agregar" role="alert"></p>
+          <button class="boton" type="submit">Guardar canción</button>
+        </form>
+      </div>
+    </section>
   </main>
 
   <script src="assets/js/datos.js?v=20261108e"></script>
@@ -69,6 +137,150 @@
           ${c.porque ? `<p class="porque">${limpio(c.porque)}</p>` : ""}
         </div></li>`).join("");
     }
+
+    /* ================= Canciones dedicadas ================= */
+
+    // "1:15" → 75, "75" → 75, "1m15s" → 75, "1:02:03" → 3723
+    function aSegundos(t) {
+      t = String(t || "").trim().toLowerCase();
+      if (!t) return null;
+      if (/^\d+$/.test(t)) return +t;
+      const hms = t.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
+      if (hms && (hms[1] || hms[2] || hms[3])) return (+hms[1] || 0) * 3600 + (+hms[2] || 0) * 60 + (+hms[3] || 0);
+      if (/^\d+(:\d{1,2}){1,2}$/.test(t)) return t.split(":").reduce((a, n) => a * 60 + +n, 0);
+      return NaN;
+    }
+    const aReloj = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+
+    // Saca el id del video y el segundo donde empieza (si el link lo trae)
+    function leerYoutube(link) {
+      let u;
+      try { u = new URL(String(link).trim()); } catch (e) { return null; }
+      const host = u.hostname.replace(/^(www|m|music)\./, "");
+      let id = null;
+      if (host === "youtu.be") id = u.pathname.slice(1).split("/")[0];
+      else if (host === "youtube.com" || host === "youtube-nocookie.com") {
+        id = u.searchParams.get("v");
+        const m = u.pathname.match(/^\/(?:embed|shorts|live|v)\/([\w-]{6,})/);
+        if (!id && m) id = m[1];
+      }
+      if (!id || !/^[\w-]{6,}$/.test(id)) return null;
+      const t = u.searchParams.get("t") || u.searchParams.get("start") || (u.hash.match(/t=([\dhms]+)/) || [])[1];
+      const inicio = aSegundos(t);
+      return { id, inicio: Number.isFinite(inicio) ? inicio : null };
+    }
+
+    // Junta los datos de una canción para mostrarla
+    function preparar(c) {
+      const yt = leerYoutube(c.link);
+      const inicio = Number.isFinite(c.desde) ? c.desde : (yt ? yt.inicio : null);
+      return { ...c, yt, inicio, fin: Number.isFinite(c.hasta) ? c.hasta : null };
+    }
+
+    let deLaNube = [];     // las que vienen de Firebase
+    let soyLuis = false;
+    let guardarLista = null; // función para subir la lista (cuando hay sesión)
+
+    function pintarDedicadas() {
+      const todas = [...deLaNube, ...(DATOS.dedicadas || []).map(c => ({ ...c, fija: true }))].map(preparar);
+      const ul = document.getElementById("dedicadas");
+      if (!todas.length) {
+        ul.innerHTML = `<li class="vacio">${Nube_sesion() ? "Todavía no hay canciones aquí… pero ya vienen." : "Entra con tu cuenta para verlas."}</li>`;
+        return;
+      }
+      ul.innerHTML = todas.map(c => {
+        const desde = c.inicio != null ? aReloj(c.inicio) : null;
+        const abrir = c.yt ? `https://www.youtube.com/watch?v=${encodeURIComponent(c.yt.id)}${c.inicio ? "&t=" + c.inicio + "s" : ""}` : "";
+        return `<li class="dedicada" data-revela>
+          <h3>${limpio(c.titulo)}</h3>
+          ${c.artista ? `<p class="artista">${limpio(c.artista)}</p>` : ""}
+          <blockquote>${limpio(c.parte || "")}</blockquote>
+          <div class="video" hidden></div>
+          <div class="acciones">
+            ${c.yt ? `<button class="boton" type="button" data-play="${limpio(c.yt.id)}" data-inicio="${c.inicio || 0}" data-fin="${c.fin || ""}">Escuchar esa parte</button>` : ""}
+            ${desde ? `<span class="tiempo">desde el ${desde}${c.fin ? " hasta el " + aReloj(c.fin) : ""}</span>` : ""}
+            ${abrir ? `<a href="${abrir}" target="_blank" rel="noopener">Abrir en YouTube</a>` : ""}
+            ${soyLuis && !c.fija && c.id ? `<button class="borrar" type="button" data-borrar="${limpio(c.id)}">Quitar</button>` : ""}
+          </div>
+        </li>`;
+      }).join("");
+      if (typeof revelar === "function") revelar(ul);
+    }
+    const Nube_sesion = () => !!(window.Nube && window.Nube.yo);
+
+    document.getElementById("dedicadas").addEventListener("click", e => {
+      const play = e.target.closest("[data-play]");
+      if (play) {
+        const caja = play.closest(".dedicada").querySelector(".video");
+        const q = new URLSearchParams({ autoplay: "1", rel: "0", playsinline: "1", start: play.dataset.inicio || "0" });
+        if (play.dataset.fin) q.set("end", play.dataset.fin);
+        caja.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(play.dataset.play)}?${q}" title="Video de la canción" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`;
+        caja.hidden = false;
+        play.textContent = "Otra vez desde esa parte";
+        return;
+      }
+      const borrar = e.target.closest("[data-borrar]");
+      if (borrar && guardarLista && confirmarQuitar(borrar)) {
+        deLaNube = deLaNube.filter(c => c.id !== borrar.dataset.borrar);
+        guardarLista();
+        pintarDedicadas();
+      }
+    });
+    // Para no quitar por accidente: hay que tocar "Quitar" dos veces
+    function confirmarQuitar(b) {
+      if (b.dataset.seguro) return true;
+      b.dataset.seguro = "1"; b.textContent = "¿Seguro? Toca otra vez";
+      setTimeout(() => { delete b.dataset.seguro; b.textContent = "Quitar"; }, 3500);
+      return false;
+    }
+
+    document.getElementById("agregar").addEventListener("submit", e => {
+      e.preventDefault();
+      const f = e.target, err = document.getElementById("error-agregar");
+      err.textContent = "";
+      const yt = leerYoutube(f.link.value);
+      if (!yt) { err.textContent = "Ese link no parece de YouTube. Cópialo desde “Compartir” en YouTube."; return; }
+      const desde = aSegundos(f.desde.value), hasta = aSegundos(f.hasta.value);
+      if (Number.isNaN(desde) || Number.isNaN(hasta)) { err.textContent = "Escribe el tiempo así: 1:15 (minuto:segundo)."; return; }
+      const inicio = desde ?? yt.inicio ?? 0;
+      if (hasta != null && hasta <= inicio) { err.textContent = "“Termina en” tiene que ser después de donde empieza."; return; }
+      const nueva = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        titulo: f.titulo.value.trim(),
+        artista: f.artista.value.trim(),
+        parte: f.parte.value.trim(),
+        link: f.link.value.trim(),
+        fecha: new Date().toISOString(),
+      };
+      if (desde != null) nueva.desde = desde;
+      if (hasta != null) nueva.hasta = hasta;
+      if (!nueva.titulo || !nueva.parte) return;
+      deLaNube = [nueva, ...deLaNube];
+      guardarLista();
+      pintarDedicadas();
+      f.reset();
+      if (window.Nube) Nube.toast("Listo, ya está su canción.");
+    });
+
+    pintarDedicadas();
+
+    cargarNube().then(Nube => Nube.acceso(document.getElementById("acceso"), {
+      titulo: "Las canciones que te dedico",
+      texto: "Entra con tu cuenta para verlas todas.",
+      alListo: (yo, N) => {
+        const { db, F } = N;
+        const ref = F.doc(db, "compartido", "dedicadas");
+        soyLuis = yo.nombre === "Luis";
+        document.getElementById("agregar").hidden = !soyLuis;
+        guardarLista = () => F.setDoc(ref, { lista: deLaNube }).catch(err => Nube.toast(Nube.mensaje(err)));
+        F.onSnapshot(ref, snap => {
+          if (snap.metadata.hasPendingWrites) return;
+          deLaNube = (snap.exists() && snap.data().lista) || [];
+          pintarDedicadas();
+        }, () => {});
+      },
+      alSalir: () => { soyLuis = false; guardarLista = null; deLaNube = []; document.getElementById("agregar").hidden = true; pintarDedicadas(); },
+    }));
   </script>
 </body>
 </html>

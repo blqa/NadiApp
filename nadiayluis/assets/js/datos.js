@@ -466,4 +466,12 @@ window.DATOS = {
   canciones: [
   ],
 
+  // Canciones que le dedico a Nadia (las que se ven sin entrar).
+  // Lo más fácil es agregarlas desde la página: entra con tu cuenta en
+  // "Canciones" y usa el formulario. Si quieres ponerlas aquí a mano:
+  // { titulo: "Nombre", artista: "Artista", parte: "La parte que te dedico", link: "https://youtu.be/XXXX?t=75" },
+  // (el ?t=75 es el segundo donde empieza esa parte)
+  dedicadas: [
+  ],
+
 };
