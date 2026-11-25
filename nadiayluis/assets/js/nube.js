@@ -1,7 +1,7 @@
 /* =========================================================
    La nube (Firebase): lo que es solo para los dos.
 
-   - Entrar con correo y contraseña (solo existen 2 cuentas).
+   - Usa la sesión única de NadiApp (sesion.js): Nadia o Luis.
    - Buzón, pregunta del día, “pienso en ti” y sueños compartidos.
 
    OJO: esta configuración es pública a propósito (así funciona Firebase
@@ -18,7 +18,7 @@
     messagingSenderId: "458286198231",
     appId: "1:458286198231:web:d9801e0dd6ea4fd0ae2f92",
   };
-  const VERSION = "10.14.1";
+  const VERSION = "11.6.1";
   const BASE = "https://www.gstatic.com/firebasejs/" + VERSION + "/";
   const LLAVE_SESION = "nyl-nube";
 
@@ -85,9 +85,11 @@
     return "Algo salió mal (" + c + ").";
   }
 
-  /* ---------- El cuadro para entrar ---------- */
+  /* ---------- La sesión ----------
+     Ya no hay login aquí: se entra una sola vez en la puerta de NadiApp
+     (sesion.js) eligiendo Nadia o Luis. Esto solo saluda y avisa a la página. */
   async function acceso(cont, opciones = {}) {
-    const { alListo, alSalir, titulo = "Esto es solo para los dos", texto = "Entra con tu correo y tu contraseña." } = opciones;
+    const { alListo, alSalir } = opciones;
     const pintar = html => { cont.innerHTML = html; };
 
     pintar('<p class="nota">Conectando…</p>');
@@ -97,83 +99,26 @@
       pintar('<div class="acceso"><h2>No pude conectar</h2><p>Revisa tu internet y vuelve a abrir esta página.</p></div>');
       return;
     }
-    const { auth, db, A, F } = N;
+    const { auth, A } = N;
+    const S = window.Sesion;
 
-    function pintarLogin(error = "") {
-      pintar(`<div class="acceso">
-        <h2>${limpio(titulo)}</h2>
-        <p>${limpio(texto)}</p>
-        <form id="acc-form">
-          <label>Correo<input type="email" name="correo" autocomplete="username" required></label>
-          <label>Contraseña<input type="password" name="clave" autocomplete="current-password" required></label>
-          <p class="error" id="acc-error" role="alert">${limpio(error)}</p>
-          <button class="boton" type="submit">Entrar</button>
-        </form></div>`);
-      const form = cont.querySelector("#acc-form");
-      form.addEventListener("submit", async e => {
-        e.preventDefault();
-        const boton = form.querySelector("button");
-        boton.disabled = true; boton.textContent = "Entrando…";
-        try {
-          await A.signInWithEmailAndPassword(auth, form.correo.value.trim(), form.clave.value);
-        } catch (err) {
-          cont.querySelector("#acc-error").textContent = mensaje(err);
-          boton.disabled = false; boton.textContent = "Entrar";
-        }
-      });
-    }
-
-    function pintarProblema(error) {
-      pintar(`<div class="acceso"><h2>Casi</h2><p>${limpio(error)}</p><button class="boton claro" id="acc-salir" type="button">Salir</button></div>`);
-      cont.querySelector("#acc-salir").addEventListener("click", () => A.signOut(auth));
-    }
-
-    function preguntarQuien(user) {
-      return new Promise(listo => {
-        pintar(`<div class="acceso"><h2>¿Quién eres?</h2><p>Solo te lo pregunto esta vez.</p>
-          <div class="quien"><button class="boton claro" type="button" data-n="Nadia">Nadia</button><button class="boton claro" type="button" data-n="Luis">Luis</button></div>
-          <p class="error" id="acc-error" role="alert"></p></div>`);
-        cont.querySelectorAll("[data-n]").forEach(b => b.addEventListener("click", async () => {
-          b.disabled = true;
-          try {
-            await F.setDoc(F.doc(db, "usuarios", user.uid), { nombre: b.dataset.n, creado: F.serverTimestamp() });
-            listo(b.dataset.n);
-          } catch (err) {
-            cont.querySelector("#acc-error").textContent = mensaje(err);
-            b.disabled = false;
-          }
-        }));
-      });
-    }
-
-    A.onAuthStateChanged(auth, async user => {
+    A.onAuthStateChanged(auth, user => {
       Nube.yo = null;
-      if (!user) {
+      const nombre = user && S ? S.nombreDe(user.email) : null;
+      if (!nombre) {
         try { localStorage.removeItem(LLAVE_SESION); } catch (e) {}
         if (alSalir) alSalir();
-        pintarLogin();
-        return;
-      }
-      let nombre;
-      try {
-        const ref = F.doc(db, "usuarios", user.uid);
-        const snap = await F.getDoc(ref);
-        nombre = snap.exists() ? snap.data().nombre : await preguntarQuien(user);
-      } catch (err) {
-        pintarProblema(mensaje(err));
+        pintar(`<div class="acceso"><h2>Entra a NadiApp</h2><p>Elige quién eres y escribe tu contraseña.</p>
+          <button class="boton" type="button" id="acc-entrar">Entrar</button></div>`);
+        cont.querySelector("#acc-entrar").addEventListener("click", () => S && S.mostrar());
         return;
       }
 
-      Nube.yo = { uid: user.uid, nombre, email: user.email };
+      Nube.yo = { uid: user.uid, nombre, email: user.email, admin: !!(S && S.esAdmin) };
       try { localStorage.setItem(LLAVE_SESION, "1"); } catch (e) {}
       pintar(`<p class="sesion">Hola, <strong>${limpio(nombre)}</strong>
-        <button type="button" id="acc-salir">Salir</button>
-        <button type="button" id="acc-cambiar" style="opacity:.7">No soy ${limpio(nombre)}</button></p>`);
-      cont.querySelector("#acc-salir").addEventListener("click", () => A.signOut(auth));
-      cont.querySelector("#acc-cambiar").addEventListener("click", async () => {
-        try { await F.deleteDoc(F.doc(db, "usuarios", user.uid)); } catch (e) {}
-        location.reload();
-      });
+        <button type="button" id="acc-salir">Salir</button></p>`);
+      cont.querySelector("#acc-salir").addEventListener("click", () => S ? S.salir() : A.signOut(auth));
       if (alListo) alListo(Nube.yo, N);
     });
   }

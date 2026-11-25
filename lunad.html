@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script src="sesion.js"></script>
     <!-- Se optimiza el viewport para evitar comportamientos extraños, pero permitiendo accesibilidad visual -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>NadiApp - LuNad</title>
@@ -60,7 +61,7 @@
 
 <body class="text-gray-800 antialiased flex flex-col w-full">
 
-    <div id="loginScreen" class="absolute inset-0 z-50 bg-rose-50 flex flex-col items-center justify-center p-6">
+    <div id="loginScreen" class="hidden absolute inset-0 z-50 bg-rose-50 flex flex-col items-center justify-center p-6">
         <div class="bg-white p-6 sm:p-8 rounded-[2rem] shadow-xl shadow-rose-100 w-full max-w-sm text-center glass-panel">
             <div class="w-20 h-20 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
                 <i class="fa-solid fa-moon text-4xl text-rose-400 drop-shadow-sm"></i>
@@ -354,9 +355,9 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBqXPV9LA3j1MY6swbM-d4YqsuxGT37Q7g",
@@ -443,35 +444,13 @@
         navCalendar.addEventListener('click', () => switchView(navCalendar, viewCalendar));
         navSettings.addEventListener('click', () => switchView(navSettings, viewSettings));
 
-        btnLogin.addEventListener('click', async () => {
-            const val = document.getElementById('loginId').value.trim().toLowerCase();
-            if(!val) return showToast("Ingresa tu palabra clave");
-            
-            btnLogin.disabled = true;
-            btnLogin.classList.add('opacity-50');
-            loginLoader.classList.remove('hidden');
-
-            const email = `${val}@godsplan.site`;
-            const pass = "GodsPlan2026!";
-
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                uid = userCredential.user.uid;
+        // La entrada ahora es la sesión única de NadiApp (sesion.js)
+        let dentro = false;
+        onAuthStateChanged(auth, (user) => {
+            if (user && !dentro) {
+                dentro = true;
+                uid = user.uid;
                 entrarApp();
-            } catch (error) {
-                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                    try {
-                        const newUser = await createUserWithEmailAndPassword(auth, email, pass);
-                        uid = newUser.user.uid;
-                        entrarApp();
-                    } catch (createError) {
-                        showToast("Error al configurar cuenta");
-                        resetLogin();
-                    }
-                } else {
-                    showToast("Error de conexión");
-                    resetLogin();
-                }
             }
         });
 

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script src="sesion.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FinaNad</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -511,19 +512,9 @@
                     }
                     appContainer.classList.remove('hidden');
                 }, 300);
-            } else {
-                // Show Login Screen if not authenticated yet
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    if(loginScreen) {
-                        loginScreen.classList.remove('hidden');
-                        loginScreen.classList.add('flex');
-                        void loginScreen.offsetWidth; // trigger reflow
-                        loginScreen.classList.remove('opacity-0');
-                        loginScreen.classList.add('opacity-100');
-                    }
-                }, 300);
+            } else if (window.Sesion) {
+                // Sin sesión: la puerta de NadiApp (sesion.js) se encarga
+                Sesion.mostrar();
             }
         });
 

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+    <script src="../sesion.js"></script>
   <script>(function(){try{var m=localStorage.getItem("nyl-tema");if(m)document.documentElement.dataset.theme=m}catch(e){}})()</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Biblioteca · Nadia y Luis</title>
@@ -108,6 +109,8 @@
     let paginas = [], pag = 0, reloj = null;
 
     const bloqueado = l => l.type === "timeCapsule" && new Date() < new Date(l.unlockDate);
+    // Luis (admin) puede ver y leer los libros que todavía no se abren
+    const esAdmin = () => !!(window.Sesion && Sesion.esAdmin);
 
     /* Cuentos: texto con párrafos separados por saltos de línea */
     const parrafos = t => {
@@ -131,7 +134,7 @@
         <div class="portada-libro" style="background:${l.color};color:${l.textColor}">
           <h3>${limpio(titulo)}</h3><small>${limpio(l.coverDate)}</small>
         </div>
-        ${cerrado ? `<div class="candado">Se abre el ${new Date(l.unlockDate).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}</div>` : ""}
+        ${cerrado ? `<div class="candado">Se abre el ${new Date(l.unlockDate).toLocaleDateString("es-MX", { day: "numeric", month: "long" })}${esAdmin() ? " · solo tú puedes leerlo" : ""}</div>` : ""}
       </button>`;
     }).join("");
 
@@ -187,7 +190,7 @@
 
     function abrir(l) {
       estilo(l.nightMode ? "#12101f" : "var(--hoja)", l.nightMode ? "#e6e1f0" : "");
-      if (l.type === "timeCapsule" && bloqueado(l)) return capsula(l);
+      if (l.type === "timeCapsule" && bloqueado(l) && !esAdmin()) return capsula(l);
       if (l.type === "interactive") {
         clearInterval(reloj);
         document.getElementById("lector-titulo").textContent = l.title;

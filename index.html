@@ -2,6 +2,7 @@
 <html lang="es" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
+    <script src="sesion.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#fff1f2">
     <meta name="description" content="NadiApp: tu ecosistema digital privado. Ciclo, finanzas y películas en un solo lugar.">
@@ -81,15 +82,20 @@
 
     <nav class="fixed top-0 inset-x-0 z-50 glass-nav">
         <div class="max-w-5xl mx-auto px-5 py-3 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-2.5" aria-label="NadiApp inicio">
+            <a href="./" class="flex items-center gap-2.5" aria-label="NadiApp inicio">
                 <span class="w-9 h-9 bg-gradient-to-br from-rose-400 to-fuchsia-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-rose-200">
                     <i class="fa-solid fa-moon text-sm"></i>
                 </span>
                 <span class="text-xl font-extrabold text-gray-800 tracking-tight">Nadi<span class="text-rose-500">App</span></span>
             </a>
-            <span class="bg-white/80 border border-rose-100 text-rose-600 font-bold px-3 py-1 rounded-full text-xs shadow-sm">
-                <i class="fa-solid fa-star text-[10px] mr-1"></i> Solo para Nadia
-            </span>
+            <div class="flex items-center gap-2">
+                <span id="quien-soy" class="bg-white/80 border border-rose-100 text-rose-600 font-bold px-3 py-1 rounded-full text-xs shadow-sm">
+                    <i class="fa-solid fa-heart text-[10px] mr-1"></i> <span id="quien-nombre">Hola</span>
+                </span>
+                <button id="btn-salir" type="button" class="bg-white/80 border border-rose-100 text-gray-500 hover:text-rose-600 font-bold px-3 py-1 rounded-full text-xs shadow-sm" aria-label="Cerrar sesión">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-[10px] mr-1"></i> Salir
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -112,7 +118,7 @@
         <!-- Apps -->
         <section class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-label="Aplicaciones">
 
-            <a href="/lunad" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.24s">
+            <a href="lunad" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.24s">
                 <div class="flex items-start justify-between">
                     <span class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-400 to-pink-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-rose-200">
                         <i class="fa-solid fa-moon"></i>
@@ -129,7 +135,7 @@
                 </span>
             </a>
 
-            <a href="/nadinero" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.32s">
+            <a href="nadinero" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.32s">
                 <div class="flex items-start justify-between">
                     <span class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
                         <i class="fa-solid fa-wallet"></i>
@@ -146,7 +152,7 @@
                 </span>
             </a>
 
-            <a href="/peliculas" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.40s">
+            <a href="peliculas" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.40s">
                 <div class="flex items-start justify-between">
                     <span class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-400 to-violet-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-indigo-200">
                         <i class="fa-solid fa-film"></i>
@@ -163,7 +169,7 @@
                 </span>
             </a>
 
-            <a href="/nadiayluis/" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.44s">
+            <a href="nadiayluis/" class="card reveal group rounded-[2rem] p-6 flex flex-col" style="animation-delay:.44s">
                 <div class="flex items-start justify-between">
                     <span class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-pink-200">
                         <i class="fa-solid fa-heart"></i>
@@ -180,7 +186,7 @@
                 </span>
             </a>
 
-            <a href="/escritos/" class="card reveal group rounded-[2rem] p-6 flex flex-col sm:col-span-2 lg:col-span-2" style="animation-delay:.48s">
+            <a href="escritos/" class="card reveal group rounded-[2rem] p-6 flex flex-col sm:col-span-2 lg:col-span-2" style="animation-delay:.48s">
                 <div class="flex items-start justify-between">
                     <span class="icon-tile w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white text-2xl flex items-center justify-center shadow-lg shadow-amber-200">
                         <i class="fa-solid fa-feather"></i>
@@ -215,5 +221,16 @@
         <p>Hecho con <i class="fa-solid fa-heart text-rose-400"></i> &middot; &copy; 2026 NadiApp &middot; God's Plan Project</p>
     </footer>
 
+    <script>
+        (function () {
+            const pintar = n => {
+                if (!n) return;
+                document.getElementById('quien-nombre').textContent = 'Hola, ' + n + (Sesion.esAdmin ? ' · admin' : '');
+            };
+            pintar(Sesion.nombre);
+            Sesion.listo.then(s => pintar(s.nombre));
+            document.getElementById('btn-salir').addEventListener('click', () => Sesion.salir());
+        })();
+    </script>
 </body>
 </html>

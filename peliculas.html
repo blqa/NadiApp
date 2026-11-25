@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <script src="sesion.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,7 +28,7 @@
 <body class="min-h-screen pb-20">
 
     <!-- PANTALLA DE AUTENTICACIÓN -->
-    <div id="auth-section" class="min-h-screen flex items-center justify-center p-4 relative z-10">
+    <div id="auth-section" class="hidden min-h-screen flex items-center justify-center p-4 relative z-10">
         <div class="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700">
             <div class="text-center mb-8">
                 <i class="ph ph-film-strip text-5xl text-indigo-500 mb-2"></i>
@@ -319,7 +320,7 @@
             authError.classList.remove('hidden');
         }
 
-        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+        document.getElementById('logout-btn').addEventListener('click', () => window.Sesion ? Sesion.salir() : signOut(auth));
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -339,7 +340,8 @@
             } else {
                 currentUser = null;
                 document.getElementById('app-section').classList.add('hidden');
-                document.getElementById('auth-section').classList.remove('hidden');
+                // La entrada ahora es la sesión única de NadiApp (sesion.js)
+                if (window.Sesion) Sesion.mostrar();
                 
                 if(unsubscribeMyRatings) unsubscribeMyRatings();
                 if(unsubscribeCommunity) unsubscribeCommunity();

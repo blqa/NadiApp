@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+    <script src="../sesion.js"></script>
   <script>(function(){try{var m=localStorage.getItem("nyl-tema");if(m)document.documentElement.dataset.theme=m}catch(e){}})()</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lo que soñamos · Nadia y Luis</title>
@@ -201,7 +202,8 @@
     let conectado = false;
     const conectarUnaVez = () => { if (!conectado) { conectado = true; conectarNube(); } };
     detalle.addEventListener("toggle", () => { if (detalle.open) conectarUnaVez(); });
-    try { if (localStorage.getItem("nyl-nube") === "1") { detalle.open = true; conectarUnaVez(); } } catch (e) {}
+    // Con la sesión de NadiApp abierta, la lista se comparte sola
+    if (window.Sesion && Sesion.nombre) { detalle.open = true; conectarUnaVez(); }
   </script>
 </body>
 </html>
