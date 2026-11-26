@@ -27,6 +27,15 @@
     return s;
   }
   const sombra = 'stroke="#0000001f" stroke-width=".8"';
+  // Borde ondulado/rizado (claveles, cempasúchil, ranúnculos)
+  function borde(rad, n, alto = 2.6, bajo = 1.2) {
+    let d = "";
+    for (let i = 0; i <= n; i++) {
+      const a = (i / n) * Math.PI * 2, rr = rad + (i % 2 ? alto : -bajo);
+      d += (i ? "L" : "M") + r(Math.cos(a) * rr) + " " + r(Math.sin(a) * rr);
+    }
+    return d + "Z";
+  }
 
   const FLORES = [
     {
@@ -127,6 +136,106 @@
         const borde = (rad, n) => { let d = ""; for (let i = 0; i <= n; i++) { const a = (i / n) * Math.PI * 2, rr = rad + (i % 2 ? 2.6 : -1.2); d += (i ? "L" : "M") + r(Math.cos(a) * rr) + " " + r(Math.sin(a) * rr); } return d + "Z"; };
         return `<path d="${borde(15, 28)}" fill="${o}"/><path d="${borde(11.5, 24)}" fill="${p}" ${sombra}/><path d="${borde(7, 18)}" fill="${o}" opacity=".7"/><path d="${borde(4, 12)}" fill="${p}"/>`;
       },
+    },
+
+    /* ---------- Flores nuevas ---------- */
+    {
+      id: "cempasuchil", nombre: "Cempasúchil",
+      colores: [["#ff9f1c", "#f77f00"], ["#ffd23f", "#f4a100"], ["#ff7b00", "#e85d04"]],
+      dibujo: ([p, o]) => `<path d="${borde(17, 34, 3, 1.5)}" fill="${o}" ${sombra}/><path d="${borde(13.5, 30, 2.6, 1.3)}" fill="${p}"/>
+        <path d="${borde(10, 26, 2.2, 1)}" fill="${o}"/><path d="${borde(6.5, 20, 1.8, .8)}" fill="${p}"/><path d="${borde(3.4, 12, 1.2, .6)}" fill="${o}"/>`,
+    },
+    {
+      id: "alcatraz", nombre: "Alcatraz",
+      colores: [["#fffdf5", "#f5c518"], ["#f9d5e5", "#f5c518"], ["#fff1c1", "#f2a900"]],
+      dibujo: ([p, c]) => `<path d="M0 0 C-4 -6 -14 -14 -16 -26 C-17 -36 -8 -44 4 -42 C14 -40 18 -30 12 -22 C8 -16 4 -8 0 0Z" fill="${p}" ${sombra}/>
+        <path d="M-12 -30 C-8 -38 4 -40 10 -32 C4 -34 -4 -32 -12 -30Z" fill="#00000012"/>
+        <path d="M0 -6 C-1 -14 -1 -22 1 -30" stroke="${c}" stroke-width="3.4" stroke-linecap="round" fill="none"/>`,
+    },
+    {
+      id: "gerbera", nombre: "Gerbera",
+      colores: [["#ff5d73", "#3a2a1a"], ["#ffb703", "#5a3a1a"], ["#fb8500", "#3a2a1a"], ["#ffffff", "#7a5a2a"]],
+      dibujo: ([p, c]) => petalos(22, 2.6, 10, 13, p, sombra) + petalos(16, 2.2, 7, 9, p, 'opacity=".9"', 11) +
+        `<circle r="6.5" fill="${c}"/><circle r="6.5" fill="none" stroke="#f4d35e" stroke-width="1.6" stroke-dasharray="1 1.5"/><circle r="3" fill="#00000040"/>`,
+    },
+    {
+      id: "peonia", nombre: "Peonía",
+      colores: [["#ffb3c6", "#ff8fab"], ["#ffe5ec", "#ffc2d1"], ["#e5383b", "#ba181b"], ["#ffcad4", "#f4acb7"]],
+      dibujo: ([p, o]) => petalos(7, 11, 11, 11, o, sombra) + petalos(7, 9.5, 9.5, 8, p, sombra, 25) + petalos(6, 7, 7, 5, o, "", 10) +
+        petalos(5, 5, 5, 2.5, p, "", 40) + `<circle r="3.6" fill="${o}"/>`,
+    },
+    {
+      id: "dalia", nombre: "Dalia",
+      colores: [["#9d0208", "#d00000"], ["#ff70a6", "#ff9ebb"], ["#ffd60a", "#ffe566"], ["#7b2cbf", "#9d4edd"]],
+      dibujo: ([p, l]) => puntas(16, 24, 5.5, p, sombra) + puntas(14, 18, 5, l, sombra, 11) + puntas(12, 12, 4.4, p, "", 5) +
+        puntas(10, 7, 3.4, l, "", 18) + `<circle r="2.6" fill="${p}"/>`,
+    },
+    {
+      id: "pensamiento", nombre: "Pensamiento",
+      colores: [["#6a4c93", "#2d1a4a"], ["#f9c74f", "#5a189a"], ["#ffffff", "#3c096c"], ["#ff8fab", "#7b2cbf"]],
+      dibujo: ([p, cara]) => `<ellipse cx="-7" cy="-9" rx="9" ry="10" fill="${p}" ${sombra} transform="rotate(-20 -7 -9)"/>
+        <ellipse cx="7" cy="-9" rx="9" ry="10" fill="${p}" ${sombra} transform="rotate(20 7 -9)"/>
+        <ellipse cx="-10" cy="2" rx="8.5" ry="8" fill="${p}" ${sombra}/><ellipse cx="10" cy="2" rx="8.5" ry="8" fill="${p}" ${sombra}/>
+        <ellipse cx="0" cy="8" rx="11" ry="9" fill="${p}" ${sombra}/>
+        <path d="M0 2 C-7 4 -9 10 -6 14 C-2 10 2 10 6 14 C9 10 7 4 0 2Z M-3 0 C-8 -2 -12 1 -13 4 C-9 3 -6 3 -3 2Z M3 0 C8 -2 12 1 13 4 C9 3 6 3 3 2Z" fill="${cara}" opacity=".85"/>
+        <circle cy="1" r="2.4" fill="#ffd23f"/>`,
+    },
+    {
+      id: "orquidea", nombre: "Orquídea",
+      colores: [["#e0aaff", "#9d4edd"], ["#ffffff", "#ff70a6"], ["#ffc8dd", "#c9184a"], ["#fff3b0", "#e09f3e"]],
+      dibujo: ([p, l]) => `<ellipse cx="0" cy="-15" rx="5" ry="11" fill="${p}" ${sombra}/>
+        <ellipse cx="-12" cy="6" rx="4.5" ry="10" fill="${p}" ${sombra} transform="rotate(55 -12 6)"/>
+        <ellipse cx="12" cy="6" rx="4.5" ry="10" fill="${p}" ${sombra} transform="rotate(-55 12 6)"/>
+        <ellipse cx="-11" cy="-5" rx="10" ry="8" fill="${p}" ${sombra} transform="rotate(-20 -11 -5)"/>
+        <ellipse cx="11" cy="-5" rx="10" ry="8" fill="${p}" ${sombra} transform="rotate(20 11 -5)"/>
+        <path d="M-6 2 C-8 10 -4 16 0 16 C4 16 8 10 6 2 C3 4 -3 4 -6 2Z" fill="${l}"/>
+        <ellipse cy="-1" rx="2.6" ry="3.6" fill="#fff8e1"/><circle cx="-2" cy="7" r=".9" fill="#fff"/><circle cx="2" cy="9" r=".9" fill="#fff"/>`,
+    },
+    {
+      id: "anemona", nombre: "Anémona",
+      colores: [["#e63946"], ["#ffffff"], ["#7b2cbf"], ["#ff8fab"]],
+      dibujo: ([p]) => petalos(6, 10, 12, 10, p, sombra, 0) + `<circle r="7" fill="#1d1b3a"/>` + petalos(14, .8, 2.2, 9, "#1d1b3a", "") + `<circle r="3.4" fill="#3a3870"/>`,
+    },
+    {
+      id: "jacinto", nombre: "Jacinto",
+      colores: [["#7b8cde"], ["#ff8fab"], ["#f8f9fa"], ["#b388eb"]],
+      dibujo: ([p]) => {
+        let s = `<path d="M0 0 L0 -44" stroke="#5d8a3a" stroke-width="2.4" stroke-linecap="round"/>`;
+        for (let i = 0; i < 16; i++) {
+          const y = -6 - i * 2.6, x = (i % 4 - 1.5) * (4.6 - i * 0.12);
+          s += `<g transform="translate(${r(x)} ${r(y)}) rotate(${i * 37})">${puntas(5, 4.4, 2.6, p, 'stroke="#00000022" stroke-width=".4"')}</g>`;
+        }
+        return s;
+      },
+    },
+    {
+      id: "ranunculo", nombre: "Ranúnculo",
+      colores: [["#ff8fa3", "#ffb3c1"], ["#ffd166", "#ffe29a"], ["#f4f1de", "#e9e4c9"], ["#f3722c", "#f8961e"]],
+      dibujo: ([p, l]) => petalos(9, 7.5, 7, 11, p, sombra) + petalos(8, 6.5, 6, 8, l, sombra, 22) + petalos(7, 5.2, 5, 5.5, p, sombra, 8) +
+        petalos(6, 3.8, 3.6, 3, l, sombra, 30) + `<circle r="2.6" fill="${p}"/><circle r="1.2" fill="#6a994e"/>`,
+    },
+    {
+      id: "nochebuena", nombre: "Nochebuena",
+      colores: [["#d00000", "#9d0208"], ["#fff3f0", "#ffd6cc"], ["#ff4d6d", "#c9184a"]],
+      dibujo: ([p, o]) => puntas(6, 25, 9, o, sombra, 30) + puntas(6, 21, 8, p, sombra) +
+        [0, 1, 2, 3, 4].map(i => `<circle cx="${r(Math.cos(i * 1.26) * 2.6)}" cy="${r(Math.sin(i * 1.26) * 2.6)}" r="1.6" fill="#f4d35e" stroke="#6a994e" stroke-width=".6"/>`).join(""),
+    },
+    {
+      id: "hortensia", nombre: "Hortensia",
+      colores: [["#8ecae6", "#bde0fe"], ["#cdb4db", "#e2c4f0"], ["#ffafcc", "#ffc8dd"]],
+      dibujo: ([p, l]) => {
+        let s = `<circle r="17" fill="${p}" opacity=".5"/>`;
+        for (let i = 0; i < 17; i++) {
+          const a = i * 137.5 * Math.PI / 180, d = Math.sqrt(i / 17) * 13.5;
+          s += `<g transform="translate(${r(Math.cos(a) * d)} ${r(Math.sin(a) * d)}) rotate(${i * 23})">${petalos(4, 2.4, 2.6, 2.4, i % 2 ? p : l, 'stroke="#00000018" stroke-width=".4"')}<circle r=".8" fill="#fff8"/></g>`;
+        }
+        return s;
+      },
+    },
+    {
+      id: "margarita-azul", nombre: "Aster",
+      colores: [["#6c63ff", "#ffd23f"], ["#c77dff", "#ffd23f"], ["#ff6b9d", "#ffd23f"]],
+      dibujo: ([p, c]) => petalos(24, 1.8, 10, 11, p, "") + `<circle r="5" fill="${c}"/><circle r="5" fill="none" stroke="#e09f3e" stroke-width="1"/>`,
     },
   ];
 
