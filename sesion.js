@@ -37,7 +37,7 @@
   const ADMIN = "Luis";
   // Cuentas restringidas: no pueden entrar (ni escribir contraseña).
   // Para quitar la restricción, deja la lista vacía:  const RESTRINGIDAS = [];
-  const RESTRINGIDAS = ["Nadia"];
+  const RESTRINGIDAS = [];
   const restringida = n => RESTRINGIDAS.includes(n);
   const LLAVE = "nadiapp-sesion"; // guarda solo el nombre, para no hacer esperar
   const SDK = "https://www.gstatic.com/firebasejs/11.6.1/";
