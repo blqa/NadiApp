@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261126b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261126c">
   <style>
     /* ---------- Colores del prado (de día y de noche) ---------- */
     :root {
@@ -127,7 +127,7 @@
     .tarjeta .cerrar { width: 2.6rem; height: 2.6rem; flex: none; border-radius: 50%; border: 0; background: color-mix(in srgb, currentColor 9%, transparent); color: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer; }
     .tarjeta .ayuda { margin: .3rem 0 .6rem; font-size: .88rem; color: var(--tinta-suave); }
     .lienzo { position: relative; border-radius: 20px; overflow: hidden; touch-action: none;
-      background: radial-gradient(120% 80% at 50% 25%, color-mix(in srgb, var(--pastel) 45%, var(--hoja)) 0%, var(--hoja) 70%); }
+      background: radial-gradient(120% 85% at 50% 30%, #fde3ea 0%, #fff6f2 62%, #fffaf7 100%); }
     .lienzo svg { display: block; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
     .lienzo .fl { cursor: grab; }
     .lienzo .fl.moviendo { cursor: grabbing; }
@@ -229,9 +229,9 @@
     </section>
   </div>
 
-  <script src="assets/js/datos.js?v=20261126b"></script>
-  <script src="assets/js/flores.js?v=20261126b"></script>
-  <script src="assets/js/site.js?v=20261126b"></script>
+  <script src="assets/js/datos.js?v=20261126c"></script>
+  <script src="assets/js/flores.js?v=20261126c"></script>
+  <script src="assets/js/site.js?v=20261126c"></script>
   <script>
   (function () {
     const { lista: TIPOS, cabeza, hoja } = window.FLORES;
@@ -419,21 +419,58 @@
       pintarRamo();
     });
 
-    // Acomoda las flores en forma de domo, como un ramo de verdad
-    function acomodar(lista, desde = 0) {
-      const n = lista.length;
-      lista.forEach((f, i) => {
-        if (i < desde && f.x != null) return;
-        const k = n === 1 ? 0.5 : i / (n - 1);
-        const ang = (-60 + k * 120 + azar(-7, 7)) * Math.PI / 180;
-        const radio = azar(100, 175) - Math.abs(ang) * 18;
-        f.x = Math.round(BOCA.x + Math.sin(ang) * radio * 1.08);
-        f.y = Math.round(BOCA.y - 48 - Math.cos(ang) * radio);
-        f.g = Math.round(azar(-25, 25) + ang * 20);
-        f.s = +azar(1.4, 1.8).toFixed(2);
+    // Acomoda las flores en forma de domo, como un ramo de verdad.
+    // Las que ya tienen lugar se quedan donde están; las nuevas van a los huecos.
+    const ANG_MAX = 62;
+    const angulo = f => Math.atan2(f.x - BOCA.x, (BOCA.y - 48) - f.y) * 180 / Math.PI;
+    function acomodar(lista) {
+      const nuevas = lista.filter(f => f.x == null);
+      if (!nuevas.length) return;
+      // revolver las nuevas para que se mezclen colores y tipos
+      nuevas.sort(() => Math.random() - 0.5);
+      nuevas.forEach(f => {
+        const angs = lista.filter(o => o.x != null).map(angulo).sort((a, b) => a - b);
+        let ang;
+        if (!angs.length) ang = azar(-12, 12);
+        else {
+          // busca el hueco más grande entre -62° y 62°
+          const puntos = [-ANG_MAX - 14, ...angs, ANG_MAX + 14];
+          let mejor = 0, centro = 0;
+          for (let i = 0; i < puntos.length - 1; i++) {
+            const hueco = puntos[i + 1] - puntos[i];
+            if (hueco > mejor) { mejor = hueco; centro = (puntos[i] + puntos[i + 1]) / 2; }
+          }
+          ang = Math.max(-ANG_MAX, Math.min(ANG_MAX, centro + azar(-4, 4)));
+        }
+        const rad = ang * Math.PI / 180;
+        const centrada = 1 - Math.abs(ang) / ANG_MAX;
+        // capa de atrás (más alta) o de enfrente (más baja), para que se vea lleno
+        const radio = (Math.random() < 0.5 ? azar(150, 185) : azar(105, 140)) - (1 - centrada) * 22;
+        f.x = Math.round(BOCA.x + Math.sin(rad) * radio * 1.1);
+        f.y = Math.round(BOCA.y - 48 - Math.cos(rad) * radio);
+        f.g = Math.round(azar(-20, 20) + ang * 0.4);
+        f.s = +azar(1.35, 1.65).toFixed(2);
+        separar(f, lista);
       });
-      // las más altas van atrás
-      lista.sort((a, b) => a.y - b.y);
+      lista.sort((a, b) => a.y - b.y); // las más altas van atrás
+    }
+    // Empuja una flor si quedó encima de otra
+    function separar(f, lista) {
+      for (let vuelta = 0; vuelta < 14; vuelta++) {
+        let movio = false;
+        lista.forEach(o => {
+          if (o === f || o.x == null) return;
+          const dx = f.x - o.x, dy = f.y - o.y, d = Math.hypot(dx, dy) || 1;
+          const minimo = 15.5 * (f.s + o.s);
+          if (d < minimo) {
+            const emp = (minimo - d) / 2 + 1;
+            f.x += dx / d * emp; f.y += dy / d * emp; movio = true;
+          }
+        });
+        f.x = Math.round(Math.max(52, Math.min(348, f.x)));
+        f.y = Math.round(Math.max(70, Math.min(300, f.y)));
+        if (!movio) break;
+      }
     }
 
     function base(f) { return { x: BOCA.x + Math.max(-26, Math.min(26, (f.x - BOCA.x) * 0.14)), y: 470 }; }
@@ -520,12 +557,12 @@
       } else {
         $("t-titulo").textContent = "Tu ramo";
         $("firma").textContent = `Para ${otro(yo())}, con amor, ${yo()}`;
-        const sinLugar = ramo.findIndex(f => f.x == null);
-        if (sinLugar >= 0) acomodar(ramo, sinLugar);
+        acomodar(ramo);
         $("enlace").hidden = true;
       }
       $("jarrones").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.j === jarron));
       fondo.hidden = false;
+      $("tarjeta").scrollTop = 0;
       pintarRamo(true);
     }
     function cerrarTarjeta() { fondo.hidden = true; }

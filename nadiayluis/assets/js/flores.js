@@ -65,12 +65,14 @@
       id: "lavanda", nombre: "Lavanda",
       colores: [["#9b7fe0"], ["#7c5cc9"], ["#c3a6f0"]],
       dibujo: ([p]) => {
-        let s = `<path d="M0 0 L0 -46" stroke="#5d8a3a" stroke-width="2"/>`;
-        for (let i = 0; i < 9; i++) {
-          const y = -8 - i * 4.8, w = 4.2 - i * 0.22;
-          s += `<ellipse cx="${-w * 0.7}" cy="${y}" rx="${w}" ry="3.6" fill="${p}" transform="rotate(-25 ${-w * 0.7} ${y})"/><ellipse cx="${w * 0.7}" cy="${y - 2}" rx="${w}" ry="3.6" fill="${p}" transform="rotate(25 ${w * 0.7} ${y - 2})"/>`;
+        // tallito y florecitas separadas, de abajo (grandes) hacia arriba (chiquitas)
+        let s = `<path d="M0 0 L0 -50" stroke="#5d8a3a" stroke-width="1.8" stroke-linecap="round"/>`;
+        for (let i = 0; i < 10; i++) {
+          const y = -6 - i * 4.6, w = 3.4 - i * 0.17, lado = i % 2 ? 1 : -1;
+          s += `<ellipse cx="${r(lado * 2.6)}" cy="${r(y)}" rx="${r(w)}" ry="${r(w * 0.8)}" fill="${p}" stroke="#00000030" stroke-width=".6"/>` +
+               `<ellipse cx="${r(-lado * 2.2)}" cy="${r(y - 2.3)}" rx="${r(w * 0.85)}" ry="${r(w * 0.7)}" fill="${p}" opacity=".8" stroke="#00000025" stroke-width=".5"/>`;
         }
-        return s + `<ellipse cx="0" cy="-50" rx="2.6" ry="3.6" fill="${p}"/>`;
+        return s + `<circle cx="0" cy="-53" r="1.8" fill="${p}"/>`;
       },
     },
     {
