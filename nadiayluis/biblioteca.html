@@ -9,12 +9,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261125b">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261126a">
   <style>
     .aviso { max-width: 36rem; font-family: var(--serif); font-style: italic; font-size: 1.1rem; line-height: 1.65; color: var(--tinta-suave); border-left: 2px solid var(--cereza); padding-left: 1.25rem; margin: 0 0 3.5rem; }
 
     .estante-titulo { font-size: clamp(1.8rem, 5vw, 2.5rem); margin: 0 0 1.5rem; }
-    .estante { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 2rem 1.25rem; margin-bottom: 5rem; }
+    .estante { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(10.5rem, calc(50% - .6rem)), 1fr)); gap: 1.75rem 1.1rem; margin-bottom: 5rem; }
+    @media (max-width: 30rem) {
+      .portada-libro { padding: .85rem .75rem .8rem 1.05rem; }
+      .portada-libro h3 { font-size: 1.02rem; }
+      .portada-libro small { font-size: .7rem; }
+      .cuentos strong { font-size: 1.4rem; }
+    }
     .libro {
       font: inherit; text-align: left; border: 0; cursor: pointer; padding: 0; background: none; color: inherit;
     }
@@ -38,24 +44,67 @@
     .cuentos span { color: var(--tinta-suave); }
     .cuentos button:hover strong { color: var(--cereza); }
 
-    /* Lector */
-    dialog.lector { border: 0; padding: 0; width: min(42rem, 100vw); max-width: 100vw; height: 100svh; max-height: 100svh; margin: 0 auto; background: var(--fondo, var(--hoja)); color: var(--letra, var(--tinta)); }
+    /* Lector: se lee bajando con el dedo, como un artículo */
+    dialog.lector {
+      border: 0; padding: 0; margin: 0 auto;
+      width: min(44rem, 100vw); max-width: 100vw;
+      height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh;
+      background: var(--fondo, var(--hoja)); color: var(--letra, var(--tinta));
+      overscroll-behavior: contain;
+    }
     dialog.lector::backdrop { background: #2b1830cc; }
-    .lector-marco { display: flex; flex-direction: column; height: 100%; }
-    .lector header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .9rem 1.25rem; border-bottom: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
-    .lector header h2 { font-size: 1.05rem; font-family: var(--sans); font-weight: 500; line-height: 1.3; }
-    .lector footer[hidden] { display: none; }
-    .lector .cerrar { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 0; font-size: 1.4rem; line-height: 1; cursor: pointer; background: color-mix(in srgb, currentColor 12%, transparent); color: inherit; }
-    .lector .cerrar:hover { background: color-mix(in srgb, currentColor 22%, transparent); }
-    .lector-texto { flex: 1; overflow-y: auto; padding: 2.5rem 1.5rem; }
-    .lector-texto > div { max-width: 34rem; margin: 0 auto; font-family: var(--serif); font-size: 1.2rem; line-height: 1.75; font-variation-settings: "SOFT" 100, "opsz" 18; }
-    .lector-texto strong { display: block; font-size: 1.7rem; line-height: 1.2; font-weight: 400; margin-bottom: 1.5rem; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; }
-    .lector-texto p { margin: 0 0 1.1em; }
-    .lector footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .9rem 1.25rem; border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent); }
-    .lector footer .boton { background: transparent; color: inherit; border-color: color-mix(in srgb, currentColor 40%, transparent); }
-    .lector footer .boton:hover:not(:disabled) { background: color-mix(in srgb, currentColor 12%, transparent); }
-    .lector footer .boton:disabled { opacity: .35; cursor: default; }
-    .lector .contador { font-size: .9rem; opacity: .75; }
+    html:has(dialog.lector[open]) { overflow: hidden; }
+    .lector-marco { display: flex; flex-direction: column; height: 100%; position: relative; }
+    .lector header {
+      display: flex; align-items: center; gap: .75rem;
+      padding: calc(.55rem + env(safe-area-inset-top)) .75rem .55rem 1.1rem;
+      border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+      position: relative;
+    }
+    .lector header h2 { flex: 1; min-width: 0; font-size: .95rem; font-family: var(--sans); font-weight: 500; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .85; }
+    .lector .avance { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--cereza); transition: width .15s linear; }
+    .lector .cerrar { flex: none; width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 0; font-size: 1.5rem; line-height: 1; cursor: pointer; background: color-mix(in srgb, currentColor 10%, transparent); color: inherit; }
+    .lector .cerrar:hover { background: color-mix(in srgb, currentColor 20%, transparent); }
+    .lector-texto { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 2rem 1.35rem 4rem; scroll-behavior: smooth; }
+    .lector-texto > div {
+      --tam: 1.18rem;
+      max-width: 33rem; margin: 0 auto;
+      font-family: var(--serif); font-size: var(--tam); line-height: 1.68;
+      font-variation-settings: "SOFT" 100, "opsz" 18;
+      overflow-wrap: break-word;
+    }
+    .lector-texto > div.t1 { --tam: 1.05rem; }
+    .lector-texto > div.t3 { --tam: 1.34rem; }
+    .lector-texto > div.t4 { --tam: 1.52rem; }
+    .lector-texto strong { display: block; font-size: 1.45em; line-height: 1.22; font-weight: 400; margin: 2.6rem 0 1.2rem; hyphens: manual; font-variation-settings: "SOFT" 100, "WONK" 1, "opsz" 72; scroll-margin-top: 1rem; }
+    .lector-texto .hoja:first-child > strong:first-child { margin-top: 0; }
+    .lector-texto p { margin: 0 0 1em; }
+    .lector-texto .fin { text-align: center; margin: 3rem 0 0; opacity: .55; font-style: italic; }
+    .lector footer {
+      display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+      padding: .5rem .75rem calc(.5rem + env(safe-area-inset-bottom));
+      border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    }
+    .lector footer[hidden], .lector footer [hidden] { display: none; }
+    .lector footer button {
+      font: inherit; font-size: .92rem; font-weight: 500; color: inherit; cursor: pointer;
+      min-height: 2.75rem; padding: 0 1rem; border-radius: 999px;
+      border: 1px solid color-mix(in srgb, currentColor 22%, transparent); background: transparent;
+    }
+    @media (hover: hover) { .capitulos button:hover { background: color-mix(in srgb, currentColor 9%, transparent); } }
+    .lector footer button:active { background: color-mix(in srgb, currentColor 8%, transparent); }
+    .lector .contador { font-size: .85rem; opacity: .7; font-variant-numeric: tabular-nums; }
+    .capitulos {
+      position: absolute; left: 0; right: 0; bottom: 0; max-height: 70%;
+      overflow-y: auto; background: var(--fondo, var(--hoja)); color: inherit;
+      border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+      border-radius: 18px 18px 0 0; box-shadow: 0 -18px 40px -20px #0006;
+      padding: .75rem .5rem calc(1rem + env(safe-area-inset-bottom));
+    }
+    .capitulos[hidden] { display: none; }
+    .capitulos p { margin: .25rem 1rem .5rem; font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+    .capitulos button { display: block; width: 100%; text-align: left; font: inherit; font-family: var(--serif); font-size: 1.05rem; line-height: 1.3; color: inherit; background: none; border: 0; border-radius: 10px; padding: .8rem 1rem; cursor: pointer; }
+    .capitulos button.aqui { background: color-mix(in srgb, currentColor 9%, transparent); }
     .opciones { display: grid; gap: .75rem; margin-top: 2rem; }
     .opciones button { font: inherit; text-align: left; padding: .9rem 1.1rem; border-radius: 12px; border: 1.5px solid color-mix(in srgb, currentColor 30%, transparent); background: transparent; color: inherit; cursor: pointer; }
     .opciones button:hover { border-color: currentColor; background: color-mix(in srgb, currentColor 8%, transparent); }
@@ -87,26 +136,35 @@
       <header>
         <h2 id="lector-titulo"></h2>
         <button class="cerrar" id="cerrar-lector" aria-label="Cerrar">×</button>
+        <div class="avance" id="avance"></div>
       </header>
       <div class="lector-texto" id="lector-texto"><div id="lector-contenido"></div></div>
       <footer id="lector-pie">
-        <button class="boton" id="anterior" type="button">Anterior</button>
+        <button id="btn-capitulos" type="button">Capítulos</button>
         <span class="contador" id="contador"></span>
-        <button class="boton" id="siguiente" type="button">Siguiente</button>
+        <button id="btn-letra" type="button" aria-label="Cambiar tamaño de letra">Aa</button>
       </footer>
+      <nav class="capitulos" id="capitulos" hidden aria-label="Capítulos"></nav>
     </div>
   </dialog>
 
-  <script src="assets/js/datos.js?v=20261125b"></script>
-  <script src="assets/js/libros.js?v=20261125b"></script>
-  <script src="assets/js/site.js?v=20261125b"></script>
+  <script src="assets/js/datos.js?v=20261126a"></script>
+  <script src="assets/js/libros.js?v=20261126a"></script>
+  <script src="assets/js/site.js?v=20261126a"></script>
   <script>
     const { libros, cuentos } = window.LIBROS;
     const dlg = document.getElementById("lector");
     const contenido = document.getElementById("lector-contenido");
     const pie = document.getElementById("lector-pie");
-    const btnAnt = document.getElementById("anterior"), btnSig = document.getElementById("siguiente"), cont = document.getElementById("contador");
-    let paginas = [], pag = 0, reloj = null;
+    const cont = document.getElementById("contador"), caja = document.getElementById("lector-texto");
+    const avance = document.getElementById("avance"), panel = document.getElementById("capitulos");
+    const btnCap = document.getElementById("btn-capitulos");
+    let reloj = null, claveLibro = null, guardarT = null, palabras = 0;
+
+    /* Tamaño de letra (se recuerda en este teléfono) */
+    let tam = 2;
+    try { tam = +localStorage.getItem("nyl-letra") || 2; } catch (e) {}
+    const ponerTam = () => { contenido.classList.remove("t1", "t3", "t4"); if (tam !== 2) contenido.classList.add("t" + tam); };
 
     const bloqueado = l => l.type === "timeCapsule" && new Date() < new Date(l.unlockDate);
     // Luis (admin) puede ver y leer los libros que todavía no se abren
@@ -143,24 +201,50 @@
       dlg.style.setProperty("--letra", letra);
     }
 
-    function pintarPagina() {
-      contenido.innerHTML = paginas[pag];
-      document.getElementById("lector-texto").scrollTop = 0;
-      cont.textContent = `${pag + 1} de ${paginas.length}`;
-      btnAnt.disabled = pag === 0;
-      btnSig.disabled = pag === paginas.length - 1;
+    /* Abre un libro o cuento completo para leerlo bajando */
+    function leer(titulo, pags, clave) {
+      clearInterval(reloj);
+      claveLibro = clave || null;
+      panel.hidden = true;
+      document.getElementById("lector-titulo").textContent = titulo;
+      contenido.innerHTML = pags.map(p => `<section class="hoja">${p}</section>`).join("") + `<p class="fin">— Fin —</p>`;
+      ponerTam();
+      palabras = contenido.textContent.trim().split(/\s+/).length;
+      pie.hidden = false;
+      // Capítulos = los títulos en negritas
+      const caps = [...contenido.querySelectorAll("strong")];
+      caps.forEach((c, i) => c.id = "cap-" + i);
+      btnCap.hidden = caps.length < 2;
+      panel.innerHTML = `<p>Capítulos</p><button type="button" data-ir="arriba">Inicio</button>` +
+        caps.map((c, i) => `<button type="button" data-ir="cap-${i}">${limpio(c.textContent)}</button>`).join("");
+      if (!dlg.open) dlg.showModal();
+      // Seguir donde te quedaste
+      caja.style.scrollBehavior = "auto";
+      let guardado = 0;
+      try { guardado = +localStorage.getItem("nyl-leido-" + claveLibro) || 0; } catch (e) {}
+      requestAnimationFrame(() => {
+        caja.scrollTop = claveLibro && guardado > 0 ? guardado * (caja.scrollHeight - caja.clientHeight) : 0;
+        caja.style.scrollBehavior = "";
+        actualizar();
+      });
     }
 
-    function leer(titulo, pags) {
-      clearInterval(reloj);
-      document.getElementById("lector-titulo").textContent = titulo;
-      pie.hidden = false; paginas = pags; pag = 0; pintarPagina();
-      if (!dlg.open) dlg.showModal();
+    function actualizar() {
+      const max = caja.scrollHeight - caja.clientHeight;
+      const r = max > 0 ? Math.min(1, caja.scrollTop / max) : 1;
+      avance.style.width = (r * 100).toFixed(1) + "%";
+      const min = Math.max(1, Math.round(palabras * (1 - r) / 200)); // ~200 palabras por minuto
+      cont.textContent = r >= 0.995 ? "Terminaste ♡" : `${Math.round(r * 100)}% · faltan ~${min} min`;
+      if (claveLibro) {
+        clearTimeout(guardarT);
+        guardarT = setTimeout(() => { try { localStorage.setItem("nyl-leido-" + claveLibro, r >= 0.995 ? 0 : r.toFixed(4)); } catch (e) {} }, 250);
+      }
     }
+    caja.addEventListener("scroll", () => { if (!pie.hidden) actualizar(); }, { passive: true });
 
     function capsula(l) {
       document.getElementById("lector-titulo").textContent = "Cápsula del tiempo";
-      pie.hidden = true;
+      pie.hidden = true; panel.hidden = true; avance.style.width = "0";
       const fecha = new Date(l.unlockDate);
       contenido.innerHTML = `<div class="capsula">
         <strong>Todavía se está escribiendo</strong>
@@ -194,11 +278,11 @@
       if (l.type === "interactive") {
         clearInterval(reloj);
         document.getElementById("lector-titulo").textContent = l.title;
-        pie.hidden = true; nodo(l, l.startNode);
+        pie.hidden = true; panel.hidden = true; avance.style.width = "0"; nodo(l, l.startNode);
         if (!dlg.open) dlg.showModal();
         return;
       }
-      leer(l.title === "¿?¿?¿?" ? "Cápsula del tiempo" : l.title, l.pages);
+      leer(l.title === "¿?¿?¿?" ? "Cápsula del tiempo" : l.title, l.pages, l.id);
     }
 
     document.getElementById("estante").addEventListener("click", e => { const b = e.target.closest(".libro"); if (b) abrir(libros[b.dataset.i]); });
@@ -206,15 +290,38 @@
       const b = e.target.closest("button"); if (!b) return;
       const c = cuentos[b.dataset.i];
       estilo("var(--hoja)", "");
-      leer(c.title, [`<strong>${limpio(c.title)}</strong>${parrafos(c.body)}`]);
-      pie.hidden = true;
+      leer(c.title, [`<strong>${limpio(c.title)}</strong>${parrafos(c.body)}`], "cuento-" + b.dataset.i);
     });
-    btnAnt.addEventListener("click", () => { if (pag > 0) { pag--; pintarPagina(); } });
-    btnSig.addEventListener("click", () => { if (pag < paginas.length - 1) { pag++; pintarPagina(); } });
-    dlg.addEventListener("keydown", e => {
-      if (pie.hidden) return;
-      if (e.key === "ArrowRight") btnSig.click();
-      if (e.key === "ArrowLeft") btnAnt.click();
+    btnCap.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) {
+        // marca el capítulo donde vas
+        let actual = null;
+        panel.querySelectorAll("[data-ir^=cap]").forEach(bt => {
+          const t = document.getElementById(bt.dataset.ir);
+          bt.classList.remove("aqui");
+          if (t && t.offsetTop - caja.offsetTop <= caja.scrollTop + 40) actual = bt;
+        });
+        if (actual) { actual.classList.add("aqui"); actual.scrollIntoView({ block: "nearest" }); }
+      }
+    });
+    panel.addEventListener("click", e => {
+      const bt = e.target.closest("[data-ir]"); if (!bt) return;
+      panel.hidden = true;
+      if (bt.dataset.ir === "arriba") caja.scrollTop = 0;
+      else document.getElementById(bt.dataset.ir).scrollIntoView({ block: "start" });
+    });
+    caja.addEventListener("click", () => { panel.hidden = true; });
+    document.getElementById("btn-letra").addEventListener("click", () => {
+      // cambia el tamaño sin perder dónde vas
+      const max = caja.scrollHeight - caja.clientHeight, r = max > 0 ? caja.scrollTop / max : 0;
+      tam = tam >= 4 ? 1 : tam + 1;
+      try { localStorage.setItem("nyl-letra", tam); } catch (e) {}
+      ponerTam();
+      caja.style.scrollBehavior = "auto";
+      caja.scrollTop = r * (caja.scrollHeight - caja.clientHeight);
+      caja.style.scrollBehavior = "";
+      actualizar();
     });
     document.getElementById("cerrar-lector").addEventListener("click", () => dlg.close());
     dlg.addEventListener("close", () => clearInterval(reloj));
