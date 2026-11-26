@@ -35,6 +35,10 @@
     Luis:  { correo: "luis@godsplan.site",  color: "#7c3aed", inicial: "L" },
   };
   const ADMIN = "Luis";
+  // Cuentas restringidas: no pueden entrar (ni escribir contraseña).
+  // Para quitar la restricción, deja la lista vacía:  const RESTRINGIDAS = [];
+  const RESTRINGIDAS = ["Nadia"];
+  const restringida = n => RESTRINGIDAS.includes(n);
   const LLAVE = "nadiapp-sesion"; // guarda solo el nombre, para no hacer esperar
   const SDK = "https://www.gstatic.com/firebasejs/11.6.1/";
 
@@ -47,7 +51,8 @@
   }
 
   let pista = leerPista();
-  if (pista && !CUENTAS[pista]) pista = null;
+  if (pista && (!CUENTAS[pista] || restringida(pista))) pista = null;
+  let expulsada = null;
 
   /* ---------- Estilos de la puerta ---------- */
   const css = `
@@ -174,10 +179,21 @@
         ${Object.keys(CUENTAS).map(n => `<button class="ses-persona" type="button" data-quien="${n}">${avatar(n)}<strong>${n}</strong></button>`).join("")}
       </div>`);
     enDom(() => puerta.querySelectorAll("[data-quien]").forEach(b =>
-      b.addEventListener("click", () => pintarClave(b.dataset.quien))));
+      b.addEventListener("click", () => restringida(b.dataset.quien) ? pintarRestringida(b.dataset.quien) : pintarClave(b.dataset.quien))));
+  }
+
+  function pintarRestringida(nombre) {
+    pintar(`<div class="ses-form">
+        ${avatar(nombre)}
+        <h1 style="text-align:center">Cuenta <em>restringida</em></h1>
+        <p class="ses-sub" style="margin:4px 0 10px;text-align:center">La cuenta de ${esc(nombre)} está restringida por el momento, así que no se puede iniciar sesión.</p>
+        <button class="ses-atras" type="button" id="ses-atras">← Volver</button>
+      </div>`);
+    enDom(() => puerta.querySelector("#ses-atras").addEventListener("click", pintarQuien));
   }
 
   function pintarClave(nombre, error = "") {
+    if (restringida(nombre)) return pintarRestringida(nombre);
     pintar(`<form class="ses-form" id="ses-form" novalidate>
         ${avatar(nombre)}
         <h1 style="text-align:center">Hola, <em>${esc(nombre)}</em></h1>
@@ -243,6 +259,15 @@
   firebase().then(({ auth, A }) => {
     A.onAuthStateChanged(auth, user => {
       const nombre = user && nombreDe(user.email);
+      if (nombre && restringida(nombre)) {
+        // Si ya tenía la sesión abierta, se cierra y se le avisa
+        guardarPista(null);
+        Sesion.nombre = null; Sesion.esAdmin = false;
+        expulsada = nombre;
+        A.signOut(auth);
+        pintarRestringida(nombre);
+        return;
+      }
       if (nombre) {
         guardarPista(nombre);
         Sesion.nombre = nombre;
@@ -257,6 +282,7 @@
       if (user && !nombre) { A.signOut(auth); return; } // una cuenta vieja que ya no se usa
       guardarPista(null);
       Sesion.nombre = null; Sesion.esAdmin = false;
+      if (expulsada) { const n = expulsada; expulsada = null; return pintarRestringida(n); }
       pintarQuien();
     });
   }).catch(() => {
