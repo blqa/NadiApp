@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..600,0..100,0..1;1,9..144,300..600,0..100,0..1&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20261126c">
+  <link rel="stylesheet" href="assets/css/site.css?v=20261126d">
   <style>
     /* ---------- Colores del prado (de día y de noche) ---------- */
     :root {
@@ -229,9 +229,9 @@
     </section>
   </div>
 
-  <script src="assets/js/datos.js?v=20261126c"></script>
-  <script src="assets/js/flores.js?v=20261126c"></script>
-  <script src="assets/js/site.js?v=20261126c"></script>
+  <script src="assets/js/datos.js?v=20261126d"></script>
+  <script src="assets/js/flores.js?v=20261126d"></script>
+  <script src="assets/js/site.js?v=20261126d"></script>
   <script>
   (function () {
     const { lista: TIPOS, cabeza, hoja } = window.FLORES;
@@ -398,16 +398,16 @@
       { nombre: "Vidrio", frente: `<path d="M150 340 C146 380 140 420 148 470 C152 492 248 492 252 470 C260 420 254 380 250 340Z" fill="#cfe8f2" fill-opacity=".38" stroke="#ffffff" stroke-opacity=".8" stroke-width="2.5"/>
           <path d="M152 392 C190 386 214 398 249 391 L251 420 C256 450 254 466 250 474 C246 490 154 490 150 474 C146 462 145 440 149 420Z" fill="#9fd0e6" fill-opacity=".35"/>
           <path d="M162 352 C158 390 156 430 162 468" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="4" stroke-linecap="round"/>
-          <ellipse cx="200" cy="340" rx="50" ry="7" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="2.5"/>`, verTallos: true },
+          <ellipse cx="200" cy="340" rx="50" ry="7" fill="none" stroke="#ffffff" stroke-opacity=".85" stroke-width="2.5"/>`, boca: { y: 340, a: 44 } },
       { nombre: "Barro", frente: `<path d="M168 334 L232 334 C232 346 228 352 240 362 C276 388 276 452 246 480 C236 492 164 492 154 480 C124 452 124 388 160 362 C172 352 168 346 168 334Z" fill="#c8704a"/>
           <path d="M131 418 C170 428 230 428 269 418 L268 432 C230 442 170 442 132 432Z" fill="#a8532f"/>
           <path d="M150 372 C138 392 136 420 144 446" fill="none" stroke="#ffffff" stroke-opacity=".28" stroke-width="5" stroke-linecap="round"/>
-          <ellipse cx="200" cy="334" rx="33" ry="6" fill="#8e4426"/>` },
+`, atras: `<ellipse cx="200" cy="334" rx="33" ry="6" fill="#6e321a"/><ellipse cx="200" cy="333" rx="33" ry="6" fill="none" stroke="#a8532f" stroke-width="2"/>`, boca: { y: 334, a: 30 } },
       { nombre: "Porcelana", frente: `<path d="M176 330 L224 330 C224 344 220 350 232 360 C262 382 270 430 252 466 C244 486 156 486 148 466 C130 430 138 382 168 360 C180 350 176 344 176 330Z" fill="#fbf8f4" stroke="#e2dad2" stroke-width="1.5"/>
           <path d="M141 410 C180 420 220 420 259 410" fill="none" stroke="#3f6fd1" stroke-width="3"/>
           <path d="M146 440 C182 448 218 448 254 440" fill="none" stroke="#3f6fd1" stroke-width="2"/>
           <g fill="none" stroke="#3f6fd1" stroke-width="1.6"><path d="M170 425 q6 -8 12 0 q6 8 12 0 q6 -8 12 0 q6 8 12 0 q6 -8 12 0"/></g>
-          <ellipse cx="200" cy="330" rx="24" ry="5" fill="#e8e0d8"/>` },
+`, atras: `<ellipse cx="200" cy="330" rx="24" ry="5" fill="#cfc4ba"/><ellipse cx="200" cy="329.5" rx="24" ry="5" fill="none" stroke="#e2dad2" stroke-width="1.5"/>`, boca: { y: 330, a: 21 } },
     ];
 
     $("jarrones").innerHTML = JARRONES.map((j, i) =>
@@ -473,19 +473,27 @@
       }
     }
 
-    function base(f) { return { x: BOCA.x + Math.max(-26, Math.min(26, (f.x - BOCA.x) * 0.14)), y: 470 }; }
+    // Cada tallo sube desde el fondo del florero, sale por la boca y se curva hacia su flor
+    function puntos(f) {
+      const B = (JARRONES[jarron] || JARRONES[0]).boca;
+      const mx = BOCA.x + Math.max(-B.a * 0.8, Math.min(B.a * 0.8, (f.x - BOCA.x) * 0.22));
+      const my = B.y + 4;
+      const fondo = { x: BOCA.x + (mx - BOCA.x) * 0.35, y: 470 };
+      const c = { x: mx + (f.x - mx) * 0.08, y: my - (my - f.y) * 0.5 };
+      return { fondo, mx, my, c };
+    }
     function tallo(f) {
-      const b = base(f);
-      const cx = b.x + (f.x - b.x) * 0.15, cy = b.y - (b.y - f.y) * 0.62;
-      return `M${b.x.toFixed(1)} ${b.y} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${f.x} ${f.y}`;
+      const { fondo, mx, my, c } = puntos(f);
+      return `M${fondo.x.toFixed(1)} ${fondo.y} L${mx.toFixed(1)} ${my} Q${c.x.toFixed(1)} ${c.y.toFixed(1)} ${f.x} ${f.y}`;
     }
     function hojaDe(f, i) {
       if (i % 3) return "";
-      const b = base(f), t = 0.55;
-      const cx = b.x + (f.x - b.x) * 0.15, cy = b.y - (b.y - f.y) * 0.62;
-      const x = (1 - t) ** 2 * b.x + 2 * (1 - t) * t * cx + t * t * f.x, y = (1 - t) ** 2 * b.y + 2 * (1 - t) * t * cy + t * t * f.y;
+      const { mx, my, c } = puntos(f);
+      if (my - f.y < 90) return ""; // tallo muy corto: sin hoja
+      const t = 0.45; // a la mitad del tramo que ya salió del florero
+      const x = (1 - t) ** 2 * mx + 2 * (1 - t) * t * c.x + t * t * f.x, y = (1 - t) ** 2 * my + 2 * (1 - t) * t * c.y + t * t * f.y;
       const lado = f.x < BOCA.x ? 200 : -20;
-      return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${lado}) scale(1.4)">${hoja(18, "#5f9140")}</g>`;
+      return `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${lado}) scale(1.25)">${hoja(16, "#5f9140")}</g>`;
     }
 
     function svgRamo(lista, j, extra = "") {
@@ -493,7 +501,7 @@
       const tallos = lista.map((f, i) => `<path id="s-${i}" d="${tallo(f)}" fill="none" stroke="#4f8a33" stroke-width="3.2" stroke-linecap="round"/>${hojaDe(f, i)}`).join("");
       const cabezas = lista.map((f, i) => `<g class="fl" id="f-${i}" data-i="${i}" transform="translate(${f.x} ${f.y}) rotate(${f.g}) scale(${f.s})">${cabeza(f.t, f.c)}<circle r="26" fill="transparent"/></g>`).join("");
       return `<ellipse cx="200" cy="492" rx="92" ry="9" fill="#2b183022"/>
-        ${J.verTallos ? tallos + J.frente : tallos + J.frente}
+        ${J.atras || ""}${tallos}${J.frente}
         <g class="cabezas">${cabezas}</g>${extra}`;
     }
 
