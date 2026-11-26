@@ -16,6 +16,7 @@ const SECCIONES = [
   { archivo: "mapa.html", nombre: "Mapa" },
   { archivo: "razones.html", nombre: "Razones", mas: true },
   { archivo: "canciones.html", nombre: "Canciones", mas: true },
+  { archivo: "ramo.html", nombre: "Un ramo", mas: true },
   { archivo: "suenos.html", nombre: "Sueños", mas: true },
   { archivo: "numeros.html", nombre: "Números", mas: true },
   { archivo: "hoy.html", nombre: "Pregunta del día", mas: true, privado: true },
