@@ -1,0 +1,15 @@
+{
+  "name": "lunad",
+  "version": "2.0.0",
+  "private": true,
+  "description": "LuNad: app del ciclo para NadiApp (TypeScript + React)",
+  "scripts": {
+    "build": "bun run build.ts",
+    "dev": "bun run build.ts --watch"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-icons": "^5.5.0"
+  }
+}
