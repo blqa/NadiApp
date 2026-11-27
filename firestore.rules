@@ -82,6 +82,11 @@ service cloud.firestore {
       allow read, write: if esDeLosDos();
     }
 
+    // ===================== Hijitos =====================
+    match /hijitos/{id} {
+      allow read, write: if esDeLosDos();
+    }
+
     // Todo lo demás, cerrado
     match /{otro=**} {
       allow read, write: if false;

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <script src="sesion.js?v=20261126r"></script>
+  <script src="mascota.js?v=20261127a" data-sin-paseo></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Hijitos · NadiApp</title>
+  <meta name="theme-color" content="#f6efff">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💜</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --fondo: #f7f1ff; --tarjeta: #fff; --tinta: #34263f; --tinta-2: #7d6c8a; --borde: #ece2f7; --acento: #8b6fd6; --rosa: #ff7aa0; --serif: "Fraunces", Georgia, serif; --sans: "Nunito", system-ui, sans-serif; }
+    @media (prefers-color-scheme: dark) { :root { --fondo: #17121f; --tarjeta: #231c2e; --tinta: #f4ecfb; --tinta-2: #b9a8c8; --borde: #352b44; } }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100dvh; background: radial-gradient(90% 50% at 50% 0%, color-mix(in srgb, var(--acento) 14%, transparent), transparent 70%), var(--fondo); color: var(--tinta); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    button:disabled { opacity: .5; cursor: default; }
+    .pagina { max-width: 46rem; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 1rem) 1.1rem 3rem; }
+    .cabeza { display: flex; align-items: center; gap: .8rem; }
+    .volver { display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border-radius: 14px; background: var(--tarjeta); border: 1px solid var(--borde); color: var(--tinta); text-decoration: none; font-size: 1.2rem; flex: none; }
+    h1 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 2.2rem; letter-spacing: -.02em; line-height: 1; }
+    h1 em { color: var(--acento); }
+    .sub { margin: .35rem 0 0; color: var(--tinta-2); font-size: .95rem; }
+    .grid { display: grid; gap: 1rem; margin-top: 1.4rem; }
+    @media (min-width: 40rem) { .grid { grid-template-columns: 1fr 1fr; } }
+    .hijo { position: relative; background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 28px; padding: 1rem; box-shadow: 0 18px 40px -26px #4a2c6f66; display: grid; gap: .8rem; }
+    .cuarto { position: relative; height: 12.5rem; border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, var(--pared, #efe6ff) 0 68%, var(--piso, #e3d4f7) 68%); }
+    .cuarto::before { content: ""; position: absolute; left: 10%; top: 12%; width: 22%; aspect-ratio: 1; border-radius: 8px; background: linear-gradient(180deg, #bfe3ff, #e4f3ff); box-shadow: inset 0 0 0 4px #fff, 0 2px 0 #0001; }
+    .cuarto::after { content: ""; position: absolute; right: 9%; bottom: 26%; width: 18%; height: 22%; border-radius: 40% 40% 12px 12px; background: var(--cojin, #f7c8dc); }
+    .momento-noche .cuarto::before { background: linear-gradient(180deg, #1f2550, #3a3f78); }
+    .momento-noche .cuarto { filter: brightness(.82); }
+    .hijo-dibujo { position: absolute; left: 50%; bottom: 8%; width: 7.2rem; height: 7.6rem; margin-left: -3.6rem; transition: left 1.6s ease-in-out; }
+    .hijo-dibujo .hj { cursor: pointer; }
+    .pelota { position: absolute; width: 1.4rem; height: 1.4rem; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 15%, #ff8fab 16% 55%, #f06292 56%); bottom: 10%; left: 10%; opacity: 0; }
+    .pelota.va { animation: pelota 1.3s cubic-bezier(.3,.6,.4,1) forwards; }
+    @keyframes pelota { 0% { opacity: 1; transform: translate(0, 0); } 45% { transform: translate(9rem, -5rem); } 100% { opacity: 1; transform: translate(14rem, 0); } }
+    .nombre { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+    .nombre h2 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 1.5rem; }
+    .chip { font-size: .72rem; font-weight: 800; padding: .25rem .6rem; border-radius: 999px; background: color-mix(in srgb, var(--acento) 14%, transparent); color: var(--acento); white-space: nowrap; }
+    .chip.paseo { background: #ffe5ee; color: #d24f7f; }
+    .stats { display: grid; gap: .45rem; }
+    .stat { display: grid; grid-template-columns: 5.2rem 1fr 2.4rem; align-items: center; gap: .5rem; font-size: .82rem; font-weight: 800; color: var(--tinta-2); }
+    .stat .b { height: .6rem; border-radius: 999px; background: color-mix(in srgb, var(--tinta) 8%, transparent); overflow: hidden; }
+    .stat .b i { display: block; height: 100%; border-radius: 999px; transition: width .6s; }
+    .stat b { text-align: right; color: var(--tinta); }
+    .nota { font-size: .8rem; color: var(--tinta-2); margin: 0; }
+    .acciones { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
+    .acciones button, .btn { border: 0; border-radius: 14px; padding: .7rem .4rem; background: color-mix(in srgb, var(--acento) 10%, var(--tarjeta)); font-weight: 800; font-size: .85rem; display: flex; align-items: center; justify-content: center; gap: .35rem; }
+    .acciones button:active, .btn:active { transform: scale(.96); }
+    .comidas { display: none; grid-template-columns: repeat(3, 1fr); gap: .4rem; }
+    .comidas.abierto { display: grid; }
+    .comidas button { border: 1px solid var(--borde); background: var(--tarjeta); border-radius: 14px; padding: .5rem; font-weight: 800; font-size: .78rem; display: grid; justify-items: center; }
+    .comidas span { font-size: 1.6rem; }
+    .mas { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: space-between; align-items: center; }
+    .enlace { border: 0; background: none; color: var(--acento); font-weight: 800; font-size: .8rem; padding: .3rem 0; }
+    .adoptar { border: 2px dashed var(--borde); border-radius: 28px; padding: 1.2rem; display: grid; gap: .8rem; align-content: start; background: color-mix(in srgb, var(--tarjeta) 60%, transparent); }
+    .adoptar h2 { margin: 0; font-family: var(--serif); font-weight: 600; font-size: 1.4rem; }
+    .campo { width: 100%; padding: .8rem .9rem; border-radius: 14px; border: 1.5px solid var(--borde); background: var(--tarjeta); font-size: 16px; }
+    .campo:focus { outline: none; border-color: var(--acento); }
+    .colores { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .colores button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 3px solid transparent; box-shadow: inset 0 0 0 3px var(--tarjeta); }
+    .colores button[aria-pressed="true"] { border-color: var(--tinta); }
+    .vista-previa { width: 5rem; height: 5.3rem; margin: 0 auto; }
+    .btn.primario { background: var(--acento); color: #fff; padding: .85rem; }
+    .aviso { position: fixed; left: 50%; bottom: calc(1.2rem + env(safe-area-inset-bottom)); transform: translateX(-50%); padding: .65rem 1.1rem; border-radius: 999px; background: #34263f; color: #fff; font-weight: 800; font-size: .88rem; box-shadow: 0 14px 30px -12px #0008; animation: aviso 2.6s ease forwards; z-index: 50; white-space: nowrap; }
+    @keyframes aviso { 0% { opacity: 0; transform: translate(-50%, 10px); } 10%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
+    .cargando { text-align: center; color: var(--tinta-2); padding: 3rem 0; }
+    dialog { border: 0; border-radius: 24px; padding: 1.2rem; width: min(22rem, calc(100vw - 2rem)); background: var(--tarjeta); color: var(--tinta); }
+    dialog::backdrop { background: #1b112866; }
+    dialog h3 { margin: 0 0 .8rem; font-family: var(--serif); font-weight: 600; }
+    dialog .fila { display: flex; gap: .5rem; margin-top: 1rem; }
+    dialog .fila .btn { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="pagina">
+    <header class="cabeza">
+      <a class="volver" href="./" aria-label="Volver a NadiApp">←</a>
+      <div>
+        <h1>Nuestros <em>hijitos</em></h1>
+        <p class="sub">Cuídenlos entre los dos. Su favorito los acompaña por toda NadiApp.</p>
+      </div>
+    </header>
+    <div class="grid" id="lista"><p class="cargando">Despertando a los hijitos…</p></div>
+  </div>
+
+  <dialog id="editar">
+    <h3>Cambiar nombre y color</h3>
+    <input class="campo" id="editar-nombre" maxlength="20" aria-label="Nombre">
+    <div class="colores" id="editar-colores" style="margin-top:.8rem"></div>
+    <div class="fila"><button class="btn" type="button" id="editar-cancelar">Cancelar</button><button class="btn primario" type="button" id="editar-guardar">Guardar</button></div>
+  </dialog>
+
+  <script type="module">
+    const H = window.Hijito;
+    const $ = id => document.getElementById(id);
+    const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const MAX = 4;
+    const CUARTOS = { lila: ["#efe6ff", "#e1d1f7", "#f7c8dc"], rosa: ["#ffe9f1", "#f9d2e1", "#cdb8f4"], menta: ["#e3f7ef", "#cdeedf", "#ffd0a8"], cielo: ["#e6f2ff", "#d1e5fb", "#ffd3e4"], durazno: ["#fff0e6", "#fbdcc8", "#c9e7d9"], limon: ["#fff9dc", "#f6ebb7", "#d6c8f6"] };
+    let hijitos = [], ahora = Date.now(), db, F;
+    let acompanante = localStorage.getItem("nadiapp-acompanante");
+    const yo = () => (window.Sesion && Sesion.nombre) || "";
+
+    function aviso(t) { document.querySelectorAll(".aviso").forEach(a => a.remove()); const a = document.createElement("div"); a.className = "aviso"; a.setAttribute("role", "status"); a.textContent = t; document.body.append(a); setTimeout(() => a.remove(), 2700); }
+    function hace(t) { if (!t) return "nunca"; const m = Math.round((Date.now() - t) / 60000); if (m < 2) return "hace un momento"; if (m < 60) return `hace ${m} min`; const h = Math.round(m / 60); return h < 24 ? `hace ${h} h` : `hace ${Math.round(h / 24)} días`; }
+    const hora = () => Number(new Intl.DateTimeFormat("es-MX", { timeZone: "America/Mexico_City", hour: "numeric", hourCycle: "h23" }).format(new Date()));
+    const esNoche = () => { const h = hora(); return h >= 21 || h < 7; };
+
+    function tarjeta(h) {
+      const p = H.pancita(h.comidaAt, ahora), carino = Math.min(100, h.carino ?? 0);
+      const [pared, piso, cojin] = CUARTOS[h.color] || CUARTOS.lila;
+      const dormido = esNoche() && Date.now() - (h.mimoAt || 0) > 10 * 60000;
+      const estado = dormido ? "hj-duerme" : p < 0.5 ? "hj-hambre" : "";
+      return `<article class="hijo ${esNoche() ? "momento-noche" : ""}" data-id="${h.id}">
+        <div class="cuarto" style="--pared:${pared};--piso:${piso};--cojin:${cojin}">
+          <span class="pelota"></span>
+          <div class="hijo-dibujo"><div class="hj ${estado}" role="img" aria-label="${esc(h.nombre)}">${H.dibujo(h.color)}${dormido ? '<span class="hj-zzz"><i>z</i><i>z</i><i>Z</i></span>' : ""}</div></div>
+        </div>
+        <div class="nombre"><h2>${esc(h.nombre)}</h2>${acompanante === h.id ? '<span class="chip paseo">Te acompaña</span>' : `<button class="chip" type="button" data-accion="paseo">Que me acompañe</button>`}</div>
+        <div class="stats">
+          <div class="stat"><span>Pancita</span><span class="b"><i style="width:${Math.round(p * 100)}%;background:linear-gradient(90deg,#ffb36b,#ff7aa0)"></i></span><b>${Math.round(p * 100)}%</b></div>
+          <div class="stat"><span>Cariño</span><span class="b"><i style="width:${carino}%;background:linear-gradient(90deg,#c9a7ff,#8b6fd6)"></i></span><b>${carino}</b></div>
+        </div>
+        <p class="nota">${h.comidaAt ? `Comió ${h.ultimaComida || ""} ${hace(h.comidaAt)}${h.comidaPor ? ` con ${esc(h.comidaPor)}` : ""}.` : "Todavía no come nada."} ${dormido ? "Ahorita está dormidito." : p < 0.2 ? "¡Tiene mucha hambre!" : ""}</p>
+        <div class="acciones">
+          <button type="button" data-accion="comer">🍓 Comer</button>
+          <button type="button" data-accion="mimo">💗 Apapachar</button>
+          <button type="button" data-accion="jugar">⚽ Jugar</button>
+        </div>
+        <div class="comidas">${H.COMIDAS.map(([e, n]) => `<button type="button" data-comida="${e}"><span>${e}</span>${n}</button>`).join("")}</div>
+        <div class="mas"><button class="enlace" type="button" data-accion="editar">Cambiar nombre o color</button><small class="nota">Nació ${new Date(h.creadoAt || Date.now()).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}${h.creadoPor ? ` · lo adoptó ${esc(h.creadoPor)}` : ""}</small></div>
+      </article>`;
+    }
+
+    let colorNuevo = "lila";
+    function formAdoptar() {
+      return `<section class="adoptar">
+        <h2>${hijitos.length ? "Adoptar otro hijito" : "Adopten a su primer hijito"}</h2>
+        <div class="vista-previa" id="vista-previa"><div class="hj hj-feliz">${H.dibujo(colorNuevo)}</div></div>
+        <input class="campo" id="nombre-nuevo" maxlength="20" placeholder="¿Cómo se va a llamar?" aria-label="Nombre del hijito">
+        <div class="colores" role="radiogroup" aria-label="Color">${Object.entries(H.COLORES).map(([k, c]) => `<button type="button" role="radio" aria-pressed="${k === colorNuevo}" data-color="${k}" style="background:${c.c}" aria-label="${c.nombre}"></button>`).join("")}</div>
+        <button class="btn primario" type="button" id="adoptar">Adoptar ♡</button>
+      </section>`;
+    }
+
+    function pintar() {
+      ahora = Date.now();
+      if (!acompanante && hijitos[0]) acompanante = hijitos[0].id;
+      $("lista").innerHTML = hijitos.map(tarjeta).join("") + (hijitos.length < MAX ? formAdoptar() : "");
+    }
+
+    $("lista").addEventListener("click", async e => {
+      const col = e.target.closest("[data-color]");
+      if (col && col.closest(".adoptar")) { colorNuevo = col.dataset.color; document.querySelectorAll(".adoptar [data-color]").forEach(b => b.setAttribute("aria-pressed", b === col)); $("vista-previa").innerHTML = `<div class="hj hj-feliz">${H.dibujo(colorNuevo)}</div>`; return; }
+      if (e.target.closest("#adoptar")) return adoptar();
+      const card = e.target.closest(".hijo"); if (!card) return;
+      const h = hijitos.find(x => x.id === card.dataset.id); if (!h) return;
+      const hj = card.querySelector(".hj");
+      const feliz = (ms = 1300) => { hj.className = "hj hj-feliz"; corazones(hj); setTimeout(() => pintar(), ms); };
+      if (e.target.closest(".hijo-dibujo")) return feliz();
+      const b = e.target.closest("button"); if (!b) return;
+      const ref = F.doc(db, "hijitos", h.id);
+      try {
+        if (b.dataset.accion === "comer") { card.querySelector(".comidas").classList.toggle("abierto"); return; }
+        if (b.dataset.comida) {
+          hj.className = "hj hj-come";
+          await F.updateDoc(ref, { comidaAt: Date.now(), comidaPor: yo(), ultimaComida: b.dataset.comida, carino: F.increment(4) });
+          if (acompanante === h.id) actualizarPaseo({ ...h, comidaAt: Date.now() });
+          aviso(`${h.nombre} comió ${b.dataset.comida} ¡Ñam!`); return;
+        }
+        if (b.dataset.accion === "mimo") { feliz(); await F.updateDoc(ref, { carino: F.increment(2), mimoAt: Date.now() }); return; }
+        if (b.dataset.accion === "jugar") {
+          const pel = card.querySelector(".pelota"); pel.classList.remove("va"); void pel.offsetWidth; pel.classList.add("va");
+          const dib = card.querySelector(".hijo-dibujo"); dib.style.left = "78%"; hj.className = "hj hj-camina";
+          setTimeout(() => { dib.style.left = "50%"; hj.className = "hj hj-feliz"; corazones(hj); }, 1400);
+          setTimeout(() => pintar(), 3000);
+          await F.updateDoc(ref, { carino: F.increment(1), mimoAt: Date.now() }); return;
+        }
+        if (b.dataset.accion === "paseo") { acompanante = h.id; localStorage.setItem("nadiapp-acompanante", h.id); actualizarPaseo(h); pintar(); aviso(`${h.nombre} te va a acompañar ♡`); return; }
+        if (b.dataset.accion === "editar") return editar(h);
+      } catch (er) { console.error(er); aviso("No se pudo, revisa tu internet"); }
+    });
+
+    function corazones(el) {
+      const c = document.createElement("span"); c.className = "hj-corazones";
+      c.innerHTML = [-18, 0, 18].map((x, i) => `<i style="--x:${x}px;animation-delay:${i * .12}s">♥</i>`).join("");
+      el.append(c); setTimeout(() => c.remove(), 1600);
+    }
+    function actualizarPaseo(h) {
+      try { localStorage.setItem("nadiapp-hijito", JSON.stringify({ id: h.id, nombre: h.nombre, color: h.color, comidaAt: h.comidaAt || 0 })); } catch (e) {}
+    }
+
+    async function adoptar() {
+      const nombre = $("nombre-nuevo").value.trim();
+      if (!nombre) { $("nombre-nuevo").focus(); return aviso("Primero un nombre ♡"); }
+      if (hijitos.length >= MAX) return;
+      try {
+        const ref = await F.addDoc(F.collection(db, "hijitos"), { nombre: nombre.slice(0, 20), color: colorNuevo, creadoAt: Date.now(), creadoPor: yo(), comidaAt: Date.now(), comidaPor: yo(), ultimaComida: "🍼", carino: 10 });
+        if (!acompanante) { acompanante = ref.id; localStorage.setItem("nadiapp-acompanante", ref.id); }
+        actualizarPaseo({ id: ref.id, nombre, color: colorNuevo, comidaAt: Date.now() });
+        aviso(`¡Bienvenido ${nombre}! ♡`);
+      } catch (e) { aviso("No se pudo adoptar. ¿Ya están las reglas de Firebase?"); }
+    }
+
+    let editando = null, colorEdit = "lila";
+    function editar(h) {
+      editando = h; colorEdit = h.color;
+      $("editar-nombre").value = h.nombre;
+      $("editar-colores").innerHTML = Object.entries(H.COLORES).map(([k, c]) => `<button type="button" aria-pressed="${k === colorEdit}" data-c="${k}" style="background:${c.c}" aria-label="${c.nombre}"></button>`).join("");
+      $("editar").showModal();
+    }
+    $("editar-colores").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; colorEdit = b.dataset.c; $("editar-colores").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+    $("editar-cancelar").onclick = () => $("editar").close();
+    $("editar-guardar").onclick = async () => {
+      const nombre = $("editar-nombre").value.trim().slice(0, 20); if (!nombre || !editando) return;
+      await F.updateDoc(F.doc(db, "hijitos", editando.id), { nombre, color: colorEdit }).catch(() => aviso("No se pudo guardar"));
+      if (acompanante === editando.id) actualizarPaseo({ ...editando, nombre, color: colorEdit });
+      $("editar").close();
+    };
+
+    (async () => {
+      try {
+        ({ db, F } = await H.firebase());
+        F.onSnapshot(F.collection(db, "hijitos"), s => {
+          hijitos = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.creadoAt || 0) - (b.creadoAt || 0));
+          if (acompanante && !hijitos.some(h => h.id === acompanante)) acompanante = null;
+          pintar();
+        }, () => { $("lista").innerHTML = '<p class="cargando">No pude abrir a los hijitos. Revisa que estén puestas las reglas nuevas de Firebase.</p>'; });
+        setInterval(pintar, 60000);
+      } catch (e) { $("lista").innerHTML = '<p class="cargando">No pude conectar. Revisa tu internet.</p>'; }
+    })();
+  </script>
+</body>
+</html>

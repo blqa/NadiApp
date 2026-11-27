@@ -39,5 +39,6 @@ estando dentro de la sesión.
 | FinaNad | `artifacts/…/public/data/` (cuentas, metas, movimientos, compartidos) |
 | Nadia y Luis | `buzon`, `pienso`, `respuestas`, `compartido/suenos`, `compartido/dedicadas` |
 | Granjita | `granjita/estado` (+ `parcelas`, `cofre`, `encargos`, `jugadores`) y `granjita/mascota` |
+| Hijitos (y el que pasea en todas las páginas) | `hijitos/{id}` |
 | Menú, Escritos, Cumple 28 | Nada (solo piden la sesión) |
 | Invitación (`invite.html`) | Nada y **no pide sesión** (es para invitados) |
