@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <script src="sesion.js?v=20261126r"></script>
-  <script src="mascota.js?v=20261127a" data-sin-paseo></script>
+  <script src="mascota.js?v=20261127b" data-sin-paseo></script>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Hijitos · NadiApp</title>
   <meta name="theme-color" content="#f6efff">
@@ -64,6 +64,9 @@
     .colores { display: flex; flex-wrap: wrap; gap: .45rem; }
     .colores button { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 3px solid transparent; box-shadow: inset 0 0 0 3px var(--tarjeta); }
     .colores button[aria-pressed="true"] { border-color: var(--tinta); }
+    .especies { display: flex; gap: .4rem; }
+    .especies button { flex: 1; border: 1.5px solid var(--borde); background: var(--tarjeta); border-radius: 12px; padding: .55rem; font-weight: 800; font-size: .85rem; }
+    .especies button[aria-pressed="true"] { border-color: var(--acento); background: color-mix(in srgb, var(--acento) 12%, var(--tarjeta)); color: var(--acento); }
     .vista-previa { width: 5rem; height: 5.3rem; margin: 0 auto; }
     .btn.primario { background: var(--acento); color: #fff; padding: .85rem; }
     .aviso { position: fixed; left: 50%; bottom: calc(1.2rem + env(safe-area-inset-bottom)); transform: translateX(-50%); padding: .65rem 1.1rem; border-radius: 999px; background: #34263f; color: #fff; font-weight: 800; font-size: .88rem; box-shadow: 0 14px 30px -12px #0008; animation: aviso 2.6s ease forwards; z-index: 50; white-space: nowrap; }
@@ -89,8 +92,9 @@
   </div>
 
   <dialog id="editar">
-    <h3>Cambiar nombre y color</h3>
+    <h3>Cambiar nombre, especie y color</h3>
     <input class="campo" id="editar-nombre" maxlength="20" aria-label="Nombre">
+    <div class="especies" id="editar-especies" style="margin-top:.8rem"></div>
     <div class="colores" id="editar-colores" style="margin-top:.8rem"></div>
     <div class="fila"><button class="btn" type="button" id="editar-cancelar">Cancelar</button><button class="btn primario" type="button" id="editar-guardar">Guardar</button></div>
   </dialog>
@@ -118,7 +122,7 @@
       return `<article class="hijo ${esNoche() ? "momento-noche" : ""}" data-id="${h.id}">
         <div class="cuarto" style="--pared:${pared};--piso:${piso};--cojin:${cojin}">
           <span class="pelota"></span>
-          <div class="hijo-dibujo"><div class="hj ${estado}" role="img" aria-label="${esc(h.nombre)}">${H.dibujo(h.color)}${dormido ? '<span class="hj-zzz"><i>z</i><i>z</i><i>Z</i></span>' : ""}</div></div>
+          <div class="hijo-dibujo"><div class="hj ${estado}" role="img" aria-label="${esc(h.nombre)}">${H.dibujo(h.color, h.especie || "lunito")}${dormido ? '<span class="hj-zzz"><i>z</i><i>z</i><i>Z</i></span>' : ""}</div></div>
         </div>
         <div class="nombre"><h2>${esc(h.nombre)}</h2>${acompanante === h.id ? '<span class="chip paseo">Te acompaña</span>' : `<button class="chip" type="button" data-accion="paseo">Que me acompañe</button>`}</div>
         <div class="stats">
@@ -132,15 +136,16 @@
           <button type="button" data-accion="jugar">⚽ Jugar</button>
         </div>
         <div class="comidas">${H.COMIDAS.map(([e, n]) => `<button type="button" data-comida="${e}"><span>${e}</span>${n}</button>`).join("")}</div>
-        <div class="mas"><button class="enlace" type="button" data-accion="editar">Cambiar nombre o color</button><small class="nota">Nació ${new Date(h.creadoAt || Date.now()).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}${h.creadoPor ? ` · lo adoptó ${esc(h.creadoPor)}` : ""}</small></div>
+        <div class="mas"><button class="enlace" type="button" data-accion="editar">Cambiar nombre, especie o color</button><small class="nota">Nació ${new Date(h.creadoAt || Date.now()).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}${h.creadoPor ? ` · lo adoptó ${esc(h.creadoPor)}` : ""}</small></div>
       </article>`;
     }
 
-    let colorNuevo = "lila";
+    let colorNuevo = "cielo", especieNueva = "marcianito";
     function formAdoptar() {
       return `<section class="adoptar">
         <h2>${hijitos.length ? "Adoptar otro hijito" : "Adopten a su primer hijito"}</h2>
-        <div class="vista-previa" id="vista-previa"><div class="hj hj-feliz">${H.dibujo(colorNuevo)}</div></div>
+        <div class="vista-previa" id="vista-previa"><div class="hj hj-feliz">${H.dibujo(colorNuevo, especieNueva)}</div></div>
+        <div class="especies" role="radiogroup" aria-label="Especie">${Object.entries(H.ESPECIES).map(([k, n]) => `<button type="button" role="radio" aria-pressed="${k === especieNueva}" data-especie="${k}">${n}</button>`).join("")}</div>
         <input class="campo" id="nombre-nuevo" maxlength="20" placeholder="¿Cómo se va a llamar?" aria-label="Nombre del hijito">
         <div class="colores" role="radiogroup" aria-label="Color">${Object.entries(H.COLORES).map(([k, c]) => `<button type="button" role="radio" aria-pressed="${k === colorNuevo}" data-color="${k}" style="background:${c.c}" aria-label="${c.nombre}"></button>`).join("")}</div>
         <button class="btn primario" type="button" id="adoptar">Adoptar ♡</button>
@@ -155,7 +160,9 @@
 
     $("lista").addEventListener("click", async e => {
       const col = e.target.closest("[data-color]");
-      if (col && col.closest(".adoptar")) { colorNuevo = col.dataset.color; document.querySelectorAll(".adoptar [data-color]").forEach(b => b.setAttribute("aria-pressed", b === col)); $("vista-previa").innerHTML = `<div class="hj hj-feliz">${H.dibujo(colorNuevo)}</div>`; return; }
+      if (col && col.closest(".adoptar")) { colorNuevo = col.dataset.color; document.querySelectorAll(".adoptar [data-color]").forEach(b => b.setAttribute("aria-pressed", b === col)); $("vista-previa").innerHTML = `<div class="hj hj-feliz">${H.dibujo(colorNuevo, especieNueva)}</div>`; return; }
+      const esp = e.target.closest("[data-especie]");
+      if (esp) { especieNueva = esp.dataset.especie; document.querySelectorAll("[data-especie]").forEach(b => b.setAttribute("aria-pressed", b === esp)); $("vista-previa").innerHTML = `<div class="hj hj-feliz">${H.dibujo(colorNuevo, especieNueva)}</div>`; return; }
       if (e.target.closest("#adoptar")) return adoptar();
       const card = e.target.closest(".hijo"); if (!card) return;
       const h = hijitos.find(x => x.id === card.dataset.id); if (!h) return;
@@ -191,7 +198,7 @@
       el.append(c); setTimeout(() => c.remove(), 1600);
     }
     function actualizarPaseo(h) {
-      try { localStorage.setItem("nadiapp-hijito", JSON.stringify({ id: h.id, nombre: h.nombre, color: h.color, comidaAt: h.comidaAt || 0 })); } catch (e) {}
+      try { localStorage.setItem("nadiapp-hijito", JSON.stringify({ id: h.id, nombre: h.nombre, color: h.color, especie: h.especie || "lunito", comidaAt: h.comidaAt || 0 })); } catch (e) {}
     }
 
     async function adoptar() {
@@ -199,26 +206,28 @@
       if (!nombre) { $("nombre-nuevo").focus(); return aviso("Primero un nombre ♡"); }
       if (hijitos.length >= MAX) return;
       try {
-        const ref = await F.addDoc(F.collection(db, "hijitos"), { nombre: nombre.slice(0, 20), color: colorNuevo, creadoAt: Date.now(), creadoPor: yo(), comidaAt: Date.now(), comidaPor: yo(), ultimaComida: "🍼", carino: 10 });
+        const ref = await F.addDoc(F.collection(db, "hijitos"), { nombre: nombre.slice(0, 20), color: colorNuevo, especie: especieNueva, creadoAt: Date.now(), creadoPor: yo(), comidaAt: Date.now(), comidaPor: yo(), ultimaComida: "🍼", carino: 10 });
         if (!acompanante) { acompanante = ref.id; localStorage.setItem("nadiapp-acompanante", ref.id); }
-        actualizarPaseo({ id: ref.id, nombre, color: colorNuevo, comidaAt: Date.now() });
+        actualizarPaseo({ id: ref.id, nombre, color: colorNuevo, especie: especieNueva, comidaAt: Date.now() });
         aviso(`¡Bienvenido ${nombre}! ♡`);
       } catch (e) { aviso("No se pudo adoptar. ¿Ya están las reglas de Firebase?"); }
     }
 
-    let editando = null, colorEdit = "lila";
+    let editando = null, colorEdit = "lila", especieEdit = "lunito";
     function editar(h) {
-      editando = h; colorEdit = h.color;
+      editando = h; colorEdit = h.color; especieEdit = h.especie || "lunito";
+      $("editar-especies").innerHTML = Object.entries(H.ESPECIES).map(([k, n]) => `<button type="button" aria-pressed="${k === especieEdit}" data-e="${k}">${n}</button>`).join("");
       $("editar-nombre").value = h.nombre;
       $("editar-colores").innerHTML = Object.entries(H.COLORES).map(([k, c]) => `<button type="button" aria-pressed="${k === colorEdit}" data-c="${k}" style="background:${c.c}" aria-label="${c.nombre}"></button>`).join("");
       $("editar").showModal();
     }
     $("editar-colores").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; colorEdit = b.dataset.c; $("editar-colores").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+    $("editar-especies").addEventListener("click", e => { const b = e.target.closest("[data-e]"); if (!b) return; especieEdit = b.dataset.e; $("editar-especies").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); });
     $("editar-cancelar").onclick = () => $("editar").close();
     $("editar-guardar").onclick = async () => {
       const nombre = $("editar-nombre").value.trim().slice(0, 20); if (!nombre || !editando) return;
-      await F.updateDoc(F.doc(db, "hijitos", editando.id), { nombre, color: colorEdit }).catch(() => aviso("No se pudo guardar"));
-      if (acompanante === editando.id) actualizarPaseo({ ...editando, nombre, color: colorEdit });
+      await F.updateDoc(F.doc(db, "hijitos", editando.id), { nombre, color: colorEdit, especie: especieEdit }).catch(() => aviso("No se pudo guardar"));
+      if (acompanante === editando.id) actualizarPaseo({ ...editando, nombre, color: colorEdit, especie: especieEdit });
       $("editar").close();
     };
 

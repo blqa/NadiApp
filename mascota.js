@@ -32,7 +32,9 @@
      Redondito, con orejitas largas que brillan en la punta,
      panza con estrellita y cachetes rosados. */
   let n = 0;
-  function dibujo(color) {
+  const ESPECIES = { marcianito: "Marcianito", lunito: "Lunito" };
+  function dibujo(color, especie) {
+    if (especie !== "lunito") return marcianito(color);
     const k = COLORES[color] || COLORES.lila;
     const id = "hj" + (++n);
     return `<svg class="hj-svg" viewBox="0 0 64 66" aria-hidden="true">
@@ -65,6 +67,44 @@
     </svg>`;
   }
 
+
+  /* ---------- Marcianito (diseño original) ----------
+     Gordito tipo gomita, dos antenitas curvas con bolitas de luz,
+     ojotes brillantes y pecas de estrellitas en la cabeza. */
+  function marcianito(color) {
+    const k = COLORES[color] || COLORES.cielo;
+    const id = "hj" + (++n);
+    const estrella = (x, y, r) => `<path d="M${x} ${y - r} L${x + r * .3} ${y - r * .3} L${x + r} ${y} L${x + r * .3} ${y + r * .3} L${x} ${y + r} L${x - r * .3} ${y + r * .3} L${x - r} ${y} L${x - r * .3} ${y - r * .3}Z" fill="#fff" opacity=".75"/>`;
+    return `<svg class="hj-svg" viewBox="0 0 64 66" aria-hidden="true">
+      <defs><radialGradient id="${id}b" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+      <ellipse class="hj-sombra" cx="32" cy="63" rx="16" ry="2.6" fill="#2b1d2c" opacity=".16"/>
+      <g class="hj-cuerpo-todo">
+        <g class="hj-pie hj-pie-i"><ellipse cx="23" cy="59.5" rx="6.5" ry="3.6" fill="${k.oscuro}"/></g>
+        <g class="hj-pie hj-pie-d"><ellipse cx="41" cy="59.5" rx="6.5" ry="3.6" fill="${k.oscuro}"/></g>
+        <g class="hj-oreja hj-oreja-i"><path d="M26 19 C24 12 18 10 15 6" fill="none" stroke="${k.oscuro}" stroke-width="2.4" stroke-linecap="round"/><circle class="hj-luz" cx="14.5" cy="5.5" r="3.4" fill="#ffe680"/><circle cx="13.6" cy="4.6" r="1.1" fill="#fff"/></g>
+        <g class="hj-oreja hj-oreja-d"><path d="M38 19 C40 12 46 10 49 6" fill="none" stroke="${k.oscuro}" stroke-width="2.4" stroke-linecap="round"/><circle class="hj-luz" cx="49.5" cy="5.5" r="3.4" fill="#ffb3d1"/><circle cx="48.6" cy="4.6" r="1.1" fill="#fff"/></g>
+        <g class="hj-brazo hj-brazo-i"><ellipse cx="8.5" cy="44" rx="4.2" ry="6" transform="rotate(30 8.5 44)" fill="${k.c}"/></g>
+        <g class="hj-brazo hj-brazo-d"><ellipse cx="55.5" cy="44" rx="4.2" ry="6" transform="rotate(-30 55.5 44)" fill="${k.c}"/></g>
+        <path d="M32 17 C46 17 54 27 55.5 41 C57 54 48 61 32 61 C16 61 7 54 8.5 41 C10 27 18 17 32 17Z" fill="${k.c}"/>
+        <path d="M32 17 C46 17 54 27 55.5 41 C57 54 48 61 32 61 C16 61 7 54 8.5 41 C10 27 18 17 32 17Z" fill="url(#${id}b)"/>
+        ${estrella(22, 24, 1.8)}${estrella(43, 22.5, 1.4)}${estrella(32, 21, 1.1)}
+        <ellipse cx="32" cy="51" rx="11" ry="7.5" fill="${k.panza}" opacity=".9"/>
+        <ellipse class="hj-cachete" cx="15.5" cy="42" rx="3.4" ry="2.2" fill="#ff7aa0" opacity=".5"/>
+        <ellipse class="hj-cachete" cx="48.5" cy="42" rx="3.4" ry="2.2" fill="#ff7aa0" opacity=".5"/>
+        <g class="hj-ojos">
+          <ellipse cx="23.5" cy="34" rx="6.2" ry="6.8" fill="#fff"/><ellipse cx="40.5" cy="34" rx="6.2" ry="6.8" fill="#fff"/>
+          <g class="hj-pupilas"><ellipse cx="24.3" cy="35" rx="4.3" ry="4.8" fill="#2b1d2c"/><ellipse cx="41.3" cy="35" rx="4.3" ry="4.8" fill="#2b1d2c"/>
+          <circle cx="25.9" cy="33" r="1.6" fill="#fff"/><circle cx="42.9" cy="33" r="1.6" fill="#fff"/><circle cx="23" cy="37" r=".7" fill="#fff"/><circle cx="40" cy="37" r=".7" fill="#fff"/></g>
+        </g>
+        <g class="hj-ojos-felices" fill="none" stroke="#2b1d2c" stroke-width="2.3" stroke-linecap="round"><path d="M18 35 Q23.5 29 29 35"/><path d="M35 35 Q40.5 29 46 35"/></g>
+        <g class="hj-ojos-dormidos" fill="none" stroke="#2b1d2c" stroke-width="2" stroke-linecap="round"><path d="M18 34 Q23.5 38 29 34"/><path d="M35 34 Q40.5 38 46 34"/></g>
+        <path class="hj-boca" d="M28.5 43 Q32 46.5 35.5 43" fill="none" stroke="#2b1d2c" stroke-width="1.8" stroke-linecap="round"/>
+        <g class="hj-boca-abierta"><path d="M28 42.5 Q32 49 36 42.5Z" fill="#6b2a3a"/><ellipse cx="32" cy="45.6" rx="2" ry="1.1" fill="#ff8fab"/></g>
+        <path class="hj-boca-triste" d="M28.5 45 Q32 42.5 35.5 45" fill="none" stroke="#2b1d2c" stroke-width="1.8" stroke-linecap="round"/>
+      </g>
+    </svg>`;
+  }
+
   /* ---------- Estilos ---------- */
   const css = `
   .hj { position: relative; width: 100%; height: 100%; }
@@ -74,8 +114,8 @@
   @keyframes hj-parpadeo { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
   .hj .hj-cuerpo-todo { transform-origin: 32px 60px; animation: hj-respira 3s ease-in-out infinite; }
   @keyframes hj-respira { 50% { transform: scale(1.025, .975); } }
-  .hj .hj-oreja-i { transform-origin: 24px 24px; animation: hj-oreja 3.6s ease-in-out infinite; }
-  .hj .hj-oreja-d { transform-origin: 40px 24px; animation: hj-oreja 3.6s ease-in-out infinite reverse; }
+  .hj .hj-oreja-i { transform-origin: 26px 19px; animation: hj-oreja 3.6s ease-in-out infinite; }
+  .hj .hj-oreja-d { transform-origin: 38px 19px; animation: hj-oreja 3.6s ease-in-out infinite reverse; }
   @keyframes hj-oreja { 50% { transform: rotate(-6deg); } }
   .hj .hj-luz { animation: hj-luz 2.4s ease-in-out infinite; }
   @keyframes hj-luz { 50% { opacity: .45; } }
@@ -171,7 +211,7 @@
     return Math.max(0, 1 - (ahora - comidaAt) / (HAMBRE_H * 2 * 3600e3));
   }
 
-  window.Hijito = { COLORES, dibujo, firebase, pancita, HAMBRE_H, COMIDAS };
+  window.Hijito = { COLORES, ESPECIES, dibujo, firebase, pancita, HAMBRE_H, COMIDAS };
 
   if (script && script.hasAttribute("data-sin-paseo")) return;
   if (matchMedia("print").matches) return;
@@ -186,14 +226,14 @@
   const guardar = h => { try { localStorage.setItem(LLAVE, JSON.stringify(h)); } catch (e) {} };
   try { if (localStorage.getItem(LLAVE_OCULTO) === hoyStr()) return; } catch (e) {}
 
-  let hijo = leer() || { id: null, nombre: "Lunito", color: "lila", comidaAt: Date.now() - 2 * 3600e3 };
+  let hijo = leer() || { id: null, nombre: "Marcianito", color: "cielo", especie: "marcianito", comidaAt: Date.now() - 2 * 3600e3 };
   const raiz = script && script.src ? script.src.replace(/mascota\.js.*$/, "") : "";
 
   function iniciar() {
     const caja = document.createElement("div");
     caja.id = "hijito-paseo";
     caja.style.setProperty("--hj-alto", (Number(script && script.dataset.alto) || 0) + "px");
-    caja.innerHTML = `<button class="hj-boton" type="button" aria-label="${hijo.nombre}, tu hijito. Toca para cuidarlo"><div class="hj-giro"><div class="hj">${dibujo(hijo.color)}</div></div></button>`;
+    caja.innerHTML = `<button class="hj-boton" type="button" aria-label="${hijo.nombre}, tu hijito. Toca para cuidarlo"><div class="hj-giro"><div class="hj">${dibujo(hijo.color, hijo.especie)}</div></div></button>`;
     document.body.appendChild(caja);
     const hj = caja.querySelector(".hj"), giro = caja.querySelector(".hj-giro"), boton = caja.querySelector(".hj-boton");
 
@@ -353,11 +393,11 @@
       let elegido = null;
       try { elegido = localStorage.getItem("nadiapp-acompanante"); } catch (e) {}
       const h = lista.find(x => x.id === elegido) || lista[0];
-      const cambioDibujo = h.color !== hijo.color;
-      hijo = { id: h.id, nombre: h.nombre || "Lunito", color: h.color || "lila", comidaAt: h.comidaAt || 0 };
+      const cambioDibujo = h.color !== hijo.color || (h.especie || "lunito") !== (hijo.especie || "lunito");
+      hijo = { id: h.id, nombre: h.nombre || "Marcianito", color: h.color || "cielo", especie: h.especie || "lunito", comidaAt: h.comidaAt || 0 };
       guardar(hijo);
       boton.setAttribute("aria-label", `${hijo.nombre}, tu hijito. Toca para cuidarlo`);
-      if (cambioDibujo) { hj.querySelector("svg").outerHTML = dibujo(hijo.color); }
+      if (cambioDibujo) { hj.querySelector("svg").outerHTML = dibujo(hijo.color, hijo.especie); }
       poner(modo);
     }).catch(() => {});
   }
