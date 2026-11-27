@@ -75,6 +75,13 @@ service cloud.firestore {
       allow write: if esDeLosDos() && request.auth.token.email == 'luis@godsplan.site';
     }
 
+    // ===================== Granjita =====================
+    // granjita/estado, granjita/mascota y sus subcolecciones
+    // (parcelas, cofre, encargos, jugadores): los dos juegan juntos
+    match /granjita/{resto=**} {
+      allow read, write: if esDeLosDos();
+    }
+
     // Todo lo demás, cerrado
     match /{otro=**} {
       allow read, write: if false;
